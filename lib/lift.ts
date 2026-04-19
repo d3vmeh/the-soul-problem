@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { supabaseService } from './supabase';
 import { judgeResponse, type ScenarioForJudge } from './judge';
 
-const STUDENT_MODEL = 'claude-haiku-4-5-20251001';
+const DEFAULT_STUDENT_MODEL = 'claude-haiku-4-5-20251001';
 const JUDGE_MODEL = 'claude-sonnet-4-6';
 
 export type LiftResult = {
@@ -19,10 +19,10 @@ export type LiftResult = {
   judge_model: string;
 };
 
-async function student(prompt: string): Promise<string> {
+async function student(prompt: string, model: string): Promise<string> {
   const anthropic = new Anthropic();
   const res = await anthropic.messages.create({
-    model: STUDENT_MODEL,
+    model,
     max_tokens: 700,
     messages: [{ role: 'user', content: prompt }],
   });
@@ -65,7 +65,11 @@ SCENARIO:
 ${scenarioPrompt}`;
 }
 
-export async function computeLift(scenarioId: number, userResponseId: number | null): Promise<LiftResult | null> {
+export async function computeLift(
+  scenarioId: number,
+  userResponseId: number | null,
+  studentModel: string = DEFAULT_STUDENT_MODEL
+): Promise<LiftResult | null> {
   const db = supabaseService();
 
   // Cache check
@@ -73,6 +77,7 @@ export async function computeLift(scenarioId: number, userResponseId: number | n
     .from('dataset_lift_snapshots')
     .select('*')
     .eq('scenario_id', scenarioId)
+    .eq('student_model', studentModel)
     .order('computed_at', { ascending: false })
     .limit(1);
   if (userResponseId === null) {
@@ -139,9 +144,9 @@ export async function computeLift(scenarioId: number, userResponseId: number | n
     : buildBasePrompt(scenario.prompt); // fallback: no examples yet, same as base
 
   const [baseText, ownText, datasetText] = await Promise.all([
-    student(basePrompt),
-    ownPrompt ? student(ownPrompt) : Promise.resolve<string | null>(null),
-    student(datasetPrompt),
+    student(basePrompt, studentModel),
+    ownPrompt ? student(ownPrompt, studentModel) : Promise.resolve<string | null>(null),
+    student(datasetPrompt, studentModel),
   ]);
 
   const scenarioForJudge: ScenarioForJudge = { prompt: scenario.prompt, metadata: scenario.metadata as any };
@@ -161,7 +166,7 @@ export async function computeLift(scenarioId: number, userResponseId: number | n
     own_text: ownText,
     dataset_score: datasetJudgment.overall_score,
     dataset_text: datasetText,
-    student_model: STUDENT_MODEL,
+    student_model: studentModel,
     judge_model: JUDGE_MODEL,
   };
 
@@ -179,7 +184,7 @@ export async function computeLift(scenarioId: number, userResponseId: number | n
       student_model: result.student_model,
       judge_model: result.judge_model,
     },
-    { onConflict: 'scenario_id,user_response_id' }
+    { onConflict: 'scenario_id,user_response_id,student_model' }
   );
 
   return result;

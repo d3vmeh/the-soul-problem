@@ -45,7 +45,10 @@ async function loadLeaderboard() {
   for (const r of ((rows ?? []) as any[])) {
     const model = r.responses.model;
     if (model.startsWith('human:private')) continue;
+    // Haiku and Sonnet seeded numbers are replaced below by their lift baselines so the
+    // before/after corpus numbers are directly comparable.
     if (model === 'claude-haiku-4-5') continue;
+    if (model === 'claude-sonnet-4-6') continue;
     if (model === 'human:public') {
       const arr = humanPerResponse.get(r.response_id) ?? [];
       arr.push(r.overall_score);
@@ -68,25 +71,38 @@ async function loadLeaderboard() {
   const humanTopMean = humanResponseMeans.length ? humanResponseMeans[0] : null;
   const humanTotalN = humanResponseMeans.length;
 
-  // Both the Haiku baseline and Haiku + corpus come from the same set of lift snapshots
-  // — identical student model, identical judge (Sonnet), identical scenarios. This makes
-  // the two numbers directly comparable.
-  const { data: liftSnaps } = await db.from('dataset_lift_snapshots').select('base_score, dataset_score');
-  const base = (liftSnaps ?? []).map(s => s.base_score).filter((n): n is number => Number.isFinite(n));
-  const withCorpus = (liftSnaps ?? []).map(s => s.dataset_score).filter((n): n is number => Number.isFinite(n));
-  const baseMean = base.length ? base.reduce((a, b) => a + b, 0) / base.length : null;
-  const withCorpusMean = withCorpus.length ? withCorpus.reduce((a, b) => a + b, 0) / withCorpus.length : null;
+  // Lift snapshots live per student model. Filter by student_model so the rows stay
+  // apples-to-apples (same model before/after corpus conditioning).
+  const { data: liftSnaps } = await db
+    .from('dataset_lift_snapshots')
+    .select('base_score, dataset_score, student_model');
+  const HAIKU = 'claude-haiku-4-5-20251001';
+  const SONNET = 'claude-sonnet-4-6';
+  const haikuSnaps = (liftSnaps ?? []).filter(s => s.student_model === HAIKU);
+  const sonnetSnaps = (liftSnaps ?? []).filter(s => s.student_model === SONNET);
+
+  const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+  const baseMean = mean(haikuSnaps.map(s => s.base_score).filter(Number.isFinite));
+  const withCorpusMean = mean(haikuSnaps.map(s => s.dataset_score).filter(Number.isFinite));
+  const sonnetBaseMean = mean(sonnetSnaps.map(s => s.base_score).filter(Number.isFinite));
+  const sonnetWithCorpusMean = mean(sonnetSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   return {
     byModel,
-    baseMean, baseN: base.length,
-    withCorpusMean, withCorpusN: withCorpus.length,
+    baseMean, baseN: haikuSnaps.length,
+    withCorpusMean, withCorpusN: haikuSnaps.length,
+    sonnetBaseMean, sonnetBaseN: sonnetSnaps.length,
+    sonnetWithCorpusMean, sonnetWithCorpusN: sonnetSnaps.length,
     humanTopMean, humanTotalN,
   };
 }
 
 export default async function LeaderboardPage() {
-  const { byModel, baseMean, baseN, withCorpusMean, withCorpusN, humanTopMean, humanTotalN } =
-    await loadLeaderboard();
+  const {
+    byModel,
+    baseMean, baseN, withCorpusMean, withCorpusN,
+    sonnetBaseMean, sonnetBaseN, sonnetWithCorpusMean, sonnetWithCorpusN,
+    humanTopMean, humanTotalN,
+  } = await loadLeaderboard();
 
   const ranked = [
     // LLM rows from the standard judgment aggregation (excluding human:public which we handle below)
@@ -129,6 +145,28 @@ export default async function LeaderboardPage() {
           kind: 'same model, same judge, dataset in context',
           score: withCorpusMean,
           n: withCorpusN,
+          isHuman: false,
+          isLift: true,
+        }]
+      : []),
+    ...(sonnetBaseMean !== null
+      ? [{
+          key: 'sonnet-base',
+          label: 'Claude Sonnet 4.6',
+          kind: 'Anthropic — alone, no in-context examples',
+          score: sonnetBaseMean,
+          n: sonnetBaseN,
+          isHuman: false,
+          isLift: false,
+        }]
+      : []),
+    ...(sonnetWithCorpusMean !== null
+      ? [{
+          key: 'sonnet-corpus',
+          label: 'Claude Sonnet 4.6 + corpus',
+          kind: 'same model, same judge, dataset in context',
+          score: sonnetWithCorpusMean,
+          n: sonnetWithCorpusN,
           isHuman: false,
           isLift: true,
         }]
