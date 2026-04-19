@@ -68,8 +68,8 @@ export default async function LandingPage() {
           <StatCard label="Scenarios" value={stats.scenarios} />
           <StatCard label="Contributions" value={stats.contributions} />
           <StatCard
-            label="Human mean"
-            value={stats.meanScore !== null ? stats.meanScore.toFixed(1) : '—'}
+            label="Top human"
+            value={stats.humanTop !== null ? stats.humanTop.toFixed(1) : '—'}
             suffix="/ 100"
           />
         </section>
