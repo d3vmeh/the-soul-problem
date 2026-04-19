@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabaseService } from '@/lib/supabase';
 import ContributeButton from './contribute';
+import LiftChart from './lift-chart';
 
 function scoreBand(n: number): { label: string; cls: string } {
   if (n >= 85) return { label: 'Strong', cls: 'bg-emerald-100 text-emerald-900 border-emerald-200' };
@@ -189,6 +190,8 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             )}
           </div>
         </section>
+
+        {isHuman && <LiftChart responseId={responseId} yourScore={myScore} />}
 
         {isHuman && !isPublic && (
           <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 space-y-3">
