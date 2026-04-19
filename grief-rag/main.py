@@ -6,9 +6,13 @@ from grief_rag.index import build_index, save_index, load_index, search
 from grief_rag.query import build_context_block, generate_response
 from grief_rag.load_rankings import load_rankings, apply_rankings
 
-DATASET_PATH = Path("/Users/SPARSH/Downloads/grief_loss_dataset.md")
-INDEX_PATH = Path("/Users/SPARSH/grief-rag/grief_index.npz")
-RANKINGS_PATH = Path("/Users/SPARSH/grief-rag/rankings.json")
+# Resolve paths relative to this file so the tool runs from any clone.
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+
+DATASET_PATH = REPO_ROOT / "prompts" / "grief_loss_v1.md"
+INDEX_PATH = HERE / "grief_index.npz"
+RANKINGS_PATH = HERE / "rankings.json"
 
 
 def get_or_build_index():

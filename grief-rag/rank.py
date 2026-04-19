@@ -13,8 +13,10 @@ import anthropic
 
 from grief_rag.parse import parse_file
 
-DATASET_PATH = Path("/Users/SPARSH/Downloads/grief_loss_dataset.md")
-RANKINGS_PATH = Path("/Users/SPARSH/grief-rag/rankings.json")
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+DATASET_PATH = REPO_ROOT / "prompts" / "grief_loss_v1.md"
+RANKINGS_PATH = HERE / "rankings.json"
 
 RANK_PROMPT = """\
 You are evaluating grief and loss support responses for emotional intelligence.
