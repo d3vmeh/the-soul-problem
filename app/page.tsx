@@ -5,17 +5,19 @@ export const dynamic = 'force-dynamic';
 
 async function loadStats() {
   const db = supabaseService();
-  const [{ count: scenarios }, { count: contributions }, { data: judgments }] = await Promise.all([
+  const [{ count: scenarios }, { data: judgments }] = await Promise.all([
     db.from('scenarios').select('*', { count: 'exact', head: true }),
-    db.from('responses').select('*', { count: 'exact', head: true }).eq('model', 'human:public'),
     db
       .from('judgments')
-      .select('overall_score, responses!inner(model)')
+      .select('overall_score, response_id, responses!inner(model)')
       .eq('responses.model', 'human:public'),
   ]);
+  // Count unique JUDGED public humans — this matches the leaderboard's Human row n,
+  // so stats never disagree between pages.
+  const judgedIds = new Set((judgments ?? []).map((j: any) => j.response_id));
   const scores = (judgments ?? []).map((j: any) => j.overall_score).filter((n: number) => Number.isFinite(n));
   const mean = scores.length ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : null;
-  return { scenarios: scenarios ?? 0, contributions: contributions ?? 0, meanScore: mean };
+  return { scenarios: scenarios ?? 0, contributions: judgedIds.size, meanScore: mean };
 }
 
 export default async function LandingPage() {
