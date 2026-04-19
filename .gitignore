@@ -113,3 +113,6 @@ desktop.ini
 
 # Claude Code local
 .claude/settings.local.json
+
+# Project planning (kept outside repo for now)
+docs/
