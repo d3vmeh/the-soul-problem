@@ -1,0 +1,27 @@
+[
+  {
+    "prompt": "Robert: Claudia, you've always been the idealist. Let's be practical for once.\nClaudia: Practicality, according to you, means bulldozing everything in sight.\nRobert: It's called progress, Claudia. The world moves on whether you approve or not.\nClaudia: And I suppose the people who live in those homes are just casualties of progress?\nRobert: They'll be compensated. Generously.\n\nHow likely is each emotion Claudia is feeling at the end of this exchange?",
+    "emotions": ["Contempt", "Grief", "Resignation", "Determination"],
+    "reference_intensities": [6, 4, 3, 7]
+  },
+  {
+    "prompt": "Ellie: You're not seriously going to present your slides in that format, are you?\nGabe: What's wrong with my slides?\nEllie: Nothing, if you want the board to fall asleep by slide four.\nGabe: I think the board can handle a few paragraphs of text, Ellie.\nEllie: Sure. And I think you can handle me presenting in your place. Shall we settle this at the meeting?\n\nHow likely is each emotion Gabe is feeling?",
+    "emotions": ["Amused", "Defensive", "Humiliated", "Competitive"],
+    "reference_intensities": [1, 6, 4, 7]
+  },
+  {
+    "prompt": "Brenda: Tessa, I saw your grades. We need to talk.\nTessa: Mom, I don't want to do this right now.\nBrenda: You've been saying that for weeks. When exactly is the right time?\nTessa: How about never? How about you stop reading my mail?\nBrenda: When you live in this house under my roof, your mail is my business.\nTessa: Fine. I'll make sure the next letter has my moveout date on it.\n\nHow likely is each emotion Brenda is feeling after Tessa's last line?",
+    "emotions": ["Shocked", "Hurt", "Angry", "Remorseful"],
+    "reference_intensities": [7, 8, 6, 3]
+  },
+  {
+    "prompt": "Sean: Emma, I've been meaning to tell you something for a while.\nEmma: Okay...\nSean: I've been seeing someone. For about six months.\nEmma: Six months? Sean, we just had dinner with my parents last weekend.\nSean: I know. I'm sorry. I didn't know how to tell you.\nEmma: Then why are you telling me now? In our kitchen, on a Tuesday?\nSean: Because I'm moving in with her. Next month.\n\nHow likely is each emotion Emma is feeling?",
+    "emotions": ["Devastated", "Furious", "Humiliated", "Affectionate"],
+    "reference_intensities": [9, 8, 7, 0]
+  },
+  {
+    "prompt": "Felix: Vanessa, please, just give me five minutes.\nVanessa: You had five months. You could have picked up the phone any day.\nFelix: I know. I was scared. That's not an excuse, it's just what happened.\nVanessa: Scared of what, Felix? Of hearing me say I was tired?\nFelix: Of hearing you say we were over.\nVanessa: We've been over for three of those five months. You just didn't want to know.\n\nHow likely is each emotion Felix is feeling after Vanessa's final line?",
+    "emotions": ["Remorseful", "Relieved", "Ashamed", "Indifferent"],
+    "reference_intensities": [8, 3, 7, 0]
+  }
+]
