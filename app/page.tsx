@@ -37,13 +37,14 @@ export default async function LandingPage() {
         </header>
 
         <section className="mb-16">
-          <h1 className="text-[2.6rem] md:text-[3rem] font-semibold tracking-tight leading-[1.05] mb-5">
-            A dataset for the messages AI gets wrong.
+          <h1 className="text-[2.6rem] md:text-[3rem] font-semibold tracking-tight leading-[1.05] mb-4">
+            Millions are turning to AI in their worst moments.
+            <br />
+            <span className="text-muted">It&apos;s failing them.</span>{' '}
+            <span className="text-accent">Help fix it.</span>
           </h1>
-          <p className="text-[1.05rem] text-muted leading-[1.55] max-w-2xl mb-7">
-            Voicemails after a death. Scripts for a layoff. Cards for a miscarriage. Write your
-            version. We score it against a rubric built for that exact moment. The best responses
-            become training data.
+          <p className="text-[1.1rem] text-muted leading-[1.5] max-w-2xl mb-7">
+            Help build the open dataset for emotionally intelligent AI.
           </p>
           <div className="flex flex-wrap gap-2">
             <Link href="/try" className="btn btn-primary">Write a response</Link>
