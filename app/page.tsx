@@ -1,6 +1,29 @@
 import Link from 'next/link';
+import { supabaseService } from '@/lib/supabase';
 
-export default function LandingPage() {
+export const revalidate = 30;
+
+async function loadStats() {
+  const db = supabaseService();
+  const [{ count: scenarios }, { count: contributions }, { data: judgments }] = await Promise.all([
+    db.from('scenarios').select('*', { count: 'exact', head: true }),
+    db.from('responses').select('*', { count: 'exact', head: true }).eq('model', 'human:public'),
+    db
+      .from('judgments')
+      .select('overall_score, responses!inner(model)')
+      .eq('responses.model', 'human:public'),
+  ]);
+  const scores = (judgments ?? []).map((j: any) => j.overall_score).filter((n: number) => Number.isFinite(n));
+  const mean = scores.length ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : null;
+  return {
+    scenarios: scenarios ?? 0,
+    contributions: contributions ?? 0,
+    meanScore: mean,
+  };
+}
+
+export default async function LandingPage() {
+  const stats = await loadStats();
   return (
     <main className="min-h-screen bg-white text-neutral-900">
       <div className="max-w-3xl mx-auto px-6 py-24 space-y-14">
@@ -9,21 +32,20 @@ export default function LandingPage() {
             The Soul Problem
           </p>
           <h1 className="text-4xl md:text-5xl font-semibold leading-[1.1]">
-            Write the hardest thing you'll write this year.
-            <br />
-            We'll tell you how it lands.
+            A dataset for the messages AI gets wrong.
           </h1>
           <p className="text-lg text-neutral-600 max-w-2xl">
-            A voicemail after a suicide. A script for a layoff you didn't choose. A card for a
-            miscarriage. An eulogy for a man who died doing what he loved. Write what you think
-            the ideal response would be. We score it against a scenario-specific rubric.
+            Voicemails after a suicide. Scripts for a layoff you didn't choose. Cards for a miscarriage.
+            LLMs handle these clumsily — they platitude, they euphemize, they center the wrong person.
+            Write your version. Claude scores it against a per-scenario rubric. The best responses become
+            training data for better models.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
               href="/try"
               className="inline-block px-6 py-3 rounded-lg bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition"
             >
-              Try a scenario
+              Write a response
             </Link>
             <Link
               href="#how-it-works"
@@ -33,6 +55,28 @@ export default function LandingPage() {
             </Link>
           </div>
         </header>
+
+        <section className="grid grid-cols-3 gap-4 text-sm">
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Scenarios</div>
+            <div className="text-2xl font-semibold">{stats.scenarios}</div>
+            <p className="text-neutral-600 mt-1">Each with its own 12+ criteria rubric — not a generic empathy scale.</p>
+          </div>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Human contributions</div>
+            <div className="text-2xl font-semibold">{stats.contributions}</div>
+            <p className="text-neutral-600 mt-1">
+              {stats.contributions === 0 ? 'Be the first.' : 'and growing — every response anonymized.'}
+            </p>
+          </div>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Human mean score</div>
+            <div className="text-2xl font-semibold">
+              {stats.meanScore !== null ? stats.meanScore.toFixed(1) : '—'}
+            </div>
+            <p className="text-neutral-600 mt-1">0–100 overall, Sonnet-judged. See how you compare.</p>
+          </div>
+        </section>
 
         <section id="how-it-works" className="space-y-4 text-neutral-700">
           <h2 className="text-xl font-semibold text-neutral-900">How it works</h2>
@@ -48,36 +92,34 @@ export default function LandingPage() {
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-neutral-900 text-white text-xs flex items-center justify-center">3</span>
               <span>
-                Claude scores it against the scenario's own rubric — a dozen positive and negative criteria
-                specific to that moment — and returns a 0–100 overall with a per-criterion breakdown.
+                Claude Sonnet 4.6 scores it against the scenario's own rubric — a dozen positive and
+                negative criteria specific to that moment — and returns a 0–100 overall.
               </span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-neutral-900 text-white text-xs flex items-center justify-center">4</span>
               <span>
-                Optionally contribute your response to a public dataset of how humans handle the hardest
-                writing tasks. Your submission is anonymous.
+                See how your score ranks against four frontier LLMs and every other human contributor.
+              </span>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-neutral-900 text-white text-xs flex items-center justify-center">5</span>
+              <span>
+                Optionally contribute. The dataset is the point — graded human responses on emotionally
+                hard writing are the training signal LLMs don't have enough of.
               </span>
             </li>
           </ol>
         </section>
 
-        <section className="grid md:grid-cols-3 gap-4 text-sm">
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Scenarios</div>
-            <div className="text-2xl font-semibold">50 grief &amp; loss</div>
-            <p className="text-neutral-600 mt-1">Voicemails, layoff scripts, condolence emails, eulogies, miscarriage cards.</p>
-          </div>
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Rubric</div>
-            <div className="text-2xl font-semibold">Per-prompt</div>
-            <p className="text-neutral-600 mt-1">Each scenario has its own 12+ criteria. No generic "empathy" scale.</p>
-          </div>
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">Judge</div>
-            <div className="text-2xl font-semibold">Claude Sonnet 4.6</div>
-            <p className="text-neutral-600 mt-1">Scores positive and negative criteria independently, 0–100 overall.</p>
-          </div>
+        <section className="rounded-lg border border-neutral-200 bg-white p-5 text-sm text-neutral-600">
+          <p className="mb-2"><strong className="text-neutral-900">Why this matters.</strong></p>
+          <p>
+            Almost every instruction-tuning corpus over-weights helpful, cheerful, polite responses.
+            The hardest messages a person ever writes are not helpful, cheerful, or polite —
+            they're restrained, specific, and often painful. A corpus of graded human responses on
+            those exact moments is what's missing. This is that corpus.
+          </p>
         </section>
 
         <footer className="text-xs text-neutral-400 pt-4 border-t border-neutral-200">
