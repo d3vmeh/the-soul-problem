@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { supabaseService } from '@/lib/supabase';
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 function modelLabel(model: string): string {
   if (model === 'human:public') return 'Human';

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { supabaseService } from '@/lib/supabase';
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 const SFT_SCORE_THRESHOLD = 75;
 const DPO_MIN_DELTA = 5;

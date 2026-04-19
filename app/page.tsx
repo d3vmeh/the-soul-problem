@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { supabaseService } from '@/lib/supabase';
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 async function loadStats() {
   const db = supabaseService();

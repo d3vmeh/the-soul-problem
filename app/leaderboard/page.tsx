@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { supabaseService } from '@/lib/supabase';
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 function Bar({ score, accent }: { score: number; accent?: boolean }) {
   const pct = Math.max(0, Math.min(100, score));
