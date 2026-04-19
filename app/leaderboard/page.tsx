@@ -41,6 +41,9 @@ async function loadLeaderboard() {
   for (const r of ((rows ?? []) as any[])) {
     const model = r.responses.model;
     if (model.startsWith('human:private')) continue;
+    // Drop Haiku's seeded-response numbers — we replace them with the lift baseline below
+    // so the baseline and the +corpus number come from the same controlled experiment.
+    if (model === 'claude-haiku-4-5') continue;
     const arr = buckets.get(model) ?? [];
     arr.push(r.overall_score);
     buckets.set(model, arr);
@@ -48,41 +51,58 @@ async function loadLeaderboard() {
   const byModel = [...buckets.entries()].map(([model, scores]) => ({
     model,
     mean: scores.reduce((a, b) => a + b, 0) / scores.length,
-    std: stddev(scores),
     n: scores.length,
   }));
-  const { data: liftSnaps } = await db.from('dataset_lift_snapshots').select('dataset_score');
-  const dScores = (liftSnaps ?? []).map(s => s.dataset_score);
-  const datasetMean = dScores.length ? dScores.reduce((a, b) => a + b, 0) / dScores.length : null;
-  return { byModel, datasetMean, datasetStd: dScores.length ? stddev(dScores) : 0, datasetN: dScores.length };
+
+  // Both the Haiku baseline and Haiku + corpus come from the same set of lift snapshots
+  // — identical student model, identical judge (Sonnet), identical scenarios. This makes
+  // the two numbers directly comparable.
+  const { data: liftSnaps } = await db.from('dataset_lift_snapshots').select('base_score, dataset_score');
+  const base = (liftSnaps ?? []).map(s => s.base_score).filter((n): n is number => Number.isFinite(n));
+  const withCorpus = (liftSnaps ?? []).map(s => s.dataset_score).filter((n): n is number => Number.isFinite(n));
+  const baseMean = base.length ? base.reduce((a, b) => a + b, 0) / base.length : null;
+  const withCorpusMean = withCorpus.length ? withCorpus.reduce((a, b) => a + b, 0) / withCorpus.length : null;
+  return { byModel, baseMean, baseN: base.length, withCorpusMean, withCorpusN: withCorpus.length };
 }
 
 export default async function LeaderboardPage() {
-  const { byModel, datasetMean, datasetStd, datasetN } = await loadLeaderboard();
+  const { byModel, baseMean, baseN, withCorpusMean, withCorpusN } = await loadLeaderboard();
 
   const ranked = [
     ...byModel.map(b => ({
       key: b.model,
       ...modelDisplay(b.model),
       score: b.mean,
-      std: b.std,
       n: b.n,
       isHuman: b.model === 'human:public',
       isLift: false,
     })),
-    ...(datasetMean !== null
+    ...(baseMean !== null
+      ? [{
+          key: 'haiku-base',
+          label: 'Claude Haiku 4.5',
+          kind: 'Anthropic — alone, no in-context examples',
+          score: baseMean,
+          n: baseN,
+          isHuman: false,
+          isLift: false,
+        }]
+      : []),
+    ...(withCorpusMean !== null
       ? [{
           key: 'haiku-corpus',
           label: 'Claude Haiku 4.5 + corpus',
-          kind: 'in-context with dataset',
-          score: datasetMean,
-          std: datasetStd,
-          n: datasetN,
+          kind: 'same model, same judge, dataset in context',
+          score: withCorpusMean,
+          n: withCorpusN,
           isHuman: false,
           isLift: true,
         }]
       : []),
   ].sort((a, b) => b.score - a.score);
+
+  const liftDelta =
+    baseMean !== null && withCorpusMean !== null ? withCorpusMean - baseMean : null;
 
   return (
     <main className="min-h-screen fade-in">
@@ -94,15 +114,38 @@ export default async function LeaderboardPage() {
           <div className="text-[0.85rem] text-muted">Leaderboard</div>
         </header>
 
-        <section className="mb-10 max-w-2xl">
+        <section className="mb-8 max-w-2xl">
           <h1 className="text-[2.2rem] font-semibold tracking-tight leading-[1.1] mb-4">
             How every model scores on grief writing.
           </h1>
           <p className="text-muted leading-[1.55]">
-            Every response in the corpus, judged 0–100 against its scenario&apos;s rubric by Claude
-            Sonnet 4.6 and Haiku 4.5. Humans and LLMs on the same scale.
+            Every response in the corpus, judged 0–100 against its scenario&apos;s rubric. Humans
+            and LLMs on the same scale.
           </p>
         </section>
+
+        {liftDelta !== null && baseMean !== null && withCorpusMean !== null && (
+          <section className="rounded-lg border border-accent bg-accent-tint p-5 mb-10">
+            <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-2">Corpus result</div>
+            <div className="flex items-baseline gap-6 flex-wrap">
+              <div>
+                <div className="text-[2rem] font-semibold tracking-tight leading-none tabular-nums text-accent">
+                  {liftDelta >= 0 ? '+' : ''}{liftDelta.toFixed(1)}
+                </div>
+                <div className="text-[0.82rem] text-muted mt-2">points lift on Claude Haiku 4.5</div>
+              </div>
+              <div className="font-mono text-[0.82rem] text-muted tabular-nums">
+                {baseMean.toFixed(1)}{'  →  '}{withCorpusMean.toFixed(1)}
+              </div>
+            </div>
+            <p className="text-[0.88rem] text-muted leading-[1.55] mt-3 max-w-2xl">
+              Across {withCorpusN} held-out scenarios, giving Claude Haiku 4.5 the public corpus as
+              in-context examples improved its mean Overall Item Score by{' '}
+              <strong className="text-text font-medium">{liftDelta.toFixed(1)} points</strong>.
+              Same model, same judge, same scenarios — only the in-context conditioning changed.
+            </p>
+          </section>
+        )}
 
         {ranked.length === 0 ? (
           <p className="text-faint italic">No judgments yet.</p>
@@ -130,9 +173,6 @@ export default async function LeaderboardPage() {
                 <Bar score={r.score} accent={r.isHuman || r.isLift} />
                 <div className="font-mono text-sm tabular-nums text-right" style={{ fontWeight: 500 }}>
                   {r.score.toFixed(1)}
-                  {r.std > 0 && (
-                    <span className="text-faint text-xs block font-normal">± {r.std.toFixed(1)}</span>
-                  )}
                 </div>
                 <div className="font-mono text-xs tabular-nums text-faint text-right">{r.n}</div>
               </div>
