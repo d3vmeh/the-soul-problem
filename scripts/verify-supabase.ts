@@ -34,12 +34,15 @@ async function main() {
   console.log('Table check:');
   let allOk = true;
   for (const table of EXPECTED) {
-    const { error, count } = await db.from(table).select('*', { count: 'exact', head: true });
+    // Real SELECT (not HEAD) — HEAD returns {error: null, count: null} even for missing tables.
+    const { error, data } = await db.from(table).select('*').limit(1);
     if (error) {
       console.log(`  ${table.padEnd(22)}: ✗ ${error.message}`);
       allOk = false;
     } else {
-      console.log(`  ${table.padEnd(22)}: ✓ (${count ?? 0} rows)`);
+      // Separate COUNT query for real row count.
+      const { count } = await db.from(table).select('*', { count: 'exact', head: true });
+      console.log(`  ${table.padEnd(22)}: ✓ (${count ?? data?.length ?? 0} rows)`);
     }
   }
   console.log('');
