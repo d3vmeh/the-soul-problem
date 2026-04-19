@@ -205,7 +205,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         )}
 
         {isHuman && isPublic && (
-          <section className="rounded-xl border border-neutral-200 bg-white p-6 space-y-2">
+          <section className="rounded-xl border border-neutral-200 bg-white p-6 space-y-3">
             <h2 className="text-lg font-semibold">You're in the dataset</h2>
             <p className="text-sm text-neutral-700">
               There {contributedCount === 1 ? 'is' : 'are'} now <strong>{contributedCount}</strong>{' '}
@@ -215,6 +215,9 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
               )}{' '}
               Your response is one signal making the dataset stronger.
             </p>
+            <Link href="/dataset" className="inline-block text-sm text-neutral-900 underline underline-offset-2">
+              Browse the dataset →
+            </Link>
           </section>
         )}
 

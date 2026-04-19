@@ -48,10 +48,10 @@ export default async function LandingPage() {
               Write a response
             </Link>
             <Link
-              href="#how-it-works"
+              href="/dataset"
               className="inline-block px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50 transition"
             >
-              How it works
+              Browse the dataset
             </Link>
           </div>
         </header>
