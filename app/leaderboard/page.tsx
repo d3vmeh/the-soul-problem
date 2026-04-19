@@ -71,10 +71,11 @@ async function loadLeaderboard() {
   for (const r of ((rows ?? []) as any[])) {
     const model = r.responses.model;
     if (model.startsWith('human:private')) continue;
-    // Haiku and Sonnet seeded numbers are replaced below by their lift baselines so the
-    // before/after corpus numbers are directly comparable.
+    // Haiku, Sonnet, and Opus seeded numbers are replaced below by their lift baselines
+    // so the before/after corpus numbers are directly comparable.
     if (model === 'claude-haiku-4-5') continue;
     if (model === 'claude-sonnet-4-6') continue;
+    if (model === 'claude-opus-4-7') continue;
     if (model === 'human:public') {
       const arr = humanPerResponse.get(r.response_id) ?? [];
       arr.push(r.overall_score);
@@ -104,20 +105,26 @@ async function loadLeaderboard() {
     .select('base_score, dataset_score, student_model');
   const HAIKU = 'claude-haiku-4-5-20251001';
   const SONNET = 'claude-sonnet-4-6';
+  const OPUS = 'claude-opus-4-7';
   const haikuSnaps = (liftSnaps ?? []).filter(s => s.student_model === HAIKU);
   const sonnetSnaps = (liftSnaps ?? []).filter(s => s.student_model === SONNET);
+  const opusSnaps = (liftSnaps ?? []).filter(s => s.student_model === OPUS);
 
   const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
   const baseMean = mean(haikuSnaps.map(s => s.base_score).filter(Number.isFinite));
   const withCorpusMean = mean(haikuSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   const sonnetBaseMean = mean(sonnetSnaps.map(s => s.base_score).filter(Number.isFinite));
   const sonnetWithCorpusMean = mean(sonnetSnaps.map(s => s.dataset_score).filter(Number.isFinite));
+  const opusBaseMean = mean(opusSnaps.map(s => s.base_score).filter(Number.isFinite));
+  const opusWithCorpusMean = mean(opusSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   return {
     byModel,
     baseMean, baseN: haikuSnaps.length,
     withCorpusMean, withCorpusN: haikuSnaps.length,
     sonnetBaseMean, sonnetBaseN: sonnetSnaps.length,
     sonnetWithCorpusMean, sonnetWithCorpusN: sonnetSnaps.length,
+    opusBaseMean, opusBaseN: opusSnaps.length,
+    opusWithCorpusMean, opusWithCorpusN: opusSnaps.length,
     humanTopMean, humanTotalN,
   };
 }
@@ -127,6 +134,7 @@ export default async function LeaderboardPage() {
     byModel,
     baseMean, baseN, withCorpusMean, withCorpusN,
     sonnetBaseMean, sonnetBaseN, sonnetWithCorpusMean, sonnetWithCorpusN,
+    opusBaseMean, opusBaseN, opusWithCorpusMean, opusWithCorpusN,
     humanTopMean, humanTotalN,
   } = await loadLeaderboard();
 
@@ -199,6 +207,29 @@ export default async function LeaderboardPage() {
           isLift: true,
         }]
       : []),
+    ...(opusBaseMean !== null
+      ? [{
+          key: 'opus-base',
+          label: 'Claude Opus 4.7',
+          kind: 'Anthropic — alone, no in-context examples',
+          score: opusBaseMean,
+          n: opusBaseN,
+          isHuman: false,
+          isLift: false,
+        }]
+      : []),
+    ...(opusWithCorpusMean !== null
+      ? [{
+          key: 'opus-corpus',
+          label: 'Claude Opus 4.7 + corpus',
+          kind: 'same model, same judge, dataset in context',
+          score: opusWithCorpusMean,
+          baseForLift: opusBaseMean,
+          n: opusWithCorpusN,
+          isHuman: false,
+          isLift: true,
+        }]
+      : []),
   ].sort((a, b) => {
     if (a.isHuman && !b.isHuman) return -1;
     if (!a.isHuman && b.isHuman) return 1;
@@ -207,6 +238,26 @@ export default async function LeaderboardPage() {
 
   const liftDelta =
     baseMean !== null && withCorpusMean !== null ? withCorpusMean - baseMean : null;
+  const sonnetLiftDelta =
+    sonnetBaseMean !== null && sonnetWithCorpusMean !== null
+      ? sonnetWithCorpusMean - sonnetBaseMean
+      : null;
+  const opusLiftDelta =
+    opusBaseMean !== null && opusWithCorpusMean !== null
+      ? opusWithCorpusMean - opusBaseMean
+      : null;
+
+  const liftCallouts = [
+    liftDelta !== null && baseMean !== null && withCorpusMean !== null
+      ? { label: 'Haiku 4.5', delta: liftDelta, base: baseMean, withCorpus: withCorpusMean, n: withCorpusN }
+      : null,
+    sonnetLiftDelta !== null && sonnetBaseMean !== null && sonnetWithCorpusMean !== null
+      ? { label: 'Sonnet 4.6', delta: sonnetLiftDelta, base: sonnetBaseMean, withCorpus: sonnetWithCorpusMean, n: sonnetWithCorpusN }
+      : null,
+    opusLiftDelta !== null && opusBaseMean !== null && opusWithCorpusMean !== null
+      ? { label: 'Opus 4.7', delta: opusLiftDelta, base: opusBaseMean, withCorpus: opusWithCorpusMean, n: opusWithCorpusN }
+      : null,
+  ].filter((x): x is { label: string; delta: number; base: number; withCorpus: number; n: number } => x !== null);
 
   return (
     <main className="min-h-screen fade-in">
@@ -228,25 +279,32 @@ export default async function LeaderboardPage() {
           </p>
         </section>
 
-        {liftDelta !== null && baseMean !== null && withCorpusMean !== null && (
-          <section className="rounded-lg border border-accent bg-accent-tint p-5 mb-10">
-            <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-2">Corpus result</div>
-            <div className="flex items-baseline gap-6 flex-wrap">
-              <div>
-                <div className="text-[2rem] font-semibold tracking-tight leading-none tabular-nums text-accent">
-                  {liftDelta >= 0 ? '+' : ''}{liftDelta.toFixed(1)}
+        {liftCallouts.length > 0 && (
+          <section className="mb-10">
+            <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">Corpus lift</div>
+            <div className={`grid gap-3 ${liftCallouts.length === 1 ? 'grid-cols-1' : liftCallouts.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
+              {liftCallouts.map(c => (
+                <div key={c.label} className="rounded-lg border border-accent bg-accent-tint p-5">
+                  <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-2">
+                    {c.label}
+                  </div>
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <div className="text-[2rem] font-semibold tracking-tight leading-none tabular-nums text-accent">
+                      {c.delta >= 0 ? '+' : ''}{c.delta.toFixed(1)}
+                    </div>
+                    <div className="font-mono text-[0.78rem] text-muted tabular-nums">
+                      {c.base.toFixed(1)} → {c.withCorpus.toFixed(1)}
+                    </div>
+                  </div>
+                  <p className="text-[0.82rem] text-muted leading-[1.5] mt-3">
+                    {c.delta >= 0 ? 'points lift' : 'points change'} from the corpus, across {c.n} scenarios.
+                  </p>
                 </div>
-                <div className="text-[0.82rem] text-muted mt-2">points lift on Claude Haiku 4.5</div>
-              </div>
-              <div className="font-mono text-[0.82rem] text-muted tabular-nums">
-                {baseMean.toFixed(1)}{'  →  '}{withCorpusMean.toFixed(1)}
-              </div>
+              ))}
             </div>
-            <p className="text-[0.88rem] text-muted leading-[1.55] mt-3 max-w-2xl">
-              Across {withCorpusN} held-out scenarios, giving Claude Haiku 4.5 the public corpus as
-              in-context examples improved its mean Overall Item Score by{' '}
-              <strong className="text-text font-medium">{liftDelta.toFixed(1)} points</strong>.
-              Same model, same judge, same scenarios — only the in-context conditioning changed.
+            <p className="text-[0.82rem] text-faint mt-3 max-w-2xl">
+              For each model, we compare its score on a scenario alone vs. the same model on the same scenario
+              with the public corpus as in-context examples. Same judge, same scenarios — only the conditioning changes.
             </p>
           </section>
         )}
