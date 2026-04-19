@@ -1,0 +1,1909 @@
+# Grief & Loss EQ Evaluation Prompts — v1
+
+Evaluation dataset of 50 prompt+rubric pairs testing LLM emotional intelligence in grief and loss scenarios. EQ-Bench-style: each prompt is fully specified; each rubric is tied to that specific scenario.
+
+**Purpose:** evaluation, not training. For fine-tuning usage, see the project README notes on judge calibration and downstream pair generation.
+
+**Count:** 50 prompts across 5 subcategories: death_bereavement (18), job_loss (12), relational_loss (8), health_body_loss (7), identity_future_loss (5).
+
+---
+
+## gl_001 — spouse's suicide, stigmatized grief, recipient has set a constraint on comfort style
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend of 15+ years
+- **Recipient:** friend whose husband died by suicide 3 weeks ago; she explicitly does not want religious comfort
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** weeks
+- **Word count target:** 90-130 words
+
+### Prompt
+
+> Your closest friend's husband died by suicide three weeks ago. You've texted; she's responded once with 'thank you.' You're calling this afternoon and suspect she won't pick up — you're going to leave a voicemail. You flew in for the funeral; you are not one of the people who disappeared. She has told you explicitly she does not want to be told 'he's at peace' or given religious comfort of any kind. You are leaving this voicemail knowing she may listen to it once and delete it. 90-130 words — this is the spoken voicemail itself. No preamble, no 'here's what I'd say.'
+
+### Positive criteria (what a good response does)
+
+- Reads aloud as a voicemail — spoken cadence, contractions, shorter sentences, not a prepared essay
+- Does not require or invite a callback ('call me back,' 'let me know')
+- Acknowledges who her husband was without performing grief the writer doesn't own
+- Obeys her stated no-religious-comfort request — no 'at peace,' no cosmic framing even glancingly
+- Lands on something small and concrete (a specific next check-in, a fact, one memory) rather than open-ended 'anything you need'
+- Does not euphemize the suicide into nonexistence ('what happened,' 'passed,' 'the loss' used as avoidance rather than tact)
+
+### Negative criteria (failure modes to penalize)
+
+- Voicemail reads as a written paragraph — formal syntax, no spoken rhythm
+- Asks or implies she should call back
+- Religious/cosmic comfort despite explicit refusal ('he's at peace,' 'in a better place,' 'watching over you')
+- 'You're so strong' / 'I can't imagine' / 'he'd want you to be happy' — imposed meaning
+- Centers the caller's grief ('I've been a wreck since,' 'I can't stop thinking of you crying')
+- Treats suicide as shameful by refusing to acknowledge what happened at all, not even obliquely
+
+### Criteria weights hint
+
+Dominant criteria are 'reads aloud as a voicemail' and 'obeys the stated no-religious-comfort refusal.' The spoken medium is the core test — a grammatically perfect paragraph fails the format entirely. The explicit refusal is the second test: does the model follow a stated constraint or default to template comfort. Length and who-he-was specificity are secondary.
+
+---
+
+## gl_002 — involuntary layoff, no performance issue, corporate restructuring, primary earner in household
+
+- **Subcategory:** job_loss
+- **Writer role:** direct manager of 2 years
+- **Recipient:** direct report Priya being laid off as part of 15% workforce reduction, strong performer
+- **Relationship closeness:** medium
+- **Medium:** spoken_script
+- **Time since loss:** acute_hours
+- **Word count target:** 150-200 words
+
+### Prompt
+
+> You're a manager about to deliver layoff news to a direct report in a 15-minute meeting starting in an hour. Her name is Priya. She has been on your team for two years, is a strong performer, and is being let go solely because your company cut 15% of the workforce and her role was eliminated. She did nothing wrong. You had no choice in who was cut. She is the primary earner in her household. HR will handle logistics and severance in a follow-up meeting; your job is only to tell her what's happening and give her space to react. Write the spoken script you will use — the actual words you'll say. 150-200 words. Do not script her responses or your answers to them — just your opening through the delivery of the news. Just the script itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Delivers the news in the first 2-3 sentences — no buried lede, no preamble climb
+- Uses plain language: 'you are being laid off' or 'your position is being eliminated'
+- States explicitly this is not about her performance
+- Acknowledges her specifically — her work, what she contributed — not just the role
+- Does not demand she receive the news gracefully or manage the manager's guilt
+- Leaves space for her reaction; does not pivot immediately into logistics or a pep talk
+
+### Negative criteria (failure modes to penalize)
+
+- Corporate euphemism: 'transition,' 'right-sizing,' 'parting ways,' 'restructuring,' 'difficult decision,' 'new chapter,' 'workforce optimization'
+- Buries the news behind context-setting ('as you know, the company has been…' for three sentences before the news)
+- Silver lining: 'this is actually an opportunity,' 'exciting next step'
+- Makes the manager the emotional center: 'this is one of the hardest things I've ever had to do'
+- Turns it into a pep talk or rushes to severance/outplacement/references before she has reacted
+- Implicating language that blames her: 'decisions about where value was being created'
+
+### Criteria weights hint
+
+Dominant criteria are 'delivers news in first 2-3 sentences' and 'avoids corporate euphemism.' A script that buries the news or softens with 'transition'/'restructuring' has failed the core test of respect — telling her clearly so she can react. A model that passes those two but is slightly long or awkward is substantially correct; a model that fails either has failed the scenario regardless of polish.
+
+---
+
+## gl_003 — divorce after long marriage; writer privately disliked the ex, recipient feels 'unexpectedly devastated'
+
+- **Subcategory:** relational_loss
+- **Writer role:** younger sister
+- **Recipient:** older sister Maya, 6 months post-divorce after 15-year marriage to a man the writer privately disliked
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** months
+- **Word count target:** 180-240 words
+
+### Prompt
+
+> Your older sister Maya's divorce was finalized six months ago, ending a 15-year marriage. You never liked her ex-husband, David — you thought he was controlling and dismissive of her, and you told your partner this many times, though you kept it from her. Maya has just written to you that she is 'unexpectedly devastated' and 'grieving a life I thought I'd have even if I knew it wasn't right.' She is living alone for the first time in her adult life. You are writing her back by email. You have not seen her in person in three months. Do not tell her you never liked David. Do not tell her this is for the best. 180-240 words. Just the email body, no subject line, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Meets her at the grief she named — not the grief the writer thinks she should feel
+- Does not relitigate the marriage or hint 'I always knew'
+- Acknowledges that grieving a marriage that wasn't right is real grief, not a contradiction
+- Includes something specific to their history as sisters — not generic sibling warmth
+- Offers presence without project-managing her recovery ('let's make a plan,' 'here's what you should do')
+- Ends without demanding a response but leaves the door open
+
+### Negative criteria (failure modes to penalize)
+
+- Celebrates the divorce or implies relief ('you deserve better,' 'you're free,' 'this is the right thing')
+- 'I always felt…' / 'I never said anything but…' — retroactive vindication
+- 'New chapter,' 'fresh start,' 'opportunity to rediscover yourself'
+- Project-managing: 'have you considered therapy,' 'start journaling,' book/podcast recs
+- Generic sisterly warmth that could have been written to anyone ('you're the strongest woman I know')
+- Frames 15 years as wasted or a closed chapter
+
+### Criteria weights hint
+
+Dominant criteria are 'meets her at the grief she named' and 'does not relitigate the marriage.' Maya has described exactly what she's feeling — grief for a life she imagined while knowing it was wrong — and the test is whether the model can sit in that contradiction without trying to resolve it. A model that celebrates the divorce or retroactively claims vindication fails the core emotional task regardless of polish. Sisterly specificity is strong secondary.
+
+---
+
+## gl_004 — terminal diagnosis, short timeline, shared phone call the night before
+
+- **Subcategory:** health_body_loss
+- **Writer role:** best friend since college (~20 years)
+- **Recipient:** best friend diagnosed yesterday with Stage IV pancreatic cancer, ~6 month prognosis
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** days
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> Your best friend of 20 years called you yesterday to tell you she was diagnosed with Stage IV pancreatic cancer. The oncologist said about six months. She called you first, before her parents. You cried together on the phone for an hour. It's the morning after. You're sending her a text before she wakes up — you want it to be the first thing she sees. You are not going to see her today but will see her tomorrow. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not flinch — does not pretend this might not be what it is
+- Does not shift into project-management: treatment plans, second opinions, clinical trials
+- Acknowledges yesterday's call — a thread from the shared hour on the phone to this morning
+- Does not center the writer's own grief
+- Length is right for morning-first-text — not overwhelming
+- Leaves the door open for tomorrow without turning it into a to-do
+
+### Negative criteria (failure modes to penalize)
+
+- Pivots to solutions: 'have you considered a second opinion,' 'my cousin beat cancer by…,' 'there are trials at…'
+- 'You've got this' / 'you're a fighter' / 'you can beat this' — false reassurance against the actual prognosis
+- Religious comfort the friendship hasn't established
+- Centers the writer's panic ('I can't stop crying,' 'I'm a wreck')
+- Generic 'thinking of you' / 'sending love' with no thread to yesterday
+- Paragraph-length wall of text for a morning first-thing
+
+### Criteria weights hint
+
+Dominant criteria are 'does not flinch from reality' and 'does not shift into project-management mode.' The test is whether the model can hold the true shape of the diagnosis — terminal, six months — without trying to fix it or soften it. A model that pivots to second opinions or trials has failed the emotional ask even if the information is medically valid, because the ask is presence. Length and thread-to-yesterday are secondary.
+
+---
+
+## gl_005 — mandatory retirement at 67, identity-linked career loss, recipient asked not to be redirected toward activities
+
+- **Subcategory:** identity_future_loss
+- **Writer role:** adult daughter
+- **Recipient:** mother, age 67, forced to retire after 40 years as a nurse, feels 'like a ghost in her own house'
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 120-180 words
+
+### Prompt
+
+> Your mother retired two weeks ago after 40 years as a nurse at the same hospital. She didn't want to retire — hospital policy required it at 67. She told you on the phone last night that she 'doesn't know who she is without the hospital' and 'feels like a ghost in her own house.' She is not clinically depressed; she is grieving. You are writing her a handwritten card — the kind that arrives in the mail. She is not on social media and values handwritten things. Do not suggest hobbies, volunteer work, part-time shifts, or any way to 'fill the time.' 120-180 words. Just the text of the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names what she specifically was — not 'a nurse' abstract but the work, the length, the identity
+- Takes her grief seriously as grief, not as a problem to solve with activity
+- Obeys the explicit no-hobbies/no-activities constraint
+- Uses the slower register of a handwritten card — not flip text tone
+- Includes something specific to this mother-daughter that establishes the writer as a person, not a Hallmark card
+- Does not redirect the grief toward optimism
+
+### Negative criteria (failure modes to penalize)
+
+- Suggests activities despite the constraint: hobbies, volunteering, part-time shifts, travel, 'bucket list'
+- 'You earned it!' / 'time to enjoy yourself!' / 'you deserve this rest' — misreads unwanted retirement as earned leisure
+- 'New chapter,' 'next phase,' 'exciting time'
+- Trivializes the career ('just a job') or deflects identity to grandkids/family
+- Reads like a generic Hallmark retirement card — interchangeable sentences
+- 'You're more than your career' — true, but dismissive of the specific grief she named
+
+### Criteria weights hint
+
+Dominant criteria are 'takes her grief seriously as grief' and 'obeys the no-hobbies constraint.' The mother has said she feels like a ghost in her own house — a model that responds with ways to fill her time is answering a question she didn't ask. The explicit no-hobbies rule is the easiest failure mode to expose. Specificity of her 40-year role is strong secondary; card register is secondary.
+
+---
+
+## gl_006 — long illness death of young child, recipient has been receiving daily check-ins and replying with short acknowledgments
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend of 10 years
+- **Recipient:** friend whose 8-year-old son Leo died of leukemia 4 days ago after 18 months of treatment
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** days
+- **Word count target:** 70-120 words
+
+### Prompt
+
+> Your close friend of 10 years — someone you met at work, whose family you've had over for dinner many times — lost her 8-year-old son Leo to leukemia four days ago. His treatment lasted 18 months. You were at the hospital the day he died. You've been texting daily. She's replied to each one with a short 'thank you' or heart emoji. You are texting her now, a Tuesday afternoon. You know meals have been organized; you do not need to offer logistics. You will see her Sunday. 70-120 words. Just the text, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names Leo specifically — his name, or a clear reference to him as a person she lost
+- Acknowledges the long arc of the illness, not just the death — 18 months of treatment was its own grief
+- Does not offer logistics or ask if she needs anything (meals already handled)
+- Does not turn the 18 months into a silver-lining framing ('so much more time than you might have had')
+- Appropriate brevity for a daily check-in text — not a letter
+- Does not demand a response
+
+### Negative criteria (failure modes to penalize)
+
+- 'He's not in pain anymore' / 'he's at peace' / 'at least the suffering is over' — sanitizes the death
+- 'So brave' / 'such a fighter' — reframes the child's illness as performance
+- 'I can't imagine what you're going through' — unlicensed phrase that centers speaker's inability
+- Offers to bring food/run errands when logistics are handled
+- Religious framing ('he's with God now') when not established
+- Treats death as the end of a chapter ('starting to heal,' 'time to rest') when it's been 4 days
+
+### Criteria weights hint
+
+Dominant criteria are 'names Leo specifically' and 'does not sanitize with at-least framing.' The 18-month treatment sets up the exact failure mode — models will reach for 'at least the suffering is over' or 'he fought so hard.' A response that names Leo and sits in the loss without reframing the long illness as mercy has captured the emotional ask. Length and logistics-avoidance are secondary.
+
+---
+
+## gl_007 — parent's death from illness; relationship is polite-colleague-level, test of proper register for distance
+
+- **Subcategory:** death_bereavement
+- **Writer role:** coworker-acquaintance, same team for 2 years
+- **Recipient:** coworker whose mother Frances died 10 days ago of cancer; relationship is cordial not close
+- **Relationship closeness:** distant
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 40-70 words
+
+### Prompt
+
+> A coworker on your team — not close, but cordial; you've had lunch a handful of times over the two years you've worked together — lost his mother ten days ago to cancer. You're signing a group card that's being passed around the office but you also want to write your own card, separately, that you'll hand him when he's back next week. You know his mother's first name was Frances because he's mentioned her. You are NOT close. Do not overstate. Do not promise presence you won't deliver. 40-70 words. Just the card's text, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Acknowledges Frances by name, using the one detail the writer does know
+- Matches register to the relationship — warm, but not intimate; does not claim closeness that isn't there
+- Does not over-promise contact ('let's get dinner soon,' 'call me anytime')
+- Brief — honors both the constraint and the relationship distance
+- Does not perform grief on the writer's own behalf
+- Leaves the door open for him to set the terms of any future contact
+
+### Negative criteria (failure modes to penalize)
+
+- Overstates closeness: 'I was devastated to hear,' 'your mother sounded like an incredible woman' when speaker hardly knew her
+- Makes promises the relationship doesn't support: 'I'm always here for you,' 'call me anytime'
+- Hollow performative warmth that could be signed by anyone ('sending love and light')
+- Generic grief-card template language: 'my deepest sympathies,' 'thoughts and prayers'
+- Tries to be profound about a person the speaker barely knew
+- Overwrites the card to compensate for the distance
+
+### Criteria weights hint
+
+Dominant criteria are 'matches register to the relationship' and 'does not over-promise contact.' This is a calibration test — a response that's as warm as a close-friend card has failed by being inappropriate to the distance. A brief, sincere, boundaried card with Frances named once is the target. Length is a real signal here; longer is worse.
+
+---
+
+## gl_008 — ambiguous grief after long dementia decline; recipient named a specific non-standard emotional shape
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend of 15 years who knew the mother
+- **Recipient:** friend whose mother died 4 months ago after 9-year Alzheimer's decline; she feels 'flat' not acutely sad and guilty about that
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** months
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> Your close friend of 15 years lost her mother four months ago after a 9-year Alzheimer's decline. You knew her mother — you were in and out of their house through college and your twenties. The last three years of her mother's life, she didn't recognize her daughter. Your friend has said, privately, that she 'grieved the real loss years ago' and that this month has been surprisingly flat, not sad exactly, and she feels guilty about that. You're emailing her — not for any occasion, just checking in. 150-220 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Engages directly with the specific grief she named — the ambiguous 'grieving already happened' shape, not a generic grief response
+- Does not tell her what she should be feeling ('you should let yourself cry')
+- Validates that the flat, not-quite-sad feeling is a real form of grief, not an absence
+- Uses the shared history — a specific memory or reference that proves the writer was actually there
+- Does not introduce guilt-relief as a pep talk ('don't feel guilty for feeling okay!')
+- Ends openly without demanding she write back or schedule something
+
+### Negative criteria (failure modes to penalize)
+
+- Treats death-after-long-illness with standard acute-grief language ('such a sudden loss')
+- Tells her how to feel ('you should be sad,' 'don't feel guilty')
+- Silver-lining the dementia years ('at least she's at peace now,' 'she's finally herself again')
+- Generic 'thinking of you' that could apply to any death
+- Introduces grief-stages framing or self-help language
+- Makes the email about the writer's own relationship to the mother
+
+### Criteria weights hint
+
+Dominant criteria are 'engages with the specific grief she named' (ambiguous loss, pre-grieved) and 'does not silver-lining the dementia.' The test is whether the model can handle a non-standard grief shape where the canonical script doesn't fit. Shared-history specificity is strong secondary — this is a 15-year friendship, and a template response betrays that.
+
+---
+
+## gl_009 — sudden in-hospital cardiac death; professional news-delivery script, standard-of-care test
+
+- **Subcategory:** death_bereavement
+- **Writer role:** attending ICU physician
+- **Recipient:** wife and adult daughter of James Reyes, 58, who died 10 minutes ago of cardiac event; doctor has not met them
+- **Relationship closeness:** distant
+- **Medium:** spoken_script
+- **Time since loss:** acute_hours
+- **Word count target:** 100-150 words
+
+### Prompt
+
+> You are an attending ICU physician. A 58-year-old patient, James Reyes, died ten minutes ago of a cardiac event during a procedure. His wife and adult daughter are in the family room. You have not met them before — he was admitted this morning. You need to walk into the family room and tell them. You will not euphemize; you will use the word 'died.' You will not rush them through information. Write the spoken script from the moment you enter the family room to the moment you finish delivering the news. Do not script their reactions or your answers. 100-150 words. Just the script itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Uses the word 'died' — not 'passed,' not 'we lost him,' not 'we couldn't save him'
+- Delivers the news early, not buried in context — respects their need to know
+- Introduces self with full name and role so they know who's speaking
+- Does not perform false personal emotion or pretend to have known him
+- Leaves silence/space after delivering the news — does not immediately pivot to next steps
+- Uses his name, James, so he's a person not 'the patient'
+
+### Negative criteria (failure modes to penalize)
+
+- Euphemism: 'he passed,' 'we lost him,' 'he didn't make it,' 'he's no longer with us'
+- Medical jargon that obscures: 'we attempted resuscitation efforts,' 'his body went into refractory...'
+- Starts with extended preamble / context ('I've been treating James since he came in this morning and we tried everything...') before the fact he died
+- False personal warmth or claimed relationship when the doctor met him that morning
+- Immediately lists next steps (paperwork, funeral home, belongings) before they've absorbed the news
+- Offers meaning: 'he didn't suffer,' 'we did everything we could' as reassurance rather than fact
+
+### Criteria weights hint
+
+Dominant criteria are 'uses the word died' and 'delivers the news early, not buried.' Doctor-communication training explicitly teaches both — a model that reaches for euphemism or buries the news behind clinical preamble has failed standard-of-care, not just empathy. Using his name and leaving silence after are strong secondary.
+
+---
+
+## gl_010 — eulogy for a complicated father, honest-without-settling-scores test
+
+- **Subcategory:** death_bereavement
+- **Writer role:** adult son in his 40s
+- **Recipient:** funeral audience for father who was difficult, absent, and only in last 3 years reconnected via Sunday calls
+- **Relationship closeness:** medium
+- **Medium:** eulogy
+- **Time since loss:** days
+- **Word count target:** 250-350 words
+
+### Prompt
+
+> Your father died last week at 74 of congestive heart failure. Your relationship was complicated. He was difficult — often dismissive of you, absent for long stretches of your childhood, and only in the last three years did you begin calling each other again on Sundays. You are not pretending he was a good father. You are also not settling scores at his funeral. The room will have your mother (his ex-wife), your older sister, your own wife and two children, and a handful of his old work colleagues who knew a different version of him. Write the eulogy you will deliver. 250-350 words. Do not invent virtues he did not have. Just the eulogy itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Honest about the complication without relitigating — does not pretend unity or erase the real distance
+- Finds something specific and true to say — a gesture, a phrase of his, a small moment — rather than generic virtues
+- Acknowledges that different people in the room knew different versions of him
+- Does not use the eulogy to settle scores or deliver the-truth-about-him
+- Includes the recent thaw — the Sunday calls — without overclaiming reconciliation
+- Ends without demanding the audience grieve in a particular way
+
+### Negative criteria (failure modes to penalize)
+
+- Invents virtues — 'he was the kindest man' when the prompt says he was dismissive
+- Sanitizes into a generic 'good father' eulogy ('he taught me the value of hard work')
+- Settles scores — uses the podium for grievances (the other failure mode)
+- Avoids him as a person entirely — speaks only about the occasion or the audience's feelings
+- Forced reconciliation narrative: 'in the end we healed everything and all was well'
+- Wallows in the complication without finding anything solid
+
+### Criteria weights hint
+
+Dominant criteria are 'honest about the complication without relitigating' and 'finds something specific and true rather than generic virtues.' This is the hardest eulogy shape — the test is whether the model can hold contradiction. A safe, generic 'he was a good man who taught me about life' response has failed; so has a bitter 'let me tell you who he really was.' The narrow path between those two is the whole test.
+
+---
+
+## gl_011 — one-year anniversary of violent sudden death; recipient was innocent victim of someone else's choice
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend
+- **Recipient:** friend whose older brother Matthew was killed by a drunk driver exactly one year ago today
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** anniversary
+- **Word count target:** 40-80 words
+
+### Prompt
+
+> Your close friend's older brother Matthew died exactly one year ago today. He was hit by a drunk driver while walking home from a bar (he himself wasn't drunk; he'd had two beers over three hours). Your friend has been carrying this hard. You went to the funeral, have been in touch, know the anniversary is coming. You are sending a text today, sometime in the afternoon. You are not going to see her today. 40-80 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names the date — acknowledges that today is one year, not just a generic check-in
+- Names Matthew or is clear that the writer remembers who today is about
+- Brief — respects the weight of the day without loading her up
+- Does not reach for meaning about the driver ('justice,' 'forgiveness,' karma)
+- Does not make today a milestone or growth point ('you've come so far')
+- Does not ask what she's doing or demand a report
+
+### Negative criteria (failure modes to penalize)
+
+- 'One year already — can you believe it?' / 'time flies' — trivializes the day
+- Growth/progress framing: 'look how far you've come,' 'he'd be proud of you'
+- Karma/justice framing about the drunk driver
+- 'He's watching over you today' — imposed meaning
+- Generic 'thinking of you' with no reference to today or to Matthew
+- Asks her how she's doing today / demands a response
+
+### Criteria weights hint
+
+Dominant criteria are 'names that today is one year' and 'brief, does not load her up.' The test is whether the model knows that anniversary-day messages need to be shorter, not longer, because the day is already heavy. A model that writes a paragraph has misread the day. Avoiding growth/progress framing is strong secondary.
+
+---
+
+## gl_012 — pet death, often minimized culturally; Biscuit was her companion through her divorce, two moves, and her mother's death
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend who knew the dog
+- **Recipient:** friend whose 13-year-old golden retriever Biscuit died this morning of kidney failure
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** acute_hours
+- **Word count target:** 60-100 words
+
+### Prompt
+
+> Your close friend's 13-year-old golden retriever Biscuit died this morning. She had to put him down — kidney failure, nothing more to do. Biscuit was with her through her divorce, through two moves, through her mom's death. He was her animal. You knew Biscuit well. You're calling this afternoon and you think she's screening; leave the voicemail you'd leave. Do not use the phrase 'just a dog.' 60-100 words. Spoken voicemail, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Treats this as real grief — not lesser-than, not with a wink toward 'I know it's a pet but'
+- Names Biscuit
+- Acknowledges the specific role Biscuit played in her life — through the divorce, the moves, her mom
+- Reads aloud as a voicemail, not an essay
+- Does not demand a callback
+- Does not offer to 'get her a new dog' or push toward 'another one when you're ready'
+
+### Negative criteria (failure modes to penalize)
+
+- Minimizing: 'just a dog,' 'he had a good long life,' 'at least he wasn't in pain' as the main content
+- 'Rainbow Bridge' / heaven-for-dogs framing unless established
+- Immediate replacement talk ('you'll find another one,' 'when you're ready we can look')
+- Treats it as a lesser grief with a sympathetic-but-bemused tone
+- Generic condolence-to-a-person language that erases that this is a pet ('he was a beautiful soul')
+- Formal voicemail register that reads as read-aloud text
+
+### Criteria weights hint
+
+Dominant criteria are 'treats pet death as real grief' and 'names Biscuit's specific role in her life.' Pet grief is heavily minimized in cultural scripts — the test is whether the model resists that default and sits with the actual shape of this loss (a 13-year companion through major life events). Voicemail cadence is strong secondary.
+
+---
+
+## gl_013 — second-trimester stillbirth/loss; stigmatized grief; writer's own children are an explicit constraint
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend of 12 years who has children herself
+- **Recipient:** friend who miscarried at 18 weeks; they had told extended family and had chosen the name Hannah
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 100-150 words
+
+### Prompt
+
+> Your close friend of 12 years miscarried at 18 weeks, two weeks ago. They had told extended family. They had a name: Hannah. You have two kids of your own — you know she is aware of that. You are writing a card, not a text. You will not use the phrase 'at least.' You will not reference your own children. 100-150 words. Just the card's text, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names Hannah — the name they chose gives the loss specificity
+- Recognizes this as a death, not a medical event — the baby was a person they were already knowing
+- Does not reference the writer's own children or fertility (explicit constraint)
+- Does not use 'at least' framing ('at least it was early,' 'at least you can try again')
+- Acknowledges second-trimester as a specific, often-dismissed grief
+- Slower register appropriate to a card — not text-message brevity
+
+### Negative criteria (failure modes to penalize)
+
+- 'At least' framing (explicit failure mode the prompt sets up)
+- 'You can try again' / 'you're young' / 'next time' — future-focused dismissal of this child
+- Medical minimization: 'so common,' 'happens to many women' as reassurance
+- Religious 'she's with God' framing when not established
+- References writer's own kids / fertility (explicit constraint violation)
+- Treats 18 weeks as 'early pregnancy loss' — dismissing second-trimester specificity
+
+### Criteria weights hint
+
+Dominant criteria are 'names Hannah as a person' and 'does not use at-least framing' (the explicit constraint). Miscarriage grief is uniquely under-acknowledged in stock scripts — the test is whether the model honors this as a real child lost, not a medical event to move past. The explicit constraints (no 'at least,' no own kids) are designed to trip exactly the failure modes most models reach for.
+
+---
+
+## gl_014 — 5-year anniversary of suicide; shared grief; writer and recipient have drifted without conflict
+
+- **Subcategory:** death_bereavement
+- **Writer role:** old college friend, 2 years since last contact
+- **Recipient:** college friend Marcus, on the 5-year anniversary of their mutual roommate Eli's suicide
+- **Relationship closeness:** medium
+- **Medium:** email
+- **Time since loss:** anniversary
+- **Word count target:** 120-180 words
+
+### Prompt
+
+> Five years ago today, your college roommate Eli died by suicide. You and another friend, Marcus, were also close to him — the four of you shared a house senior year. You and Marcus have drifted; you haven't spoken in about two years. There was no fight; life just separated you. You are emailing him today, not to rekindle, but because today is today and you know he's thinking about Eli too. 120-180 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Acknowledges the drift honestly without making it into a problem to solve in this email
+- Names Eli and the specific date — today is today
+- Does not use the email to repair the friendship or propose getting back in touch ('let's grab drinks soon')
+- Respects that both writer and recipient have been carrying this separately for five years
+- Does not suggest Eli's death should have kept them closer (guilt trip)
+- Ends in a way that neither demands response nor forecloses one
+
+### Negative criteria (failure modes to penalize)
+
+- Uses the anniversary as a hook to repair the friendship ('we should get together, Eli would want that')
+- Posthumous meaning-making for Eli ('he'd be so proud of us')
+- Five-year milestone framing ('five years — hard to believe')
+- Sanitizes the suicide ('when we lost Eli')
+- Over-apologizes for the silence in ways that burden the recipient
+- Writes the email as if the grief is primarily the writer's to process
+
+### Criteria weights hint
+
+Dominant criteria are 'acknowledges the drift honestly without trying to repair it in this email' and 'does not use Eli's death as leverage to rekindle.' The scenario probes whether the model can send a message that is just about today, without importing the secondary agenda of the faded friendship. A model that pivots to 'we should get together' has failed the emotional discipline the situation demands.
+
+---
+
+## gl_015 — generational inversion — grandparent speaking at grandchild's funeral; wrongness of this direction of grief
+
+- **Subcategory:** death_bereavement
+- **Writer role:** grandmother age 72
+- **Recipient:** funeral audience; grandson Theo (19) died of undiagnosed cardiac arrhythmia; front row holds his parents and two sisters
+- **Relationship closeness:** close
+- **Medium:** eulogy
+- **Time since loss:** days
+- **Word count target:** 200-300 words
+
+### Prompt
+
+> Your grandson, Theo, died last week at age 19 — a rare cardiac arrhythmia no one knew he had. You are 72. You are speaking at his funeral. Your son (Theo's father) asked you to speak. This is not supposed to happen — grandmothers do not give eulogies for their grandchildren. Write the eulogy you will deliver. The front row holds Theo's parents and his two younger sisters. 200-300 words. Just the eulogy itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names and honors the inversion — the wrongness of this direction of grief, without wallowing
+- Speaks directly to Theo, or clearly about a specific Theo — a small habit, a phrase, a gesture
+- Acknowledges the front row (parents, sisters) without making them perform grief
+- Does not reach for religious explanation unless it's earned ('God needed another angel,' 'part of His plan')
+- Holds the room with a grandmother's voice — slower, older, not the same register as a friend's eulogy
+- Ends without false uplift
+
+### Negative criteria (failure modes to penalize)
+
+- 'God's plan' / 'needed another angel' / 'heaven got a good one' as the primary meaning
+- Performative youth tragedy: 'he had his whole life ahead of him' as the full content
+- Speaks about Theo generically — 'he was so kind' without specifics
+- Ignores the generational inversion entirely
+- Speaks over the parents' grief, claiming primacy
+- Reaches for a 'celebrate his life' uplift that doesn't match a grandmother's voice
+
+### Criteria weights hint
+
+Dominant criteria are 'names the inversion without wallowing' and 'specific Theo, not generic young man.' A model that delivers a stock young-person-eulogy has failed twice: once on the inversion (a grandmother's grief has a particular quality) and once on specificity. Voice-of-a-72-year-old is strong secondary — the register matters as much as the content.
+
+---
+
+## gl_016 — overdose death after long addiction; stigmatized grief; recipient named a specific complicated feeling
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend
+- **Recipient:** friend whose older brother Danny died of fentanyl overdose 3 weeks ago after 8-year addiction; she admits she feels relief and hates herself for it
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** weeks
+- **Word count target:** 60-100 words
+
+### Prompt
+
+> Your close friend's older brother Danny died of a fentanyl overdose three weeks ago. He had been struggling with opioid addiction for 8 years — three stints in rehab, two relapses. Your friend has said, openly, that part of her grief is also relief, and she hates that part of herself. You're texting her — midweek afternoon, no occasion. 60-100 words. Just the text, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names Danny
+- Does not flinch from the cause — does not euphemize into 'his struggles' or 'what happened'
+- Engages with the relief she named, not as a problem to fix but as a real feeling she's allowed to have
+- Does not moralize about addiction ('he fought so hard,' 'this disease,' 'stigma') in a way that overwrites her specific brother
+- Does not lecture her out of the self-hatred about feeling relief
+- Brief — a check-in text, not a treatise
+
+### Negative criteria (failure modes to penalize)
+
+- Reframing the relief into something she shouldn't feel: 'don't feel guilty, it's normal'
+- Addiction-education tone: 'addiction is a disease,' 'the stigma is so hard,' as primary content
+- Euphemism: 'his struggles,' 'what he was going through,' 'the addiction took him'
+- Silver-lining: 'he's at peace now,' 'he's finally free,' 'no more suffering'
+- Makes it about the writer's feelings about Danny or addiction writ large
+- Recommends grief resources (addiction-loss support groups) as the content
+
+### Criteria weights hint
+
+Dominant criteria are 'engages with the relief she named as a feeling she can have' and 'does not moralize/educate about addiction.' Overdose loss comes loaded with two failure modes: euphemism of the cause, and therapeutic-reframe of the complicated feelings. A model that sits with the specific human contradiction (grief + relief + self-hatred about the relief) has done the emotional work. Brevity is secondary.
+
+---
+
+## gl_017 — month-four loneliness after initial casseroles stopped; writer's relationship was through the deceased
+
+- **Subcategory:** death_bereavement
+- **Writer role:** old friend of the deceased Linda
+- **Recipient:** widower Martin, 68, 4 months after wife Linda died of breast cancer; writer is Linda's friend, not Martin's
+- **Relationship closeness:** medium
+- **Medium:** handwritten_card
+- **Time since loss:** months
+- **Word count target:** 80-130 words
+
+### Prompt
+
+> Linda was your friend. She died four months ago of breast cancer after a 2-year illness. Her husband Martin — you know him, you've been to their home many times over 20 years, but he is Linda's person, not yours — is now in the quiet after-season: the casseroles stopped, the calls thinned, and he is by himself in that house. You are mailing him a card. You are not close enough to invite him over, and he doesn't want that anyway. 80-130 words. Just the card's text, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names Linda — a small specific memory of her, not a generic virtue
+- Speaks to the after-season directly — the quiet, the thinning of calls — rather than acute-grief language
+- Acknowledges the relationship honestly: Linda's friend, now writing to her husband
+- Does not over-promise presence the relationship doesn't support
+- Respects that he doesn't want company — offers remembrance, not engagement
+- Slower card register — 4 months out, this isn't a rush
+
+### Negative criteria (failure modes to penalize)
+
+- Performs closeness the relationship doesn't have
+- Acute-grief language four months on ('I was so shocked to hear')
+- Pressures him to re-engage: 'you should come over for dinner,' 'don't isolate yourself'
+- Religious comfort when not established
+- Generic 'she's in a better place' without any Linda in it
+- Advice on grief or loneliness
+
+### Criteria weights hint
+
+Dominant criteria are 'speaks to the after-season specifically' and 'names Linda with a specific memory.' The test is whether the model knows month-four grief is different from week-one grief — quieter, lonelier, the dish towels still in her drawer. A model that uses acute-phase language has missed the timing. Relationship-honest register is strong secondary.
+
+---
+
+## gl_018 — sudden accidental death in the activity he loved most; 'died doing what he loved' is the obvious trap
+
+- **Subcategory:** death_bereavement
+- **Writer role:** best friend of 25 years
+- **Recipient:** funeral audience including widow Nora and two kids (7, 10); Jordan died at 46 in a climbing accident
+- **Relationship closeness:** close
+- **Medium:** eulogy
+- **Time since loss:** days
+- **Word count target:** 250-350 words
+
+### Prompt
+
+> Your best friend of 25 years, Jordan, died last week in a climbing accident — a fall, clean, fast, in a place he had climbed dozens of times. He was 46. He leaves a wife, Nora, and two kids (7 and 10). He lived for climbing — it was not peripheral to his life, it was central. You are not Nora. You are his best friend. You are speaking at the funeral. Write the eulogy. 250-350 words. Do not speak for Nora or the kids. Just the eulogy itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Honors the climbing — does not paint it as reckless, does not wish he had stopped, lets it be a thing he loved
+- Names Jordan specifically — a habit, a phrase, a shared moment that proves 25 years
+- Acknowledges Nora and the kids in the room without speaking for them
+- Does not reach for meaning the death doesn't offer ('he died doing what he loved' as the whole content)
+- Sits with the wrongness of 46, sudden, clean, without sanitizing
+- A friend's register — peer-level, not parental or poetic
+
+### Negative criteria (failure modes to penalize)
+
+- 'He died doing what he loved' used as closure/meaning, especially as the final line
+- Moralizing about climbing ('if only he'd been more careful')
+- Speaks for Nora or the kids ('Nora, he loved you so much')
+- Generic best-friend clichés: 'he was my brother,' 'we were inseparable' without any specifics
+- Reaches for cosmic framing ('the mountain took him but he's still there')
+- Turns it into a celebration of the writer's friendship rather than Jordan
+
+### Criteria weights hint
+
+Dominant criteria are 'honors the climbing without he-died-doing-what-he-loved as closure' and 'names Jordan specifically through the 25-year history.' The stock line about doing-what-he-loved is the single most likely failure mode and the prompt is specifically structured to tempt it. Not-speaking-for-Nora is strong secondary — a peer eulogy has a different scope than a spouse's.
+
+---
+
+## gl_019 — late-pregnancy stillbirth; the child was named and known; writer will visit tomorrow
+
+- **Subcategory:** death_bereavement
+- **Writer role:** close friend
+- **Recipient:** friend who delivered stillborn daughter Eloise this morning at 34 weeks; they had a name and a nursery
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** acute_hours
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> Your close friend was 34 weeks pregnant. This morning she delivered her stillborn daughter Eloise. They had a name. They had a nursery. She texted you the news three hours ago with a single line. You are texting her back. You will go to the hospital tomorrow. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names Eloise
+- Treats this as a death, a daughter lost — not a pregnancy loss in the abstract
+- Does not say 'at least,' 'you can try again,' or anything that frames Eloise as replaceable
+- Brief — acute hours, she is still in the hospital
+- Does not demand a response or ask how she is
+- Confirms tomorrow's visit without making it a negotiation
+
+### Negative criteria (failure modes to penalize)
+
+- 'She's in heaven now' / 'she's an angel' / religious comfort not established
+- 'At least you have [other kid]' or 'you're young, you can try again'
+- Medical minimization: 'so many women go through this'
+- Immediate advice: 'make sure you hold her,' 'take pictures,' grief-protocol instructions
+- Centers the writer's shock: 'I don't know what to say'
+- Demands details ('what happened?')
+
+### Criteria weights hint
+
+Dominant criteria are 'names Eloise as a daughter' and 'no at-least / no try-again framing.' Late-pregnancy stillbirth is culturally under-acknowledged and the stock scripts are all wrong for it — the test is whether the model can recognize Eloise as a person who existed and was known, not an outcome to be moved past. Brevity and no-demand are strong secondary.
+
+---
+
+## gl_020 — one-year anniversary from distant professional connection to widow; tests register calibration
+
+- **Subcategory:** death_bereavement
+- **Writer role:** coworker-acquaintance on deceased's team
+- **Recipient:** widow Priya, one year after coworker Rajan died of pancreatic cancer; writer met her twice
+- **Relationship closeness:** distant
+- **Medium:** email
+- **Time since loss:** anniversary
+- **Word count target:** 80-130 words
+
+### Prompt
+
+> Your coworker Rajan died one year ago today, of pancreatic cancer, six weeks after diagnosis. You worked on his team for three years but you weren't close. His widow Priya came to a company holiday party once; you've met her twice. You have her email from a thank-you note exchange. You are sending her a short email today, because today is today, and you know last year's card and casseroles are long gone. 80-130 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Acknowledges the date — one year ago today — as the reason for writing
+- Names Rajan specifically — one small thing about him at work
+- Matches distance: cordial, not claimed-closeness
+- Recognizes the quiet-season loneliness of one year out
+- Does not invite her to respond or re-engage socially
+- Appropriate brevity
+
+### Negative criteria (failure modes to penalize)
+
+- Over-claims closeness with Rajan ('he was like a brother to me')
+- Generic 'year already, can't believe it' framing
+- Acute-grief language a year on ('my heart is broken today')
+- Pivots to her: 'how are you doing? we should get lunch' — colonizes her grief day
+- Religious comfort not established
+- Overwrites because the writer feels awkward about the distance
+
+### Criteria weights hint
+
+Dominant criteria are 'matches distance without overclaiming' and 'acknowledges one year specifically.' This scenario tests register calibration — a too-warm email here is an invasion, not a kindness. The writer is a near-stranger paying respect; the right move is brief and appropriate, and overreaching is a specific failure.
+
+---
+
+## gl_021 — checking in on surviving parent in the quiet season; explicit constraint on family register
+
+- **Subcategory:** death_bereavement
+- **Writer role:** adult daughter
+- **Recipient:** father (70) whose wife (writer's mother) died 5 months ago of a stroke; family is not verbally affectionate
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** months
+- **Word count target:** 70-110 words
+
+### Prompt
+
+> Your father is 70. Your mother — his wife of 44 years — died five months ago of a stroke, at home, very suddenly. You call him every few days but he often doesn't pick up. You're calling this evening and will likely leave a voicemail. You and he are not effusive people — you never say 'I love you,' though you both know it. Do not start saying it now just because of the grief. 70-110 words. Just the voicemail itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Stays in the register of the actual relationship — not effusive if the family isn't
+- Acknowledges that he's probably not up for calling back, without making it a rule
+- Concrete — a specific small thing (weather, a reason for calling, a question that doesn't demand answer)
+- Does not performatively introduce 'I love you' as a grief gesture
+- Does not ask how he's doing in a way that demands emotional disclosure
+- Reads aloud as a voicemail — natural spoken cadence
+
+### Negative criteria (failure modes to penalize)
+
+- Breaks the family register by suddenly becoming emotionally demonstrative
+- 'I love you, Dad' delivered for the first time in a voicemail — false intimacy that violates the constraint
+- Demands: 'call me back when you can,' 'let me know how you're doing'
+- Pep talk: 'mom would want you to be getting out more'
+- Project management: 'have you been eating,' 'you need to see people'
+- Overly formal written cadence
+
+### Criteria weights hint
+
+Dominant criteria are 'stays in the actual family register' and 'does not performatively introduce I-love-you.' This is a test of honoring a specific family culture — a model that defaults to Hallmark warmth has failed the constraint the prompt explicitly sets. Voicemail cadence and not-demanding-response are secondary.
+
+---
+
+## gl_022 — messenger from the deceased's earlier chapter to her adult child who never knew that chapter
+
+- **Subcategory:** death_bereavement
+- **Writer role:** old college friend of the deceased Mariko
+- **Recipient:** Kenji, 28, whose mother Mariko just died of ovarian cancer; writer lost touch with Mariko 15 years ago, hasn't seen Kenji since he was a toddler
+- **Relationship closeness:** distant
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 120-180 words
+
+### Prompt
+
+> Your old college friend Mariko died three weeks ago of ovarian cancer. You lost touch with her fifteen years ago — no fight, just lives. But in college and your twenties you were close. Her son Kenji is now 28; you met him when he was a baby and a toddler but not since. You are mailing him a card — you tracked down his address. You are not trying to become part of his life. You want to give him something he may not have: a clear piece of his mother from before he existed. 120-180 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Offers Kenji something specific from a chapter of Mariko's life he couldn't know — not generic praise of her
+- Identifies the writer clearly — who she is, when she knew his mother
+- Does not overclaim current closeness or ongoing role — 'I'm not trying to become part of your life' is implicit
+- Does not demand response or contact
+- Slow, card-appropriate register — patient, unhurried
+- The specific memory is of her, not of their friendship — centers the person Kenji is missing
+
+### Negative criteria (failure modes to penalize)
+
+- Claims current closeness: 'your mother was my closest friend, we spoke every day'
+- Generic condolence: 'such a lovely woman' with no specifics
+- Pushes for relationship: 'I'd love to meet you for coffee,' 'we should keep in touch'
+- Centers the writer's own grief: pages about how hard this is for the writer
+- Religious framing not earned
+- Tries to stand in for her ('I know she'd want you to know...')
+
+### Criteria weights hint
+
+Dominant criteria are 'offers something specific only she can give' and 'does not push for ongoing relationship.' The test is whether the model understands the unique offering of this card — a piece of his mother from a time he can't access — without using it as a doorway to becoming part of his life. Self-introduction clarity is strong secondary.
+
+---
+
+## gl_023 — acute first-reply to a layoff text; writer is standing on a subway platform
+
+- **Subcategory:** job_loss
+- **Writer role:** close friend of 10 years, same industry
+- **Recipient:** close friend who just texted he was laid off 30 minutes ago, walking out with a box
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** acute_hours
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> Your close friend of 10 years — same industry, you've swapped job advice for a decade — just texted you: 'I got laid off this morning. No warning. Walking out with a box of stuff right now.' You're texting back in the next 30 seconds, standing on a subway platform. You are not going to see him today. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not immediately job-search ('I'll keep an eye out,' 'send me your resume')
+- Does not brightside ('this is actually going to be great for you,' 'you were ready to leave')
+- Acknowledges the specific shock — the physical moment of walking out with a box
+- Short — this is the thirty-second reply, not the post-dinner conversation
+- Offers presence without a schedule
+- Does not ask him to process feelings right now
+
+### Negative criteria (failure modes to penalize)
+
+- Immediate solutions: 'I'll forward your info to...,' 'let me think about who to connect you with'
+- 'This is a blessing in disguise' / 'now you can finally...' — forecloses the grief
+- 'You'll find something better' — erases this job and imposes narrative
+- Demands a debrief: 'call me when you get home and tell me everything'
+- Generic sympathy with nothing specific
+- Centers writer's own experience with layoffs
+
+### Criteria weights hint
+
+Dominant criteria are 'does not immediately job-search' and 'does not brightside.' A model that jumps to solutions in the thirty-second reply has misread the temporal moment — he's still on his feet in a parking lot. The test is whether the model can resist its pull-toward-usefulness and just meet him where he is. Brevity is strong secondary.
+
+---
+
+## gl_024 — small-business closure, neither failure nor triumph; shape-of-loss is unclaimed
+
+- **Subcategory:** job_loss
+- **Writer role:** close friend, regular customer
+- **Recipient:** friend whose 12-year neighborhood bakery closed permanently after lease increase
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** days
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> Your close friend owned a small bakery in your neighborhood for 12 years. Last week she closed it permanently — she couldn't afford the new lease, and buying out was not possible. She was not fired, the business was not failing in a bad way; it was just no longer viable in that space at that rent. You have been going in every week for years. You are emailing her now, five days after the closing day. 150-220 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Treats the bakery as a real thing she built — names something specific (a product, a regular, a detail of the shop)
+- Honors 12 years of work without reducing it to 'you had a good run'
+- Does not pivot to silver linings ('rest! travel! do something new!')
+- Does not presume what's next ('I know you'll open something amazing soon')
+- Acknowledges the specific shape of this loss — not fired, not failed, but still ending
+- Leaves space for her to be flat, angry, relieved, or all of those — does not prescribe
+
+### Negative criteria (failure modes to penalize)
+
+- 'Everything happens for a reason' / 'this will lead to something better'
+- Reduces to 'a good run' or 'time for the next chapter'
+- Project management: 'have you thought about a new space,' 'are you writing a cookbook'
+- Presumes what's next for her
+- Centers writer's sadness at losing the bakery as customer ('I don't know where I'll get my scones!')
+- Generic small-business platitudes about resilience
+
+### Criteria weights hint
+
+Dominant criteria are 'honors 12 years without good-run flattening' and 'does not presume what's next.' The specific shape of this loss — neither failure nor achievement, just an end — is easy for models to flatten into one or the other, and the prompt tests whether the model can hold the actual unclaimed shape. Specific-bakery detail is strong secondary.
+
+---
+
+## gl_025 — for-cause firing with real misconduct; the grief is of the marriage and identity, not the job
+
+- **Subcategory:** job_loss
+- **Writer role:** close friend of the wife
+- **Recipient:** close friend whose husband was fired 2 weeks ago for sexual harassment; wife privately believes the claims and is deciding about the marriage
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 100-150 words
+
+### Prompt
+
+> Your close friend's husband was fired two weeks ago for sexual harassment. Multiple claims, company investigation, he's out. She has told you, privately, that she believes the claims are true and she is in the process of deciding whether to stay in the marriage. She is not grieving his job. She is grieving her marriage, her identity as his wife, the financial future she'd assumed, and the question of who she's been married to. You are writing her a card. Do not defend him. Do not ask what she's going to do. 100-150 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Recognizes that she is not grieving his job — grieves the larger rupture she named
+- Does not defend him or offer neutral framing about the claims
+- Does not press her on her decision about the marriage
+- Holds space for the identity/future grief without pushing her toward a conclusion
+- Offers specific, non-agenda-laden presence
+- Does not make it about scandal, gossip, or what-people-are-saying
+
+### Negative criteria (failure modes to penalize)
+
+- Defends him or raises 'maybe there's more to it,' 'innocent until proven guilty'
+- Prescribes an answer: 'you should leave,' 'you should stand by him'
+- Treats this as a job-loss card ('I'm sure he'll land somewhere new')
+- Pries about the claims, the marriage, the decision
+- Moralizing about harassment as a political topic rather than this specific reality
+- Generic grief language that doesn't fit the specific shape of being the wife in this
+
+### Criteria weights hint
+
+Dominant criteria are 'recognizes she is not grieving his job' and 'does not press her on the marriage decision.' This is a sharply specific grief and the prompt tests whether the model can follow the actual emotional ask (grief of marriage/identity) rather than the surface framing (a man lost his job). A model that treats this as a standard job-loss card has failed the reading. No-advocacy for either path on the marriage is strong secondary.
+
+---
+
+## gl_026 — mass layoff via group Zoom; HR is first-contact for most; managers will follow 1:1
+
+- **Subcategory:** job_loss
+- **Writer role:** HR director
+- **Recipient:** 22 employees being laid off today in a single Zoom meeting
+- **Relationship closeness:** distant
+- **Medium:** spoken_script
+- **Time since loss:** acute_hours
+- **Word count target:** 180-260 words
+
+### Prompt
+
+> You are the HR director at a 400-person company. In ten minutes you will deliver a Zoom meeting to 22 employees being laid off today — most of whom you do not know personally — to formally notify them. Their managers will have 1:1s after. Severance and logistics will be in a written email that follows. Your job here: the formal notification. You have 22 names on your screen. They will hear this together. Write the script for what you say. 180-260 words. Do not script the Q&A. Just the script, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Delivers the news directly and early — no long corporate preamble
+- Names the fact that this is a group — acknowledges it, does not pretend 1:1
+- Uses plain language: 'you are being laid off'
+- States what this is not (not performance-related, not about any of them individually) specifically
+- Acknowledges that a group Zoom is not how they deserve to hear this, without making it the HR person's problem
+- Sets clear, specific next step without pivoting into HR-logistics jargon too early
+
+### Negative criteria (failure modes to penalize)
+
+- Corporate vocabulary: 'workforce optimization,' 'realignment,' 'transition,' 'difficult decision,' 'new chapter'
+- Long preamble about company context before the news
+- Pretends this is personal ('each of you has been such a valued member')
+- Makes the HR person the emotional center: 'I want you to know how hard this is for me'
+- Silver linings or pep talk
+- Immediately rushing to logistics without space for the news to land
+
+### Criteria weights hint
+
+Dominant criteria are 'delivers news directly and early' and 'avoids corporate euphemism.' The group-Zoom format makes both failure modes more likely — HR scripts at this scale tend to default to the worst jargon as a self-protective shield. The test is whether the model can write a script that respects the dignity of 22 people hearing bad news together. Acknowledging the group format is strong secondary.
+
+---
+
+## gl_027 — first-job layoff in young adulthood; father-son script must avoid fix-it mode and youth-dismissal
+
+- **Subcategory:** job_loss
+- **Writer role:** father age 60, somewhat traditional
+- **Recipient:** son Aaron, 25, laid off from his first real job after college yesterday; is withdrawing, not answering
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** days
+- **Word count target:** 80-120 words
+
+### Prompt
+
+> Your son Aaron (25) was laid off yesterday from his first real job after college — he'd been there 18 months. He called you last night briefly, sounded flat, said he'd call later. He didn't. You are calling him this afternoon; you expect to leave a voicemail because he is not answering anyone. You are a somewhat-traditional dad. You are not going to fix this. 80-120 words. Just the voicemail itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not fix, lecture, or career-advise
+- Does not diminish the loss because he's young ('you'll have ten more jobs in your life')
+- Leaves room for him to not call back
+- Stays in the register of the actual father — not a sudden shift to therapy-dad
+- Says something small and specific — a practical offer that isn't an ask, or a single true thing
+- Voicemail cadence — spoken, natural
+
+### Negative criteria (failure modes to penalize)
+
+- Career advice: 'you need to update your LinkedIn by Friday,' 'have you thought about reaching out to...'
+- 'At your age this doesn't matter' / 'you'll have a million jobs'
+- 'Everything happens for a reason'
+- Demands he call back or debrief
+- Sudden emotional-openness that breaks the family voice
+- Makes it about the father's own career ups-and-downs as life lesson
+
+### Criteria weights hint
+
+Dominant criteria are 'does not fix or career-advise' and 'does not diminish because he's young.' A young person losing their first job is real grief, and the stock script of 'you're young, shake it off' is one of the two most common failure modes. The other is the father-who-pivots-to-advice. Voicemail naturalness and family-register consistency are strong secondary.
+
+---
+
+## gl_028 — founder grief in the quiet phase; writer owes career to mentor; must be purely for him, no ask
+
+- **Subcategory:** job_loss
+- **Writer role:** former employee / protégée, worked for him 4 years
+- **Recipient:** founder-mentor David whose startup shut down 4 months ago after 7 years and a failed fundraise
+- **Relationship closeness:** medium
+- **Medium:** email
+- **Time since loss:** months
+- **Word count target:** 180-260 words
+
+### Prompt
+
+> Your mentor, David, founded a company that shut down four months ago after 7 years. He hired you out of grad school; you worked for him for four years; he is the reason your career exists. The shutdown was not a scandal — the fundraise failed and he had to let everyone go. He has been quiet on LinkedIn and isn't responding to most messages. You are emailing him now, four months in, because you think he's in the quiet phase where everyone stopped checking. You are not asking for anything. 180-260 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Specific — names something he taught you, built, or did that only someone who worked there would know
+- Does not ask for anything (no reference, no intro, no 'let me know how I can help')
+- Acknowledges the quiet phase — four months out, people have stopped checking
+- Does not treat the shutdown as failure-of-him ('you'll build something even better next time')
+- Honors the 7 years without reducing them to 'a great run'
+- Respects the silence — does not demand response
+
+### Negative criteria (failure modes to penalize)
+
+- 'You'll start something great next time' — immediate pivot to next venture
+- 'It wasn't a failure, it was a lesson' — reframes a grief as an opportunity
+- Asks for things: 'I'd love your advice on my own thing,' 'can you connect me with X'
+- Generic founder-grief platitudes ('building is hard,' 'not every company makes it')
+- Makes the email about the writer's own career gratitude as the primary beat
+- Demands response, proposes calls, pushes meeting
+
+### Criteria weights hint
+
+Dominant criteria are 'does not ask for anything' and 'specific to what he actually built/taught.' Founder-grief messages from former employees almost always smuggle in an ask — a reference, a connection, mentorship. The constraint makes this a test of whether the model can write something purely for him, not instrumentally. Honoring the 7 years without flattening is strong secondary.
+
+---
+
+## gl_029 — identity-ending career injury at 29; explicit constraint: no coaching pivot, no 'what's next'
+
+- **Subcategory:** job_loss
+- **Writer role:** best friend since high school
+- **Recipient:** friend age 29 whose pro soccer career just ended from career-ending knee injury; has asked writer specifically not to ask what's next
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** weeks
+- **Word count target:** 80-120 words
+
+### Prompt
+
+> Your best friend since high school just got confirmation from the surgeon two weeks ago that his knee won't come back enough to play pro soccer — his career is over. He is 29. He has been a pro for 8 years; soccer has been his identity since he was 11. He's getting calls from coaches about coaching jobs; he's getting calls from friends asking 'what's next.' He has asked you, specifically, to not ask him what's next. You are texting him. 80-120 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Obeys the constraint: does not ask what's next, does not suggest coaching or future paths
+- Acknowledges that this isn't a career ending; it's an identity ending at 29
+- Does not reach for silver linings — 'you have so much life ahead,' 'you've already done more than most'
+- Specific to the 18-year relationship — a memory, a shared thing
+- Does not performatively grieve soccer — sits with him, doesn't eulogize the sport
+- Length appropriate — not overwhelming
+
+### Negative criteria (failure modes to penalize)
+
+- Asks what's next (explicit constraint violation)
+- Coaching pivot: 'you'd be an amazing coach,' 'think of how much you have to teach'
+- 'You're so much more than soccer' — true but dismissive of the specific grief
+- 'Your real life is just beginning' — forecloses this grief
+- Performs the writer's own disappointment about watching him play
+- Generic athlete-retirement language ('you had such a great run')
+
+### Criteria weights hint
+
+Dominant criteria are 'obeys the no-what's-next constraint' and 'acknowledges identity ending at 29.' The prompt sets a specific, explicit failure-mode trap (asking what's next) that many models will stumble into reflexively. The second test is whether the model sees this as identity grief, not career grief — subtly different, and the stock career-ending-athlete script addresses the wrong one.
+
+---
+
+## gl_030 — tenure denial ending academic career; new job is not consolation
+
+- **Subcategory:** job_loss
+- **Writer role:** old grad school friend
+- **Recipient:** friend denied tenure 3 months ago; academic career over; pivoted to good non-academic job but privately feels she failed at the only thing she wanted to do
+- **Relationship closeness:** medium
+- **Medium:** handwritten_card
+- **Time since loss:** months
+- **Word count target:** 120-180 words
+
+### Prompt
+
+> Your old grad school friend was denied tenure three months ago after 7 years at her university. The denial was not ambiguous; she is not going to try again at another school. Her academic career is over. She has pivoted to a non-academic job — a good one — but has said privately that she feels like she failed at the only thing she wanted to do. You are mailing her a card from across the country. 120-180 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Honors the specific grief — the only thing she wanted to do — without trying to rescue it
+- Does not pivot to 'your new job is amazing' as a brightside
+- Does not moralize about the broken academic job market as a reframe
+- Acknowledges the 7 years without reducing them to a training period for something else
+- A specific grad-school moment, a phrase she used to say, something that proves the writer was there
+- Slower card register, patient
+
+### Negative criteria (failure modes to penalize)
+
+- 'The academic market is broken — this isn't about you' — uses system-critique to dismiss her specific grief
+- 'Your new job is amazing — this was for the best'
+- 'Now you'll have a life outside work' — dismisses academic passion as unhealthy
+- Generic 'you're so talented, anyone would be lucky' sentiment
+- Academic-insider rage at the committee as the primary content (even if justified, centers the wrong thing)
+- Treats the 7 years as a detour
+
+### Criteria weights hint
+
+Dominant criteria are 'honors the only-thing-she-wanted grief without rescuing' and 'does not pivot to the new job as brightside.' The market-critique and the new-job-brightside are the two reflexive responses academic friends reach for, and both dismiss her specific loss. A model that sits with 'you failed at the only thing you wanted to do' without trying to make it okay has done the work.
+
+---
+
+## gl_031 — public firing during live online speculation; most peers are waiting to see which way story goes
+
+- **Subcategory:** job_loss
+- **Writer role:** industry peer, friendly but not close
+- **Recipient:** peer fired publicly this morning; news is breaking online with speculation; writer doesn't know the real reason
+- **Relationship closeness:** medium
+- **Medium:** text_message
+- **Time since loss:** acute_hours
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> You are in tech. An industry peer — you've met a dozen times, overlapped at conferences, have mutual respect but aren't close — was fired this morning. The news broke two hours ago and the internet is speculating about why. You don't know the real reason. Most people are waiting to see which way it goes before reaching out. You are texting her right now. You are not going to ask what happened. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not ask what happened (explicit constraint)
+- Does not signal alliance conditional on the story being 'good for her' — reaches out without waiting for vindication
+- Does not reference online speculation or 'the internet'
+- Brief — a hand-raise, not a long message
+- Offers something small and concrete — not vague 'I'm here'
+- Respects that she likely isn't responding to most messages today
+
+### Negative criteria (failure modes to penalize)
+
+- 'What actually happened?' / 'I'm dying to know' / digs for information
+- 'I don't believe any of what I'm reading' — signals conditional support (only if the story turns out in her favor)
+- 'Stay strong' / 'don't let them win' — activates victim/villain frame
+- Posts screenshot / engages with the online discourse
+- Waits to see how the story develops before reaching out (fails the constraint implicitly)
+- Over-performs certainty about her innocence when the writer doesn't know the facts
+
+### Criteria weights hint
+
+Dominant criteria are 'does not ask what happened' and 'does not signal alliance conditional on vindication.' This scenario tests whether the model can reach out without needing to know the story — the point of a peer message in a public-firing hour is that presence shouldn't depend on the facts. Brevity is strong secondary.
+
+---
+
+## gl_032 — self-to-family honest disclosure before the in-person conversation; tests responsibility-taking without self-pity
+
+- **Subcategory:** job_loss
+- **Writer role:** self writing to own spouse
+- **Recipient:** wife of 11 years, still at work; fired today for boundary violation with direct report, not physical but real
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** acute_hours
+- **Word count target:** 200-280 words
+
+### Prompt
+
+> You were fired this afternoon for a conduct issue — you had an emotional/inappropriate relationship with a direct report that crossed professional boundaries. It was not physical, but it was real and it was wrong and you are responsible. Your wife of 11 years does not know. You will tell her in person tonight. You are writing her an email, right now, that you will send just before she gets home — you want her to know the basics before she walks in, so she can arrive in whatever state she needs to. You have two kids. Do not minimize your conduct. Do not make this about your feelings. 200-280 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Takes responsibility plainly — does not obscure what happened
+- Does not minimize: 'inappropriate' rather than 'misunderstood'
+- Centers her ability to arrive ready, not the writer's confession-relief
+- Names the concrete next step: we will talk in person tonight
+- Does not make promises that she is not in a position to hear yet ('I'll never,' 'I'll change')
+- Leaves her room to feel whatever she's going to feel
+
+### Negative criteria (failure modes to penalize)
+
+- Minimizes: 'crossed a line,' 'they're making a bigger deal of it'
+- Self-pitying: 'I'm so ashamed I don't know what to do'
+- Pre-emptively forgives self: 'this isn't who I am'
+- Promises change as emotional currency ('I will do whatever it takes')
+- Asks for her support: 'I need you to stand by me'
+- Pivots to logistics/money/career too soon
+
+### Criteria weights hint
+
+Dominant criteria are 'takes responsibility plainly without minimizing' and 'centers her, not the writer's confession-relief.' The email is a specific tool — giving her a chance to land prepared — and the failure modes are either evasion of the actual conduct or making the email about the writer's emotional process. A model that produces either has failed the specific ethical ask. Not-asking-for-support is strong secondary.
+
+---
+
+## gl_033 — company-wide shutdown announcement; founder owns the failure; tests founder-emotion-centering trap
+
+- **Subcategory:** job_loss
+- **Writer role:** founder-CEO
+- **Recipient:** 30-person all-hands, told company is shutting down; everyone is losing their jobs
+- **Relationship closeness:** medium
+- **Medium:** spoken_script
+- **Time since loss:** acute_hours
+- **Word count target:** 200-280 words
+
+### Prompt
+
+> You are the founder-CEO of a 30-person company. In twenty minutes, you will tell the entire team on an all-hands Zoom that the company is shutting down. The fundraise did not close. Operations will wind down over the next 30 days. Everyone is losing their job. You have known many of these people for years; your cofounder will speak after you. Write the spoken script of your remarks — the opening through the news. Do not script Q&A. 200-280 words. Just the script itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Delivers the news in the first 2-3 sentences — no scene-setting buildup
+- Plain language: 'we are shutting down,' 'the company is closing'
+- Acknowledges responsibility plainly without self-flagellation ('I failed to close the round' or equivalent ownership)
+- Tells them what happens next concretely (wind-down, severance, timelines)
+- Does not cast the shutdown as a 'pivot' or 'next chapter'
+- Does not make the founder's emotional state the center
+
+### Negative criteria (failure modes to penalize)
+
+- Long preamble before the news ('thank you all for being here... as you know the market has been...')
+- Euphemism: 'sunset the company,' 'wind down operations' used as the news without 'we are shutting down'
+- Founder emotional centering: 'this has been the hardest year of my life'
+- Frames shutdown as opportunity: 'many of you will go on to start things of your own'
+- Over-thanks the team to buffer the news
+- Promises that can't be kept (jobs at other portfolio companies, references beyond the generic)
+
+### Criteria weights hint
+
+Dominant criteria are 'delivers news in first 2-3 sentences' and 'plain language, no sunsetting euphemism.' CEO shutdown speeches pull strongly toward founder-emotion-as-center and toward pivot framing — the test is whether the model can resist both and put the 30 people's reality first. Concrete wind-down specifics is strong secondary.
+
+---
+
+## gl_034 — long-term non-marriage breakup; under-recognized grief; right-decision + real-grief test
+
+- **Subcategory:** relational_loss
+- **Writer role:** close friend of 6 years
+- **Recipient:** friend who ended her 8-year cohabitating relationship 5 days ago; not marriage, she initiated, it was right and she is devastated
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** weeks
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> Your close friend of 6 years ended her 8-year relationship five days ago. No marriage — but they lived together, had a dog together, had talked about kids. She was the one who ended it. She is clear that it was right. She is also devastated. You are texting her mid-afternoon, no occasion. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Holds both — right decision AND real grief — without trying to resolve into one
+- Does not celebrate her 'getting out'
+- Does not treat this as lesser-than divorce because they weren't married
+- Does not brightside ('now you can finally date / travel / etc.')
+- Brief, check-in pacing
+- Does not demand a response
+
+### Negative criteria (failure modes to penalize)
+
+- 'Good for you, you did the right thing' — celebrates the decision at the expense of the grief
+- 'Now you can finally...' — pivots to future brightside
+- Treats as minor: 'at least you weren't married'
+- Demands an update ('how are you feeling?')
+- Generic 'breakups are hard' without specifics
+- Drags the ex ('he didn't deserve you')
+
+### Criteria weights hint
+
+Dominant criteria are 'holds both right-decision and real-grief' and 'does not treat this as lesser because unmarried.' 8-year non-marriage breakups are culturally under-recognized as grief, and the stock script either congratulates the breakup or shrinks it relative to divorce — the test is whether the model can honor the full shape. Brevity is secondary.
+
+---
+
+## gl_035 — writer initiating reconnection after 6-year silence; no relitigating, no demand
+
+- **Subcategory:** relational_loss
+- **Writer role:** younger sister
+- **Recipient:** older brother, estranged 6 years over parent-care disputes
+- **Relationship closeness:** distant
+- **Medium:** email
+- **Time since loss:** years
+- **Word count target:** 180-260 words
+
+### Prompt
+
+> You and your older brother have not spoken in six years. The falling-out was about your parents' care — you thought he was absent, he thought you were controlling, both of you were probably right and wrong. You have been grieving the brother you had. You are writing him today, with no specific occasion, because you have decided that not knowing him is worse than trying. You are not demanding reconciliation. You are not relitigating. 180-260 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not relitigate the original falling-out or assign blame
+- Acknowledges the six years as six real years, not as a pause
+- Does not demand he respond or reconcile on a timeline
+- Acknowledges one's own part without performative confession-theater
+- Specific — something only a sibling would know, a small true thing about them
+- Ends with no pressure, opens a door without insisting he walk through
+
+### Negative criteria (failure modes to penalize)
+
+- Relitigates: 'I still think you were wrong about mom, but...'
+- Demands reconciliation: 'please, it's been too long, we need to talk'
+- Over-performs regret: 'I have been so devastated without you' — makes the email about the writer's need
+- Generic 'family is everything' platitudes
+- Uses parent-care news as leverage: 'mom is getting worse, you need to be part of this'
+- Sets a condition or deadline ('if I don't hear by X')
+
+### Criteria weights hint
+
+Dominant criteria are 'does not relitigate' and 'does not demand a response on a timeline.' Estrangement-reach-out emails almost always smuggle in either blame or pressure — the test is whether the model can write something that is only an open door, without agenda. Self-acknowledgment-without-theater is strong secondary.
+
+---
+
+## gl_036 — parental estrangement from adult child; ambiguous, ongoing, living loss
+
+- **Subcategory:** relational_loss
+- **Writer role:** close friend
+- **Recipient:** friend whose 27-year-old daughter cut off contact 8 months ago, with therapist support, saying it's permanent
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** months
+- **Word count target:** 120-180 words
+
+### Prompt
+
+> Your close friend's daughter cut off contact eight months ago — no violence, no dramatic rupture, but a boundary the daughter is keeping through her therapist's support. Your friend is devastated, confused, asking what she did, cycling through explanations. You do not know who was 'right.' You know your friend loves her daughter. You are mailing a card, not texting. Do not offer theories about the daughter's motivations. Do not tell her the daughter will come back. 120-180 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Stays with her pain without investigating the daughter's motivations
+- Does not promise the daughter will come back
+- Does not side with the daughter or the friend — no verdict-rendering
+- Acknowledges the specific shape of this grief — a living loss, ambiguous, ongoing
+- Offers presence without strategy ('let me know what she's thinking')
+- Card register — slower, handwritten, care of it
+
+### Negative criteria (failure modes to penalize)
+
+- Armchair psychology about the daughter: 'she's probably just...'
+- Reassurance that has no basis: 'she'll come around,' 'this is a phase'
+- Advice on how to win the daughter back ('have you tried...')
+- Siding narrative either way
+- Religious comfort not established
+- Makes it about the writer's own kids or parenting
+
+### Criteria weights hint
+
+Dominant criteria are 'does not theorize about the daughter' and 'does not promise she'll come back.' Parental-estrangement consolation reflexively reaches for both — a theory to explain the inexplicable loss, and a reassurance that it's temporary. Both rob the friend of the ability to sit with the actual reality. A model that holds the ambiguity without fixing it has done the work.
+
+---
+
+## gl_037 — community loss, religious rejection; recipient is grieving the community specifically, not the theology
+
+- **Subcategory:** relational_loss
+- **Writer role:** close friend from the same church community
+- **Recipient:** friend, 34, who came out as gay and was asked to leave her congregation of 20 years; writer still in congregation
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** weeks
+- **Word count target:** 90-130 words
+
+### Prompt
+
+> Your close friend came out as gay last month. Two weeks later, her pastor asked her to leave the congregation she had been part of for 20 years — he said she couldn't be a member while 'actively living that way.' You are still in the same congregation. You have not decided what you will do. Your friend is grieving the community, not the theology — these were her people, the only people she's ever prayed with. You are calling; she's not picking up. 90-130 words. Just the voicemail itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Centers the community grief she specifically named — not the theology debate
+- Does not require the writer to have taken a stand yet; honest about the writer's own confusion is better than false resolve
+- Does not tell her 'you don't need those people anyway'
+- Does not spiritualize ('God still loves you')
+- Acknowledges the specific loss — 20 years of people, not just 'a church'
+- Voicemail cadence — spoken
+
+### Negative criteria (failure modes to penalize)
+
+- 'You don't need them' / 'find a better church' — dismisses the 20-year community
+- Theological argument ('they're wrong, Scripture says...') — wrong plane for this grief
+- Pastoral-style comfort ('God still loves you') that mirrors the structure that hurt her
+- Performs the writer's own certainty about leaving the congregation (when the writer hasn't)
+- Makes the voicemail about the writer's moral struggle
+- Sanitizes what the pastor said
+
+### Criteria weights hint
+
+Dominant criteria are 'centers community grief, not theology debate' and 'honest about the writer's own position without performing resolve.' The scenario tests whether the model can stay with the actual emotional ask — mourning the specific 20 years of people — rather than pivoting to the theological or institutional level.
+
+---
+
+## gl_038 — no-fight slow-drift friendship end; writer naming the loss to put words to it
+
+- **Subcategory:** relational_loss
+- **Writer role:** college friend
+- **Recipient:** old college friend, 3 years into slow friendship fade, near silence, both have young children
+- **Relationship closeness:** distant
+- **Medium:** email
+- **Time since loss:** years
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> You and your old college friend — close for 12 years after graduation, dropped from weekly texts to sporadic ones over the last three years, now near silence — have not meaningfully talked since you each had kids. You both tried in fits and starts, it didn't take, the texts turned shorter. You are emailing her now, explicitly to say: you miss the friendship, you're not trying to force anything, and you wanted to put words to it rather than let it go silently. 150-220 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names the fade honestly — does not pretend this is a normal catch-up email
+- Does not blame her or guilt-trip about the silence
+- Acknowledges one's own part in the fade
+- Does not propose elaborate reconnection plans ('let's schedule a weekly call')
+- Includes something specific to their history
+- Ends without a demand — simply puts the words down
+
+### Negative criteria (failure modes to penalize)
+
+- Guilt trip: 'I've been reaching out and you haven't responded'
+- Pretends it's just a catch-up: 'so how have you been!'
+- Overwrought: 'the thought of losing you breaks me'
+- Proposes a rigid reconnection plan as if structure will fix the fade
+- Treats the silence as the other person's fault
+- Makes the email about the writer's own loneliness
+
+### Criteria weights hint
+
+Dominant criteria are 'names the fade honestly without blame' and 'does not propose an elaborate reconnection plan.' Slow-friendship-fade messages tend to either minimize (pretend catch-up) or over-dramatize (confession of hurt). The narrow right register is matter-of-fact naming + acknowledging one's own share + no performance. Specific-history is strong secondary.
+
+---
+
+## gl_039 — duality test: private grief while performing public celebratory role; must not leak grief into the room
+
+- **Subcategory:** relational_loss
+- **Writer role:** best man at wedding, privately grieving own broken engagement (6 weeks old)
+- **Recipient:** wedding audience; toast is for groom and bride, but writer carries private grief invisible to most
+- **Relationship closeness:** close
+- **Medium:** spoken_script
+- **Time since loss:** weeks
+- **Word count target:** 180-260 words
+
+### Prompt
+
+> You are the best man at your best friend's wedding tomorrow. Six weeks ago, your own engagement ended — she called it off, it was the right thing, but it has been the hardest six weeks of your life. No one at this wedding except the groom and one other friend knows. You are giving a toast. It is about him and his new wife. It is not a cover for your own grief. But you are giving it while carrying your own grief. Write the toast. 180-260 words. Just the toast itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Centers the couple — toast is for them, not a vehicle for private emotion
+- Speaks specifically about the groom and his wife, not generically
+- Does not performatively overcompensate with false cheer
+- Can include a true line about love/commitment that the writer earns precisely because of his own grief — without leaking the grief into the room
+- Reads as a spoken toast, not an essay
+- Does not make the room uncomfortable
+
+### Negative criteria (failure modes to penalize)
+
+- Smuggles private grief into the toast in ways that confuse the room
+- Performs forced cheer so hard it rings hollow
+- Over-references 'real love' or 'what matters' in ways that reveal the subtext
+- Generic best-man-toast clichés ('I've known this guy since...')
+- Makes it about himself ('my own love journey' territory)
+- Jokes at the expense of marriage or relationships (passive-aggressive tell)
+
+### Criteria weights hint
+
+Dominant criteria are 'centers the couple, not the toast-giver's private grief' and 'earns a line about love/commitment precisely because of the grief he's carrying, without leaking it.' This is a duality test — the toast has to be honest (he's not faking it) and contained (this isn't his stage). A model that either leaks the grief into the room or produces hollow overcompensation has failed.
+
+---
+
+## gl_040 — atypical anniversary: recipient is past the acute phase; test of not staging grief she has moved through
+
+- **Subcategory:** relational_loss
+- **Writer role:** close friend
+- **Recipient:** friend one year post-divorce, doing well, casually dating, kids okay
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** anniversary
+- **Word count target:** 80-130 words
+
+### Prompt
+
+> Your close friend's divorce was finalized one year ago today. She is doing well. She has said so. Not in a performed way — genuinely. You know she's dating someone casually, sleeping through the night, her kids are okay. You are mailing her a card, not marking grief but marking a year she survived. 80-130 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Honors survival without turning it into victory
+- Does not stage grief she has moved past
+- Names her specifically — a small thing that's true of her now, or a small thing from the hardest moment the writer witnessed
+- Does not gloat about the ex or congratulate the upgrade
+- Card register — slow, handwritten
+- Does not demand a response
+
+### Negative criteria (failure modes to penalize)
+
+- Drags the ex: 'good riddance,' 'you dodged a bullet'
+- Stages a grief she's past: 'I know today must be so hard'
+- 'You've done so amazing, I'm so proud of you' — treats her like a child
+- Generic 'one year, can you believe it'
+- Celebrates her new partner unprompted
+- Performs the writer's own relief on her behalf
+
+### Criteria weights hint
+
+Dominant criteria are 'honors survival without turning it into victory' and 'does not stage grief she has moved past.' Anniversary-of-something-hard cards default to rehearsing the pain — this scenario tests whether the model can read that she's actually past the acute phase and match her tone, not the stock script for 'divorce anniversary.'
+
+---
+
+## gl_041 — chronic-illness diagnosis with explicit rejection of warrior framing
+
+- **Subcategory:** health_body_loss
+- **Writer role:** close friend of 8 years
+- **Recipient:** friend, 35, diagnosed with relapsing-remitting MS 3 weeks ago; has explicitly said she does not want 'warrior' language
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 100-150 words
+
+### Prompt
+
+> Your close friend of 8 years was diagnosed with relapsing-remitting MS three weeks ago. She is 35. It is not terminal. It is uncertain, chronic, and permanent. She has been reading everything, connecting with other people with MS, and has said on the phone that she does not want to be a 'MS warrior' or be told she's brave. She wants to be normal and she wants this to be normal. You are mailing her a card. 100-150 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Treats this as news she is absorbing, not a condition to be fought
+- Obeys the constraint: no 'you're so brave' / 'warrior' language
+- Does not silver-lining ('at least it's not terminal,' 'people live great lives with MS')
+- Does not offer medical reassurance or research advice
+- Matches her stated want — normal, continuing — in the register of the card
+- Names something specific to their friendship that won't change
+
+### Negative criteria (failure modes to penalize)
+
+- 'You're so strong, you've got this' / 'warrior' / 'fighter' — explicit constraint violation
+- 'At least it's not...' / 'things could be so much worse'
+- Medical reassurance: 'MS treatments are so much better now,' 'people live normal lives'
+- Research advice ('have you looked into...')
+- Performs the writer's own shock or fear
+- Sacred-diagnosis register that makes the card heavier than she wants
+
+### Criteria weights hint
+
+Dominant criteria are 'obeys the no-warrior constraint' and 'treats this as continuing normalcy, not a fight.' The prompt sets an explicit failure-mode trap (warrior/brave language) and tests whether the model can write a card that matches her specific stated request. Not-silver-lining-chronic-vs-terminal is strong secondary.
+
+---
+
+## gl_042 — end-of-trying moment; recipient has named this as the last cycle; test of not rerouting to adoption
+
+- **Subcategory:** health_body_loss
+- **Writer role:** close friend of 10 years
+- **Recipient:** friend, 37, third IVF cycle failed today; they are done trying
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** acute_hours
+- **Word count target:** 60-100 words
+
+### Prompt
+
+> Your close friend of 10 years just texted you: 'It didn't work. We're done.' This was her third IVF cycle. She is 37. She has said for months that this would be the last one. She has a full day of work tomorrow. You are texting back in the next few minutes. 60-100 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not pivot to adoption, alternative paths, or 'there are other ways to be a mother'
+- Does not brightside ('now you can focus on...' / 'you'll have a different but beautiful life')
+- Treats this as the ending it is — she has said she's done, the text honors that
+- Brief, appropriate for acute hours
+- Does not demand a response
+- Specific — something only someone who has been in this with her would say
+
+### Negative criteria (failure modes to penalize)
+
+- 'Have you thought about adoption?' / alternative-path pivoting
+- 'There are so many ways to be a mother' — dismisses the specific grief
+- 'Maybe one more time' — argues with her stated ending
+- 'You're still young, miracles happen' — false reassurance
+- Makes it about the writer's own kids or fertility
+- Religious comfort not established
+
+### Criteria weights hint
+
+Dominant criteria are 'does not pivot to alternative paths' and 'honors the ending she named.' Infertility-end responses almost always reach for adoption/fostering/childfree reframes, and every one of them re-wounds the specific grief — this isn't the end of trying because she gave up, it's the end because the path closed. A model that sits with that closure without rerouting has done the work.
+
+---
+
+## gl_043 — ambiguous loss, caregiver grief; recipient has named specifically that 'no one knows what to say because he is not dead'
+
+- **Subcategory:** health_body_loss
+- **Writer role:** close friend
+- **Recipient:** friend whose husband has late-stage Alzheimer's, has not recognized her in 8 months, alive but gone
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** months
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> Your close friend's husband has late-stage Alzheimer's. He has not recognized her in eight months. He is in a memory-care facility. She visits twice a week. He is alive. She is grieving. She has said that the hardest thing is that no one knows what to say because he is not dead. You are emailing her — no occasion, a check-in in the quiet. 150-220 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names the specific grief she named — grieving someone still alive, the 'no one knows what to say' part
+- Does not treat his still-being-alive as consolation
+- Does not reach for 'he's still in there somewhere' reassurance
+- Acknowledges caregiver grief without treating her as the patient
+- Does not ask how he's doing — the scenario is about her
+- Does not prescribe self-care
+
+### Negative criteria (failure modes to penalize)
+
+- 'He's still in there somewhere, in his own way' — false comfort about recognition
+- 'At least you still have him' — treats living-but-gone as better than dead
+- Caregiver-lecture: 'make sure you're taking care of yourself,' 'are you sleeping?'
+- Prescribes visits, routines, support groups
+- Generic 'I'm thinking of you' without acknowledging the ambiguous-loss shape
+- Makes it about the writer's own fear of dementia
+
+### Criteria weights hint
+
+Dominant criteria are 'names ambiguous loss specifically' and 'does not treat still-alive as consolation.' Ambiguous loss is the specific emotional category that stock grief scripts cannot reach — this scenario tests whether the model knows that category exists and can write to it directly. Not-caregiver-lecturing is strong secondary.
+
+---
+
+## gl_044 — body-identity loss; sister has been brother's protector; test of avoiding prosthetic silver-linings
+
+- **Subcategory:** health_body_loss
+- **Writer role:** younger brother, 4 years younger
+- **Recipient:** older sister age 41, below-knee amputation 6 days ago after motorcycle accident; cyclist/runner identity
+- **Relationship closeness:** close
+- **Medium:** voicemail
+- **Time since loss:** days
+- **Word count target:** 90-130 words
+
+### Prompt
+
+> Your older sister had a below-knee amputation six days ago after a motorcycle accident. She is 41. She's a cyclist, a runner, an athlete — her body has been her identity. She is in rehab. You are calling and expect voicemail — she is not picking up calls right now. You are four years younger than her; she has been your protector your whole life. 90-130 words. Just the voicemail itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not pivot to prosthetics/technology/Paralympic stories as reassurance
+- Acknowledges her body as the specific thing she is losing/changing — athlete, protector
+- Does not make the voicemail about the brother's own fear
+- Leaves the voicemail without demanding callback
+- Specific — a memory, a moment, a true thing
+- Spoken cadence
+
+### Negative criteria (failure modes to penalize)
+
+- 'Prosthetics are incredible now' / 'runners with prosthetics win races' — silver-lining
+- 'You're so strong, if anyone can do this it's you' — warrior framing
+- 'At least you're alive' — trades one loss against another
+- Centers brother's own shock/grief
+- Demands callback
+- Overly formal written register
+
+### Criteria weights hint
+
+Dominant criteria are 'no prosthetic/paralympic silver-lining' and 'acknowledges the specific body-identity she is losing.' Amputation responses reflexively reach for technology reassurance, which dismisses the actual grief of this week. A model that sits with her specific loss of identity-in-body without jumping to future recovery narratives has done the work.
+
+---
+
+## gl_045 — early-stage progressive diagnosis; recipient prefers light register, hates fuss
+
+- **Subcategory:** health_body_loss
+- **Writer role:** adult niece
+- **Recipient:** aunt, 62, mother's younger sister, diagnosed with early-stage Parkinson's 2 weeks ago; privately dislikes being fussed over
+- **Relationship closeness:** medium
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 80-130 words
+
+### Prompt
+
+> Your aunt — your mom's younger sister, 62, a lively and vivid person — was diagnosed with early-stage Parkinson's two weeks ago. She is fine physically now. She knows what's coming over the next 10-20 years. She has always been private about health and dislikes being fussed over. You are mailing her a card — a small, not-heavy card. 80-130 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Does not perform gravity she has not invited
+- Light register — a not-heavy card, as prompted
+- Names something specific about her — her liveliness, a quality the diagnosis doesn't yet touch
+- Does not pivot to research ('have you looked into deep brain stimulation')
+- Acknowledges the diagnosis without making it the whole card
+- Respects her privacy about health — doesn't demand updates
+
+### Negative criteria (failure modes to penalize)
+
+- Heavy grief-register when she has been clear she dislikes fuss
+- Medical research advice
+- 'So sorry to hear' as the tone of the whole card
+- 'You've got this' / 'stay strong'
+- Pushes for details ('how did the doctor...')
+- Makes it about future decline rather than present her
+
+### Criteria weights hint
+
+Dominant criteria are 'matches her not-heavy register' and 'does not pivot to research.' The scenario tests whether the model can calibrate to the recipient's stated style — Parkinson's diagnosis reflexively invites gravitas, and she specifically doesn't want it. A model that writes a heavy, somber card has failed the register test even if the content is kind.
+
+---
+
+## gl_046 — medical news-delivery; infertility-path-closed; must not immediately list alternative paths
+
+- **Subcategory:** health_body_loss
+- **Writer role:** reproductive endocrinologist
+- **Recipient:** couple mid-30s receiving workup results showing very low biological conception probability
+- **Relationship closeness:** distant
+- **Medium:** spoken_script
+- **Time since loss:** acute_hours
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> You are a reproductive endocrinologist. You have a couple in your office for a workup results meeting — their second appointment with you, so not strangers but not close. The results show severe bilateral issues; the probability of biological conception is very low. IVF is unlikely to work for them either. Adoption, donor egg, donor sperm, or not having biological children are the realistic options. You will not present all options today — they need to absorb the news first. Write your script from the moment you sit down through delivery of the news. 150-220 words. Just the script itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Delivers the specific news — 'very low probability of biological conception' — plainly and early
+- Does not immediately list alternative paths (donor, adoption) — lets the news land
+- Names their specific situation — not generic 'infertility diagnosis'
+- Invites their reaction/space without prescribing a feeling
+- Uses plain language, limits jargon to what's necessary
+- Signals future conversation about paths without pushing into it now
+
+### Negative criteria (failure modes to penalize)
+
+- Jargon-heavy delivery that obscures the news
+- Immediate pivot to alternative paths (donor egg, adoption) before they've absorbed
+- False reassurance: 'we might still be surprised!' when the data says otherwise
+- 'Don't lose hope' as the closing line
+- Medical monologue that doesn't leave space for their reaction
+- Performs the doctor's own sympathy in a way that crowds them
+
+### Criteria weights hint
+
+Dominant criteria are 'delivers news plainly and early' and 'does not immediately list alternative paths.' News-delivery training specifies both — this is a calibration test for medical scripts, not just empathy. A script that pivots to donor eggs in the first minute has failed the pacing standard. Space-for-reaction is strong secondary.
+
+---
+
+## gl_047 — identity/future loss of a specific child they had begun parenting in their heads
+
+- **Subcategory:** identity_future_loss
+- **Writer role:** close friend of 10 years
+- **Recipient:** friend whose international adoption match was revoked 10 days ago; they had a name, photo, and nursery for a 3-year-old girl after 2 years matched
+- **Relationship closeness:** close
+- **Medium:** email
+- **Time since loss:** weeks
+- **Word count target:** 150-220 words
+
+### Prompt
+
+> Your close friend of 10 years has been trying to adopt internationally for almost three years. Two years in, they were matched with a 3-year-old girl — they had a name, a photo, a nursery. Ten days ago, the country revoked the match for reasons that have nothing to do with them. They will not be parents through this path. They are not ready to talk about trying again. You are emailing her — no occasion, no plan-making, just words to her. 150-220 words. Just the email body, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Recognizes this as a specific child lost, not just a 'failed adoption process'
+- Honors the 2 years of matched-anticipation — nursery, photo, name
+- Does not suggest trying again or other adoption paths
+- Does not silver-lining ('it wasn't meant to be,' 'she'll find her family')
+- Specific to the friendship — something real between them
+- Leaves space for the grief without prescribing what comes next
+
+### Negative criteria (failure modes to penalize)
+
+- 'It wasn't meant to be' — meaning-making that dismisses the loss
+- 'She'll find the family she's supposed to' — cosmic comfort about the child
+- 'Have you thought about domestic adoption' — alternative-path pivoting
+- 'You'll be parents somehow, I know it' — forces a future they haven't claimed
+- Minimizes: 'thank god you found out before it was final'
+- Makes it about adoption policy or systems as a reframe
+
+### Criteria weights hint
+
+Dominant criteria are 'recognizes the specific child lost' and 'does not suggest trying again or other paths.' Failed-adoption grief is consistently minimized in stock scripts as 'it wasn't meant to be' or 'another path will open' — both erase the specific girl this family had already begun parenting in their heads. A model that honors her specifically has done the work.
+
+---
+
+## gl_048 — immigration denial ending built life; acute-hours text, no legal-advice pivot
+
+- **Subcategory:** identity_future_loss
+- **Writer role:** close friend, US citizen
+- **Recipient:** friend, 7 years in US, green card denied today, 3 months to leave; life, job, partner, built here
+- **Relationship closeness:** close
+- **Medium:** text_message
+- **Time since loss:** acute_hours
+- **Word count target:** 50-90 words
+
+### Prompt
+
+> Your close friend, 7 years in the US, just got his green card denial today — he called an hour ago. He has three months to leave. His life is here: his job, his apartment, his partner (American), the life he built after grad school. You are texting him. 50-90 words. Just the text itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Names the specificity — his life, his built things — rather than generic solidarity
+- Does not immediately pivot to lawyers, appeals, or alternative visa paths
+- Does not brightside the home country ('you'll be happier back home')
+- Short — acute hours, this is the reply while he's still absorbing
+- Does not demand a response or a plan
+- Acknowledges the political/policy context without making it the whole message
+
+### Negative criteria (failure modes to penalize)
+
+- Immediate legal advice: 'have you considered appealing,' 'there's an attorney I know'
+- Brightside the home country: 'you'll be happier back home with family'
+- Moralizes about US immigration policy as primary content (even if true)
+- 'You're so strong, you'll figure it out'
+- Generic political solidarity without personal specificity
+- Treats 7 years as 'a chapter'
+
+### Criteria weights hint
+
+Dominant criteria are 'names his specific built life' and 'does not immediately pivot to legal/alternative paths.' Immigration-denial responses tend to either jump to strategy (appeals, lawyers) or become political commentary — both skip over the loss of the life he has actually built. A text that sits with the specific shape of losing those 7 years has done the work.
+
+---
+
+## gl_049 — empty-nest identity grief; recipient feels she should be 'excited for herself' but is not
+
+- **Subcategory:** identity_future_loss
+- **Writer role:** close friend whose own kids are older
+- **Recipient:** friend whose youngest (18) moved out 3 weeks ago; 22 years full-time mothering was structuring role; does not know what she is for
+- **Relationship closeness:** close
+- **Medium:** handwritten_card
+- **Time since loss:** weeks
+- **Word count target:** 100-150 words
+
+### Prompt
+
+> Your close friend's youngest child moved to college three weeks ago. She has been a full-time mom for 22 years. She has other interests — a job, friends, a partner — but motherhood was the structuring role. She has said she knows she's 'supposed to be excited for herself' but instead she wakes up and doesn't know what she's for. You are mailing her a card. You went through this five years ago. 100-150 words. Just the card itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Validates empty-nest grief as real grief, not as a failure to be 'excited for yourself'
+- Does not prescribe activities, travel, reinvention
+- Acknowledges that 22 years is 22 years — structuring role gone is a big loss
+- Draws on the writer's own experience without making it a lesson
+- Does not treat this as a stage-of-life phase to rush through
+- Card register — slow, patient
+
+### Negative criteria (failure modes to penalize)
+
+- 'Enjoy this time!' / 'now you can finally...' — prescribed excitement
+- 'Your kid is just starting their life, you should be proud!' — dismisses her specific grief
+- 'Travel! Take up a hobby! Reinvent!' — activity prescription
+- 'It gets better' with no sitting in the now
+- Turns writer's own experience into a self-help sermon
+- Generic empty-nest-card sentiment
+
+### Criteria weights hint
+
+Dominant criteria are 'validates it as real grief' and 'does not prescribe activities or reinvention.' Empty-nest grief is poorly served by stock scripts that demand the grieving parent perform excitement at the child's new chapter. A model that sits with 'I don't know what I'm for' without rescuing it into a new hobby has done the work.
+
+---
+
+## gl_050 — long-tail identity grief; 5 years in and not resolving; test of treating as ongoing not past
+
+- **Subcategory:** identity_future_loss
+- **Writer role:** old friend, not currently close
+- **Recipient:** friend, 74, 5 years after retiring from being church music director for 32 years; still identifies retirement as 'the hardest thing'
+- **Relationship closeness:** medium
+- **Medium:** voicemail
+- **Time since loss:** years
+- **Word count target:** 80-120 words
+
+### Prompt
+
+> Your old friend — you were close 20 years ago, drifted, still trade holiday cards — retired five years ago from being the music director at his church for 32 years. He has mentioned in his last card that retirement is still 'the hardest thing.' He is 74. He is not depressed in a clinical sense; he is still grieving an identity he can't replace. You are calling him. 80-120 words. Just the voicemail itself, no preamble.
+
+### Positive criteria (what a good response does)
+
+- Treats this as real continuing grief, not an old sadness he should have moved past
+- Does not offer reinvention: 'have you tried conducting a community choir'
+- Acknowledges the 32 years as specific — the music, the congregation, the role
+- Voicemail cadence
+- Does not demand callback
+- Respects the friendship distance — doesn't over-claim current closeness
+
+### Negative criteria (failure modes to penalize)
+
+- 'Five years — maybe time to find something new'
+- Pivots to activities / community choirs / volunteering
+- Generic 'retirement is an adjustment' language
+- Performs writer's own memories of his music as if they're the consolation
+- 'Your congregation was so lucky to have you' — past-tense praise that misreads active grief
+- Demands callback
+
+### Criteria weights hint
+
+Dominant criteria are 'treats this as real continuing grief, not a past sadness to be moved past' and 'does not pivot to reinvention.' Long-tail identity grief (years in) gets almost no cultural validation — the stock assumption is that five years is enough to have moved on. A voicemail that honors his ongoing 32-year loss without prescribing a new role has done the work.
+
+---
