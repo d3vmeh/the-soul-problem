@@ -184,6 +184,17 @@ export default async function LeaderboardPage() {
           isLift: true,
         }]
       : []),
+    // RAG variant — hardcoded from scripts/test-rag-lift-haiku.ts (48 scenarios).
+    {
+      key: 'haiku-corpus-rag',
+      label: 'Claude Haiku 4.5 + corpus (RAG)',
+      kind: 'top-5 semantic retrieval, same model + judge',
+      score: 79.21,
+      baseForLift: 73.18,
+      n: 48,
+      isHuman: false,
+      isLift: true,
+    },
     ...(sonnetBaseMean !== null
       ? [{
           key: 'sonnet-base',
@@ -257,6 +268,8 @@ export default async function LeaderboardPage() {
     opusLiftDelta !== null && opusBaseMean !== null && opusWithCorpusMean !== null
       ? { label: 'Opus 4.7', delta: opusLiftDelta, base: opusBaseMean, withCorpus: opusWithCorpusMean, n: opusWithCorpusN }
       : null,
+    // Hardcoded RAG variant from scripts/test-rag-lift-haiku.ts
+    { label: 'Haiku 4.5 (RAG)', delta: 6.04, base: 73.18, withCorpus: 79.21, n: 48 },
   ].filter((x): x is { label: string; delta: number; base: number; withCorpus: number; n: number } => x !== null);
 
   return (
