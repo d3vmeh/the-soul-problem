@@ -167,14 +167,18 @@ export default async function DatasetPage() {
           );
         })}
 
-        <footer className="pt-6 border-t border-neutral-200 text-sm text-neutral-600">
-          <p>
-            Want to add your own response?{' '}
-            <Link href="/try" className="text-neutral-900 underline underline-offset-2">
-              Pick a scenario
+        <footer className="pt-6 border-t border-neutral-200 space-y-3">
+          <div className="flex flex-wrap gap-3">
+            <Link href="/try" className="inline-block px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm">
+              Write a response
             </Link>
-            .
-          </p>
+            <Link href="/leaderboard" className="inline-block px-4 py-2 rounded-lg border border-neutral-300 text-sm">
+              Leaderboard
+            </Link>
+            <Link href="/dataset/export" className="inline-block px-4 py-2 rounded-lg border border-neutral-300 text-sm">
+              Download the dataset
+            </Link>
+          </div>
         </footer>
       </div>
     </main>

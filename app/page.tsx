@@ -48,6 +48,12 @@ export default async function LandingPage() {
               Write a response
             </Link>
             <Link
+              href="/leaderboard"
+              className="inline-block px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50 transition"
+            >
+              Leaderboard
+            </Link>
+            <Link
               href="/dataset"
               className="inline-block px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-50 transition"
             >
