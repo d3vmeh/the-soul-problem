@@ -133,6 +133,49 @@ function parseScoreLines(section: string): Record<string, number> {
   return scores;
 }
 
+function matchesDominant(label: string, dominants: string[]): boolean {
+  const l = label.toLowerCase().trim();
+  return dominants.some(d => {
+    const dl = d.toLowerCase().trim();
+    if (!dl) return false;
+    return l === dl || l.includes(dl) || dl.includes(l);
+  });
+}
+
+// Compute overall deterministically from per-criterion scores. We never trust the
+// judge's own arithmetic — judges have been observed to invent formulas, use 0-1
+// fractions instead of percents, or write numbers inside markdown that breaks regexes.
+export function computeAggregation(
+  positive: Record<string, number>,
+  negative: Record<string, number>,
+  dominants: string[]
+) {
+  let posRaw = 0, posMax = 0, negRaw = 0, negMax = 0;
+  for (const [label, score] of Object.entries(positive)) {
+    const weight = matchesDominant(label, dominants) ? 2 : 1;
+    posRaw += score * weight;
+    posMax += 10 * weight;
+  }
+  for (const [label, score] of Object.entries(negative)) {
+    const weight = matchesDominant(label, dominants) ? 2 : 1;
+    negRaw += score * weight;
+    negMax += 10 * weight;
+  }
+  const posNorm = posMax ? (posRaw / posMax) * 100 : 0;
+  const negNorm = negMax ? (negRaw / negMax) * 100 : 0;
+  const overallRaw = (posNorm + (100 - negNorm)) / 2;
+  const overall = Math.max(0, Math.min(100, Math.round(overallRaw * 100) / 100));
+  return {
+    positive_raw: posRaw,
+    positive_max: posMax,
+    negative_raw: negRaw,
+    negative_max: negMax,
+    positive_normalized: Math.round(posNorm * 100) / 100,
+    negative_normalized: Math.round(negNorm * 100) / 100,
+    overall,
+  };
+}
+
 export function parseJudgment(raw: string): JudgeResult {
   const sections: Record<string, string> = {};
   const blocks = raw.split(/^##\s+/m).map(b => b.trim()).filter(Boolean);
@@ -153,29 +196,17 @@ export function parseJudgment(raw: string): JudgeResult {
   const positive_scores = parseScoreLines(sections['positive scores'] ?? '');
   const negative_scores = parseScoreLines(sections['negative scores'] ?? '');
 
-  const aggText = sections['aggregation'] ?? '';
-  const getNum = (label: string): number => {
-    const line = aggText.split('\n').find(l => l.toLowerCase().startsWith(label.toLowerCase() + ':'));
-    if (!line) return 0;
-    const nums = [...line.matchAll(/-?\d+(?:\.\d+)?/g)].map(m => parseFloat(m[0]));
-    return nums.length ? nums[nums.length - 1] : 0;
-  };
+  // Compute aggregation ourselves; the judge's own math is unreliable.
+  const agg = computeAggregation(positive_scores, negative_scores, dominant_criteria);
   const aggregation = {
-    positive_raw: getNum('Positive raw'),
-    positive_max: getNum('Positive max'),
-    negative_raw: getNum('Negative raw'),
-    negative_max: getNum('Negative max'),
-    positive_normalized: getNum('Positive normalized'),
-    negative_normalized: getNum('Negative normalized'),
+    positive_raw: agg.positive_raw,
+    positive_max: agg.positive_max,
+    negative_raw: agg.negative_raw,
+    negative_max: agg.negative_max,
+    positive_normalized: agg.positive_normalized,
+    negative_normalized: agg.negative_normalized,
   };
-
-  const overallLine = raw.match(/Overall Item Score:[^\n]*/i)?.[0] ?? '';
-  const slashMatch = overallLine.match(/(-?\d+(?:\.\d+)?)\s*\/\s*100\b/);
-  let overall_score = slashMatch ? parseFloat(slashMatch[1]) : 0;
-  if (!slashMatch) {
-    const nums = [...overallLine.matchAll(/-?\d+(?:\.\d+)?/g)].map(m => parseFloat(m[0]));
-    if (nums.length) overall_score = nums[nums.length - 1];
-  }
+  const overall_score = agg.overall;
 
   const rationale = (sections['rationale'] ?? '').trim();
 
