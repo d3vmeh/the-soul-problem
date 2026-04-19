@@ -105,9 +105,11 @@ async function loadLeaderboard() {
     .select('base_score, dataset_score, student_model');
   const HAIKU = 'claude-haiku-4-5-20251001';
   const SONNET = 'claude-sonnet-4-6';
+  const SONNET_RAG = 'claude-sonnet-4-6-rag';
   const OPUS = 'claude-opus-4-7';
   const haikuSnaps = (liftSnaps ?? []).filter(s => s.student_model === HAIKU);
   const sonnetSnaps = (liftSnaps ?? []).filter(s => s.student_model === SONNET);
+  const sonnetRagSnaps = (liftSnaps ?? []).filter(s => s.student_model === SONNET_RAG);
   const opusSnaps = (liftSnaps ?? []).filter(s => s.student_model === OPUS);
 
   const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
@@ -115,6 +117,8 @@ async function loadLeaderboard() {
   const withCorpusMean = mean(haikuSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   const sonnetBaseMean = mean(sonnetSnaps.map(s => s.base_score).filter(Number.isFinite));
   const sonnetWithCorpusMean = mean(sonnetSnaps.map(s => s.dataset_score).filter(Number.isFinite));
+  const sonnetRagBaseMean = mean(sonnetRagSnaps.map(s => s.base_score).filter(Number.isFinite));
+  const sonnetRagWithCorpusMean = mean(sonnetRagSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   const opusBaseMean = mean(opusSnaps.map(s => s.base_score).filter(Number.isFinite));
   const opusWithCorpusMean = mean(opusSnaps.map(s => s.dataset_score).filter(Number.isFinite));
   return {
@@ -123,6 +127,7 @@ async function loadLeaderboard() {
     withCorpusMean, withCorpusN: haikuSnaps.length,
     sonnetBaseMean, sonnetBaseN: sonnetSnaps.length,
     sonnetWithCorpusMean, sonnetWithCorpusN: sonnetSnaps.length,
+    sonnetRagBaseMean, sonnetRagWithCorpusMean, sonnetRagN: sonnetRagSnaps.length,
     opusBaseMean, opusBaseN: opusSnaps.length,
     opusWithCorpusMean, opusWithCorpusN: opusSnaps.length,
     humanTopMean, humanTotalN,
@@ -134,6 +139,7 @@ export default async function LeaderboardPage() {
     byModel,
     baseMean, baseN, withCorpusMean, withCorpusN,
     sonnetBaseMean, sonnetBaseN, sonnetWithCorpusMean, sonnetWithCorpusN,
+    sonnetRagBaseMean, sonnetRagWithCorpusMean, sonnetRagN,
     opusBaseMean, opusBaseN, opusWithCorpusMean, opusWithCorpusN,
     humanTopMean, humanTotalN,
   } = await loadLeaderboard();
@@ -218,6 +224,18 @@ export default async function LeaderboardPage() {
           isLift: true,
         }]
       : []),
+    ...(sonnetRagWithCorpusMean !== null && sonnetRagN > 0
+      ? [{
+          key: 'sonnet-corpus-rag',
+          label: 'Claude Sonnet 4.6 + corpus (RAG)',
+          kind: `top-5 semantic retrieval · updating live (${sonnetRagN}/49)`,
+          score: sonnetRagWithCorpusMean,
+          baseForLift: sonnetRagBaseMean,
+          n: sonnetRagN,
+          isHuman: false,
+          isLift: true,
+        }]
+      : []),
     ...(opusBaseMean !== null
       ? [{
           key: 'opus-base',
@@ -268,8 +286,16 @@ export default async function LeaderboardPage() {
     opusLiftDelta !== null && opusBaseMean !== null && opusWithCorpusMean !== null
       ? { label: 'Opus 4.7', delta: opusLiftDelta, base: opusBaseMean, withCorpus: opusWithCorpusMean, n: opusWithCorpusN }
       : null,
-    // Hardcoded RAG variant from scripts/test-rag-lift-haiku.ts
     { label: 'Haiku 4.5 (RAG)', delta: 6.04, base: 73.18, withCorpus: 79.21, n: 48 },
+    sonnetRagBaseMean !== null && sonnetRagWithCorpusMean !== null && sonnetRagN > 0
+      ? {
+          label: `Sonnet 4.6 (RAG, ${sonnetRagN}/49)`,
+          delta: sonnetRagWithCorpusMean - sonnetRagBaseMean,
+          base: sonnetRagBaseMean,
+          withCorpus: sonnetRagWithCorpusMean,
+          n: sonnetRagN,
+        }
+      : null,
   ].filter((x): x is { label: string; delta: number; base: number; withCorpus: number; n: number } => x !== null);
 
   return (
