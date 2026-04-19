@@ -4,31 +4,44 @@ import { supabaseService } from '@/lib/supabase';
 import ContributeButton from './contribute';
 import LiftChart from './lift-chart';
 
-function scoreBand(n: number): { label: string; cls: string } {
-  if (n >= 85) return { label: 'Strong', cls: 'bg-emerald-100 text-emerald-900 border-emerald-200' };
-  if (n >= 70) return { label: 'Solid', cls: 'bg-blue-100 text-blue-900 border-blue-200' };
-  if (n >= 50) return { label: 'Mixed', cls: 'bg-amber-100 text-amber-900 border-amber-200' };
-  return { label: 'Weak', cls: 'bg-rose-100 text-rose-900 border-rose-200' };
-}
-
-function Bar({ score, max = 10, tone = 'neutral' }: { score: number; max?: number; tone?: 'neutral' | 'you' }) {
-  const pct = Math.max(0, Math.min(100, (score / max) * 100));
-  const bar = tone === 'you' ? 'bg-neutral-900' : 'bg-neutral-500';
-  return (
-    <div className="h-2 bg-neutral-100 rounded-full overflow-hidden w-full">
-      <div className={`h-full ${bar}`} style={{ width: `${pct}%` }} />
-    </div>
-  );
-}
-
-function modelLabel(model: string): string {
+function modelDisplay(model: string): string {
   if (model === 'human:public') return 'Human contributor';
   if (model === 'human:private') return 'Private submission';
   if (model === 'claude-opus-4-7') return 'Claude Opus 4.7';
   if (model === 'claude-sonnet-4-6') return 'Claude Sonnet 4.6';
   if (model === 'claude-haiku-4-5') return 'Claude Haiku 4.5';
-  if (model === 'claude-opus-blunt') return 'Claude Opus (blunt)';
+  if (model === 'claude-opus-blunt') return 'Claude Opus 4.7 (blunt)';
+  if (model === 'gpt-4o') return 'GPT-4o';
+  if (model === 'gpt-4o-mini') return 'GPT-4o mini';
   return model;
+}
+
+function band(n: number): string {
+  if (n >= 85) return 'Strong';
+  if (n >= 70) return 'Solid';
+  if (n >= 50) return 'Mixed';
+  return 'Weak';
+}
+
+function Bar({ score, accent }: { score: number; accent?: boolean }) {
+  const pct = Math.max(0, Math.min(100, score));
+  return (
+    <div className="relative flex-1 h-8 bg-paper-warm rounded-none border border-rule-soft overflow-hidden">
+      <div
+        className={`absolute inset-y-0 left-0 bar-grow ${accent ? 'bg-accent' : 'bg-ink'}`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
+function SmallBar({ score }: { score: number }) {
+  const pct = Math.max(0, Math.min(100, (score / 10) * 100));
+  return (
+    <div className="relative w-20 h-1.5 bg-paper-warm rounded-none overflow-hidden">
+      <div className="absolute inset-y-0 left-0 bg-ink" style={{ width: `${pct}%` }} />
+    </div>
+  );
 }
 
 export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
@@ -50,7 +63,6 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
     .eq('response_id', responseId)
     .maybeSingle();
 
-  // Rankings: fetch every judgment for this scenario, joined with the model label.
   const { data: peers } = await db
     .from('judgments')
     .select('overall_score, response_id, responses!inner(model, scenario_id)')
@@ -63,23 +75,23 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   if (!judgment) {
     return (
-      <main className="min-h-screen bg-white text-neutral-900">
-        <div className="max-w-3xl mx-auto px-6 py-16 space-y-8">
-          <h1 className="text-3xl font-semibold">Your response was saved</h1>
-          <p className="text-neutral-700">The judge didn't return a score this time. You can try again.</p>
-          <Link href={`/try/${response.scenario_id}`} className="inline-block px-5 py-2 rounded-lg bg-neutral-900 text-white">
+      <main className="min-h-screen">
+        <div className="max-w-[56rem] mx-auto px-8 md:px-16 pt-16 pb-24">
+          <header className="flex items-baseline justify-between pb-6 mb-16 hairline">
+            <Link href="/" className="eyebrow hover:text-ink transition">← The Soul Problem</Link>
+            <div className="eyebrow">Submission saved</div>
+          </header>
+          <h1 className="font-display text-ink-deep text-[3rem] leading-[1] mb-6" style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 340' }}>
+            Your response was saved.
+          </h1>
+          <p className="text-ink-soft mb-8 leading-[1.7]">The judge did not return a score this time. You can try again.</p>
+          <Link href={`/try/${response.scenario_id}`} className="inline-block px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition">
             Try again
           </Link>
         </div>
       </main>
     );
   }
-
-  const band = scoreBand(judgment.overall_score);
-  const positive = (judgment.positive_scores ?? {}) as Record<string, number>;
-  const negative = (judgment.negative_scores ?? {}) as Record<string, number>;
-  const dominant = (judgment.dominant_criteria ?? []) as string[];
-  const dominantSet = new Set(dominant.map(s => s.toLowerCase()));
 
   type Peer = { overall_score: number; response_id: number; model: string };
   const peerRows: Peer[] = (peers ?? []).map((p: any) => ({
@@ -89,203 +101,262 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   }));
 
   const myScore = judgment.overall_score;
-  const llmPeers = peerRows.filter(p => p.model.startsWith('claude-'));
+  const llmPeers = peerRows.filter(p => p.model.startsWith('claude-') || p.model.startsWith('gpt-'));
   const humanPublicPeers = peerRows.filter(p => p.model === 'human:public' && p.response_id !== responseId);
   const humanPublicAll = peerRows.filter(p => p.model === 'human:public');
 
-  // Percentile among public humans INCLUDING this response (only if public).
-  const rankingPool = isPublic ? humanPublicAll : [...humanPublicPeers, { overall_score: myScore, response_id: responseId, model: 'human:public' }];
+  const rankingPool = isPublic
+    ? humanPublicAll
+    : [...humanPublicPeers, { overall_score: myScore, response_id: responseId, model: 'human:public' }];
   const sortedPool = [...rankingPool].sort((a, b) => b.overall_score - a.overall_score);
   const myRank = sortedPool.findIndex(p => p.response_id === responseId) + 1;
   const poolSize = sortedPool.length;
   const percentile = poolSize > 1 ? Math.round(((poolSize - myRank) / (poolSize - 1)) * 100) : 100;
 
-  const bestLlm = llmPeers.reduce((a, b) => (b.overall_score > a.overall_score ? b : a), { overall_score: -1, response_id: -1, model: '' });
+  const bestLlm = llmPeers.reduce(
+    (a, b) => (b.overall_score > a.overall_score ? b : a),
+    { overall_score: -1, response_id: -1, model: '' }
+  );
   const deltaVsBestLlm = myScore - bestLlm.overall_score;
 
-  // Scenario-wide dataset-impact stats (public humans only)
   const contributedCount = humanPublicAll.length;
   const contributedMean =
     contributedCount > 0
       ? humanPublicAll.reduce((a, b) => a + b.overall_score, 0) / contributedCount
       : null;
 
+  const positive = (judgment.positive_scores ?? {}) as Record<string, number>;
+  const negative = (judgment.negative_scores ?? {}) as Record<string, number>;
+  const dominant = (judgment.dominant_criteria ?? []) as string[];
+  const dominantSet = new Set(dominant.map(s => s.toLowerCase()));
+
   return (
-    <main className="min-h-screen bg-white text-neutral-900">
-      <div className="max-w-3xl mx-auto px-6 py-16 space-y-12">
-        <header className="space-y-3">
-          <Link href="/try" className="text-sm text-neutral-500 hover:text-neutral-700">
-            ← scenarios
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-semibold leading-tight">
-            {isHuman ? 'Your score' : 'Model score'}
-          </h1>
+    <main className="min-h-screen">
+      <div className="max-w-[56rem] mx-auto px-8 md:px-16 pt-16 pb-24">
+        <header className="flex items-baseline justify-between pb-6 mb-16 hairline reveal-in">
+          <Link href="/try" className="eyebrow hover:text-ink transition">← Scenarios</Link>
+          <div className="eyebrow">
+            {isHuman ? (isPublic ? 'Contributed · public' : 'Your draft · private') : 'Model baseline'}
+          </div>
         </header>
 
-        <section className={`rounded-xl border p-6 ${band.cls}`}>
-          <div className="flex items-baseline gap-4">
-            <div className="text-5xl font-semibold">{myScore.toFixed(1)}</div>
-            <div className="text-sm uppercase tracking-wider">/ 100</div>
-            <div className="ml-auto text-sm uppercase tracking-wider">{band.label}</div>
+        {/* The Number */}
+        <section className="mb-20 reveal-up">
+          <p className="eyebrow mb-3">Overall item score</p>
+          <div className="flex items-baseline gap-6">
+            <div
+              className="font-display text-ink-deep text-[9rem] md:text-[12rem] leading-[0.9] tabular-nums"
+              style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 280' }}
+            >
+              {myScore.toFixed(1)}
+            </div>
+            <div className="flex flex-col gap-1 pb-4">
+              <span className="eyebrow">/ 100</span>
+              <span
+                className="font-display text-[1.5rem] text-accent-deep italic"
+                style={{ fontVariationSettings: '"SOFT" 100, "opsz" 48, "wght" 380' }}
+              >
+                {band(myScore)}
+              </span>
+            </div>
           </div>
-          <p className="mt-4 text-sm leading-relaxed">{judgment.rationale}</p>
-          <div className="mt-3 text-xs opacity-75">
-            Judged by {judgment.judge_model}
-            {isHuman && <> · {isPublic ? 'Contributed to the public dataset' : 'Private submission'}</>}
-          </div>
+          <p className="text-[1.05rem] leading-[1.7] text-ink-soft mt-8 max-w-[42rem] italic font-display" style={{ fontVariationSettings: '"SOFT" 100, "wght" 380' }}>
+            &ldquo;{judgment.rationale}&rdquo;
+          </p>
+          <p className="eyebrow mt-4">— {judgment.judge_model}</p>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Where you rank on this scenario</h2>
-          <div className="space-y-3">
-            {/* Your score, highlighted */}
-            <div className="grid grid-cols-[200px_auto_1fr_60px] gap-3 items-center">
-              <div className="text-sm font-semibold text-neutral-900">You</div>
-              <div className="text-xs uppercase tracking-wider text-neutral-500">
-                {isHuman ? (isPublic ? 'public' : 'private') : 'model'}
+        {/* Rankings */}
+        <section className="border-y border-rule py-10 mb-0">
+          <p className="eyebrow mb-3">The field</p>
+          <h2
+            className="font-display text-ink-deep text-[2rem] leading-[1.05] mb-6"
+            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 360' }}
+          >
+            Where you stand,<br />
+            <em className="italic">on this scenario.</em>
+          </h2>
+
+          <div className="space-y-0 divide-y divide-rule-soft">
+            <div className="grid grid-cols-[1fr_240px_60px] gap-4 items-center py-3">
+              <div
+                className="font-display text-[1.2rem] text-ink-deep"
+                style={{ fontVariationSettings: '"SOFT" 70, "opsz" 48, "wght" 520' }}
+              >
+                You
               </div>
-              <Bar score={myScore} max={100} tone="you" />
-              <div className="text-sm tabular-nums text-neutral-900 text-right">{myScore.toFixed(1)}</div>
+              <Bar score={myScore} accent />
+              <div className="font-mono text-sm tabular-nums text-right text-ink-deep" style={{ fontWeight: 500 }}>
+                {myScore.toFixed(1)}
+              </div>
             </div>
-            {/* LLM baselines */}
             {llmPeers
               .sort((a, b) => b.overall_score - a.overall_score)
               .map(p => (
-                <div key={p.response_id} className="grid grid-cols-[200px_auto_1fr_60px] gap-3 items-center">
-                  <div className="text-sm text-neutral-700">{modelLabel(p.model)}</div>
-                  <div className="text-xs uppercase tracking-wider text-neutral-500">llm</div>
-                  <Bar score={p.overall_score} max={100} />
-                  <div className="text-sm tabular-nums text-neutral-700 text-right">{p.overall_score.toFixed(1)}</div>
+                <div key={p.response_id} className="grid grid-cols-[1fr_240px_60px] gap-4 items-center py-3">
+                  <div className="text-[0.95rem] text-ink-soft">{modelDisplay(p.model)}</div>
+                  <Bar score={p.overall_score} />
+                  <div className="font-mono text-sm tabular-nums text-right text-ink-soft">
+                    {p.overall_score.toFixed(1)}
+                  </div>
                 </div>
               ))}
-            {/* Other public humans */}
             {humanPublicPeers
               .sort((a, b) => b.overall_score - a.overall_score)
               .slice(0, 5)
               .map((p, i) => (
-                <div key={p.response_id} className="grid grid-cols-[200px_auto_1fr_60px] gap-3 items-center">
-                  <div className="text-sm text-neutral-700">Human #{i + 1}</div>
-                  <div className="text-xs uppercase tracking-wider text-neutral-500">public</div>
-                  <Bar score={p.overall_score} max={100} />
-                  <div className="text-sm tabular-nums text-neutral-700 text-right">{p.overall_score.toFixed(1)}</div>
+                <div key={p.response_id} className="grid grid-cols-[1fr_240px_60px] gap-4 items-center py-3">
+                  <div className="text-[0.95rem] text-ink-soft italic font-display">Human #{i + 1}</div>
+                  <Bar score={p.overall_score} />
+                  <div className="font-mono text-sm tabular-nums text-right text-ink-soft">
+                    {p.overall_score.toFixed(1)}
+                  </div>
                 </div>
               ))}
           </div>
 
-          <div className="text-sm text-neutral-600 pt-2 space-y-1">
+          <div className="mt-6 space-y-1 text-ink-soft leading-[1.65] text-[0.95rem]">
             {bestLlm.response_id > 0 && (
               <p>
                 {deltaVsBestLlm >= 0 ? (
-                  <>You beat the best LLM on this scenario by <strong>{deltaVsBestLlm.toFixed(1)} points</strong>.</>
+                  <>You beat the strongest LLM on this scenario by{' '}
+                  <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
+                    {deltaVsBestLlm.toFixed(1)}
+                  </span> points.</>
                 ) : (
-                  <>Best LLM on this scenario scored <strong>{Math.abs(deltaVsBestLlm).toFixed(1)} points higher</strong> than you.</>
+                  <>The strongest LLM scored{' '}
+                  <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
+                    {Math.abs(deltaVsBestLlm).toFixed(1)}
+                  </span> higher.</>
                 )}
               </p>
             )}
             {poolSize > 1 && (
               <p>
-                Among <strong>{poolSize}</strong> human contributor{poolSize === 1 ? '' : 's'} on this scenario,
-                {' '}your response ranks <strong>#{myRank}</strong> ({percentile}th percentile).
+                Among <strong className="text-ink-deep">{poolSize}</strong> human contributor{poolSize === 1 ? '' : 's'},
+                your response ranks <strong className="text-ink-deep">#{myRank}</strong> ({percentile}th percentile).
               </p>
             )}
           </div>
         </section>
 
+        {/* Lift experiment */}
         {isHuman && <LiftChart responseId={responseId} yourScore={myScore} />}
 
+        {/* Contribute / public state */}
         {isHuman && !isPublic && (
-          <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 space-y-3">
-            <h2 className="text-lg font-semibold text-emerald-900">
-              Keep your response private, or contribute it?
+          <section className="border-y border-accent-wash bg-accent-wash -mx-8 md:-mx-16 px-8 md:px-16 py-10 my-10">
+            <p className="eyebrow text-accent-deep mb-3">An invitation</p>
+            <h2
+              className="font-display text-ink-deep text-[1.85rem] leading-[1.1] mb-4"
+              style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 360' }}
+            >
+              Contribute this response<br />
+              <em className="italic text-accent-deep">to the public archive.</em>
             </h2>
-            <p className="text-sm text-emerald-900/80">
-              Your response currently lives only on this page. If you contribute it, it joins the public dataset —
-              a growing, rubric-graded corpus of how real people handle the hardest messages to write. No names are
-              attached. Only the response text, the scenario, and the score.
+            <p className="text-ink-soft leading-[1.7] max-w-[38rem] mb-6">
+              Your response currently lives only on this page. If you contribute, it joins the
+              public dataset — rubric-graded, anonymized, downloadable. One more signal.
             </p>
             <ContributeButton responseId={responseId} />
           </section>
         )}
 
         {isHuman && isPublic && (
-          <section className="rounded-xl border border-neutral-200 bg-white p-6 space-y-3">
-            <h2 className="text-lg font-semibold">You're in the dataset</h2>
-            <p className="text-sm text-neutral-700">
-              There {contributedCount === 1 ? 'is' : 'are'} now <strong>{contributedCount}</strong>{' '}
-              human contribution{contributedCount === 1 ? '' : 's'} to this scenario.
+          <section className="border-y border-rule py-8 my-10">
+            <p className="eyebrow mb-2">In the archive</p>
+            <p className="text-ink-soft leading-[1.7]">
+              There {contributedCount === 1 ? 'is' : 'are'} now{' '}
+              <strong className="text-ink-deep">{contributedCount}</strong> public contribution
+              {contributedCount === 1 ? '' : 's'} on this scenario.
               {contributedMean !== null && (
-                <> The mean score across contributors is <strong>{contributedMean.toFixed(1)}</strong>.</>
+                <> Contributor mean: <strong className="text-ink-deep">{contributedMean.toFixed(1)}</strong>.</>
               )}{' '}
-              Your response is one signal making the dataset stronger.
+              <Link href="/dataset" className="text-accent-deep underline underline-offset-2">
+                Browse the archive →
+              </Link>
             </p>
-            <Link href="/dataset" className="inline-block text-sm text-neutral-900 underline underline-offset-2">
-              Browse the dataset →
-            </Link>
           </section>
         )}
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">What you were scored on</h2>
-          <p className="text-sm text-neutral-600">
-            Each criterion 1–10. Dominant criteria (bold) count double in the overall score.
+        {/* Criteria breakdown */}
+        <section className="border-b border-rule py-10">
+          <p className="eyebrow mb-3">The rubric</p>
+          <h2
+            className="font-display text-ink-deep text-[1.85rem] leading-[1.1] mb-6"
+            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 360' }}
+          >
+            Every criterion,<br /><em className="italic">one to ten.</em>
+          </h2>
+          <p className="text-ink-faint text-sm leading-[1.65] mb-6">
+            Dominant criteria (set in bold) count double in the overall score.
           </p>
-          <div className="grid gap-3">
-            <div className="text-xs uppercase tracking-wider text-neutral-500">Positive — higher is better</div>
-            {Object.entries(positive).map(([label, score]) => {
-              const isDominant = dominantSet.has(label.toLowerCase());
-              return (
-                <div key={label} className="grid grid-cols-[1fr_auto_90px] gap-3 items-center">
-                  <div className={`text-sm ${isDominant ? 'font-semibold text-neutral-900' : 'text-neutral-700'}`}>
-                    {label}
-                  </div>
-                  <div className="text-sm tabular-nums text-neutral-500">{score}/10</div>
-                  <Bar score={score} />
-                </div>
-              );
-            })}
 
-            <div className="text-xs uppercase tracking-wider text-neutral-500 mt-3">Negative — lower is better</div>
-            {Object.entries(negative).map(([label, score]) => {
-              const isDominant = dominantSet.has(label.toLowerCase());
-              return (
-                <div key={label} className="grid grid-cols-[1fr_auto_90px] gap-3 items-center">
-                  <div className={`text-sm ${isDominant ? 'font-semibold text-neutral-900' : 'text-neutral-700'}`}>
-                    {label}
-                  </div>
-                  <div className="text-sm tabular-nums text-neutral-500">{score}/10</div>
-                  <Bar score={score} />
-                </div>
-              );
-            })}
+          <div className="grid md:grid-cols-2 gap-10">
+            <div>
+              <p className="eyebrow mb-4">Positive · reward</p>
+              <div className="space-y-3">
+                {Object.entries(positive).map(([label, score]) => {
+                  const isDom = dominantSet.has(label.toLowerCase());
+                  return (
+                    <div key={label} className="grid grid-cols-[1fr_auto_80px] gap-3 items-center">
+                      <div className={`text-sm leading-snug ${isDom ? 'font-display font-semibold text-ink-deep' : 'text-ink-soft'}`} style={isDom ? { fontVariationSettings: '"SOFT" 70, "wght" 550' } : undefined}>
+                        {label}
+                      </div>
+                      <div className="font-mono text-xs tabular-nums text-ink-whisper">{score}/10</div>
+                      <SmallBar score={score} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="eyebrow mb-4">Negative · penalize</p>
+              <div className="space-y-3">
+                {Object.entries(negative).map(([label, score]) => {
+                  const isDom = dominantSet.has(label.toLowerCase());
+                  return (
+                    <div key={label} className="grid grid-cols-[1fr_auto_80px] gap-3 items-center">
+                      <div className={`text-sm leading-snug ${isDom ? 'font-display font-semibold text-ink-deep' : 'text-ink-soft'}`} style={isDom ? { fontVariationSettings: '"SOFT" 70, "wght" 550' } : undefined}>
+                        {label}
+                      </div>
+                      <div className="font-mono text-xs tabular-nums text-ink-whisper">{score}/10</div>
+                      <SmallBar score={score} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">Your response</h2>
-          <pre className="whitespace-pre-wrap bg-neutral-50 border border-neutral-200 rounded-lg p-5 text-sm text-neutral-800 font-sans">
+        {/* The response + scenario */}
+        <section className="py-10 border-b border-rule">
+          <p className="eyebrow mb-3">Your words</p>
+          <pre className="whitespace-pre-wrap font-display text-[1.1rem] leading-[1.65] text-ink-deep bg-paper-raised border border-rule-soft p-7" style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}>
             {response.text}
           </pre>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">The scenario</h2>
-          <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wider text-neutral-500">
-            {md.subcategory && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.subcategory.replace(/_/g, ' ')}</span>}
-            {md.medium && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.medium.replace(/_/g, ' ')}</span>}
+        <section className="py-10 border-b border-rule">
+          <p className="eyebrow mb-3">The scenario</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {md.subcategory && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
+            {md.medium && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
           </div>
-          <pre className="whitespace-pre-wrap bg-white border border-neutral-200 rounded-lg p-5 text-sm text-neutral-700 font-sans">
+          <pre className="whitespace-pre-wrap text-[0.95rem] leading-[1.65] text-ink-soft font-display italic" style={{ fontVariationSettings: '"SOFT" 100, "wght" 380' }}>
             {scenario?.prompt}
           </pre>
         </section>
 
-        <div className="flex gap-3 pt-2">
-          <Link href={`/try/${response.scenario_id}`} className="px-5 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-50 text-sm">
+        <footer className="flex flex-wrap gap-3 pt-8">
+          <Link href={`/try/${response.scenario_id}`} className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 80, "wght" 420' }}>
             Try this scenario again
           </Link>
-          <Link href="/try" className="px-5 py-2 rounded-lg bg-neutral-900 text-white text-sm">
+          <Link href="/try" className="px-5 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}>
             Try another scenario
           </Link>
-        </div>
+        </footer>
       </div>
     </main>
   );

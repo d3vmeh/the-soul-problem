@@ -1,20 +1,155 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
   color-scheme: light;
+
+  /* Paper + ink palette — inspired by letterpress obituary pages */
+  --paper: #f4efe3;
+  --paper-warm: #ece3ce;
+  --paper-raised: #fdf9ed;
+  --ink: #1c1916;
+  --ink-deep: #0e0b08;
+  --ink-soft: #3b3731;
+  --ink-faint: #6a6259;
+  --ink-whisper: #8e867c;
+  --rule: #cfc6ae;
+  --rule-soft: #e4dcc5;
+
+  /* Oxblood accent for gravity */
+  --accent: #8b2635;
+  --accent-deep: #6b1e2a;
+  --accent-wash: rgba(139, 38, 53, 0.08);
+  --accent-ink: #5a1a22;
+
+  /* Score bands — muted, earthen */
+  --score-strong: #3a5a40;
+  --score-solid: #6b8e5a;
+  --score-mixed: #c18440;
+  --score-weak:  #8b2635;
+
+  /* Shadows kept to a whisper — paper doesn't float */
+  --shadow-1: 0 1px 0 rgba(28, 25, 22, 0.04);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "ss02", "liga", "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+  background-image:
+    radial-gradient(
+      ellipse 140% 80% at 50% -10%,
+      var(--paper-raised) 0%,
+      var(--paper) 50%
+    );
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* Custom utility tokens Tailwind v4 can consume */
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" 100, "opsz" 144, "WONK" 0;
+    letter-spacing: -0.02em;
+  }
+  .font-display-sharp {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" 0, "opsz" 144, "WONK" 0;
+    letter-spacing: -0.018em;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum", "zero";
+  }
+  .bg-paper { background-color: var(--paper); }
+  .bg-paper-warm { background-color: var(--paper-warm); }
+  .bg-paper-raised { background-color: var(--paper-raised); }
+  .text-ink { color: var(--ink); }
+  .text-ink-deep { color: var(--ink-deep); }
+  .text-ink-soft { color: var(--ink-soft); }
+  .text-ink-faint { color: var(--ink-faint); }
+  .text-ink-whisper { color: var(--ink-whisper); }
+  .border-rule { border-color: var(--rule); }
+  .border-rule-soft { border-color: var(--rule-soft); }
+  .text-accent { color: var(--accent); }
+  .text-accent-deep { color: var(--accent-deep); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-accent-wash { background-color: var(--accent-wash); }
+  .border-accent { border-color: var(--accent); }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-feature-settings: "tnum";
+  }
+
+  .hairline {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .rule-ornament {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--ink-whisper);
+  }
+  .rule-ornament::before,
+  .rule-ornament::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+}
+
+/* Page-load staggered reveals */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes reveal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reveal-up {
+  animation: reveal-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.reveal-in {
+  animation: reveal-in 1.4s ease-out both;
+}
+
+/* Score bar fill animation */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.bar-grow {
+  transform-origin: left;
+  animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

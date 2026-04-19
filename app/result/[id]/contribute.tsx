@@ -28,11 +28,13 @@ export default function ContributeButton({ responseId }: { responseId: number })
         type="button"
         onClick={submit}
         disabled={busy}
-        className="inline-block px-5 py-2 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 disabled:opacity-50 transition"
+        className="inline-flex items-center gap-3 px-6 py-3 bg-accent-deep text-paper-raised hover:bg-ink transition disabled:opacity-50 font-display"
+        style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}
       >
-        {busy ? 'Contributing…' : 'Contribute to the dataset'}
+        <span className="eyebrow text-paper-raised opacity-80">→</span>
+        <span>{busy ? 'Contributing…' : 'Contribute to the archive'}</span>
       </button>
-      {error && <div className="text-sm text-red-800">{error}</div>}
+      {error && <div className="text-sm text-accent-deep">{error}</div>}
     </div>
   );
 }

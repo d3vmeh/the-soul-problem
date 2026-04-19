@@ -27,45 +27,46 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
-      <div className="space-y-2">
-        <label htmlFor="response" className="block text-lg font-semibold text-neutral-900">
-          Your response
-        </label>
-        <p className="text-sm text-neutral-600">
-          Write what you would actually say. We'll score it against the criteria the scenario sets.
-          Most useful if you try — even a short attempt beats a generic one.
+    <form onSubmit={submit} className="space-y-6">
+      <div className="space-y-3">
+        <p className="eyebrow">Your response</p>
+        <p className="text-ink-soft text-[0.95rem] leading-[1.65]">
+          Write what you would actually say. Short is fine. Judged on the scenario&apos;s own rubric.
         </p>
         <textarea
-          id="response"
           required
           minLength={1}
           maxLength={5000}
-          rows={12}
+          rows={14}
           value={text}
           onChange={e => setText(e.target.value)}
-          className="w-full border border-neutral-300 rounded-lg p-4 text-[15px] leading-relaxed text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:border-transparent"
-          placeholder="Type your response here..."
+          className="w-full bg-paper-raised border border-rule p-5 font-display text-[1.05rem] leading-[1.65] text-ink-deep focus:outline-none focus:border-accent transition placeholder:text-ink-whisper resize-vertical"
+          style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}
+          placeholder="Begin here…"
         />
-        <div className="text-xs text-neutral-500 text-right">{text.length} / 5000</div>
+        <div className="flex justify-end">
+          <span className="font-mono text-xs text-ink-whisper tabular-nums">
+            {text.length} / 5000
+          </span>
+        </div>
       </div>
 
-      <label className="flex items-start gap-3 text-sm text-neutral-700">
+      <label className="flex items-start gap-3 text-[0.95rem] text-ink-soft leading-[1.65] p-4 border border-rule-soft bg-paper-raised cursor-pointer hover:border-rule transition">
         <input
           type="checkbox"
           checked={contribute}
           onChange={e => setContribute(e.target.checked)}
-          className="mt-0.5"
+          className="mt-1 accent-accent"
         />
         <span>
-          <strong>Contribute to the public dataset.</strong> If you check this, your response (but not any identifying info —
-          there is none collected) may appear in research exports. Leave unchecked and your response stays private; only you
-          see your score.
+          <strong className="text-ink-deep">Contribute to the public archive.</strong>{' '}
+          Anonymous — no identifying data is collected. Your response may appear in research
+          exports. Leave unchecked and it stays private.
         </span>
       </label>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div className="border border-accent text-accent-deep bg-accent-wash px-4 py-3 text-sm">
           {error}
         </div>
       )}
@@ -73,9 +74,11 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
       <button
         type="submit"
         disabled={busy || text.trim().length === 0}
-        className="w-full md:w-auto px-6 py-3 rounded-lg bg-neutral-900 text-white font-medium disabled:opacity-50 hover:bg-neutral-800 transition"
+        className="inline-flex items-center gap-3 px-7 py-4 bg-ink text-paper-raised hover:bg-accent-deep transition disabled:opacity-40 font-display"
+        style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}
       >
-        {busy ? 'Scoring (up to 30 s)…' : 'Submit for scoring'}
+        <span className="eyebrow text-paper-raised opacity-80">→</span>
+        <span className="text-lg">{busy ? 'Scoring (up to 30 s)…' : 'Submit for judgment'}</span>
       </button>
     </form>
   );

@@ -10,13 +10,8 @@ async function loadStats() {
   const db = supabaseService();
 
   const [{ data: publicResponses }, { data: allResponses }, { count: scenarios }] = await Promise.all([
-    db
-      .from('responses')
-      .select('id, judgments(overall_score)')
-      .eq('model', 'human:public'),
-    db
-      .from('responses')
-      .select('id, scenario_id, judgments(overall_score)'),
+    db.from('responses').select('id, judgments(overall_score)').eq('model', 'human:public'),
+    db.from('responses').select('id, scenario_id, judgments(overall_score)'),
     db.from('scenarios').select('*', { count: 'exact', head: true }),
   ]);
 
@@ -26,7 +21,6 @@ async function loadStats() {
     return Math.max(...js.map((j: any) => j.overall_score)) >= SFT_SCORE_THRESHOLD;
   }).length;
 
-  // DPO pair count: for each scenario, count pairs (i, j) where mean[i] - mean[j] >= DPO_MIN_DELTA
   const byScenario = new Map<number, number[]>();
   for (const r of ((allResponses ?? []) as any[])) {
     const js = r.judgments ?? [];
@@ -48,52 +42,61 @@ async function loadStats() {
 
   const rawRows = (allResponses ?? []).length;
 
-  return {
-    scenarios: scenarios ?? 0,
-    sftEligible,
-    dpoPairs,
-    rawRows,
-  };
+  return { scenarios: scenarios ?? 0, sftEligible, dpoPairs, rawRows };
 }
 
-function DownloadCard({
+function DownloadRow({
+  numeral,
   title,
-  description,
   format,
+  description,
   count,
   href,
   filename,
 }: {
+  numeral: string;
   title: string;
-  description: string;
   format: string;
+  description: string;
   count: number;
   href: string;
   filename: string;
 }) {
   return (
-    <article className="rounded-xl border border-neutral-200 bg-white p-6 flex flex-col space-y-3">
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-neutral-900">{title}</h3>
-        <p className="text-xs uppercase tracking-wider text-neutral-500">{format}</p>
+    <article className="grid grid-cols-[48px_1fr_240px] gap-6 py-8 border-b border-rule items-start">
+      <span className="font-mono text-sm tabular-nums text-ink-whisper pt-2">{numeral}</span>
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-3">
+          <h3
+            className="font-display text-[1.6rem] text-ink-deep"
+            style={{ fontVariationSettings: '"SOFT" 70, "opsz" 48, "wght" 500' }}
+          >
+            {title}
+          </h3>
+          <p className="eyebrow">{format}</p>
+        </div>
+        <p className="text-ink-soft leading-[1.65] text-[0.97rem] max-w-[42rem]">{description}</p>
+        <p className="text-sm text-ink-faint font-mono tabular-nums pt-2">
+          {count} example{count === 1 ? '' : 's'} available
+        </p>
       </div>
-      <p className="text-sm text-neutral-700 leading-relaxed flex-1">{description}</p>
-      <div className="text-sm text-neutral-600">
-        <strong className="text-neutral-900 tabular-nums">{count}</strong> example{count === 1 ? '' : 's'} right now
+      <div className="flex justify-end">
+        {count > 0 ? (
+          <a
+            href={href}
+            download={filename}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display"
+            style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}
+          >
+            <span className="eyebrow text-paper-raised opacity-80">↓</span>
+            <span>Download .jsonl</span>
+          </a>
+        ) : (
+          <span className="inline-flex items-center px-6 py-3 border border-rule-soft text-ink-whisper font-display">
+            Not enough data yet
+          </span>
+        )}
       </div>
-      {count > 0 ? (
-        <a
-          href={href}
-          download={filename}
-          className="inline-block text-center px-4 py-2 rounded-lg font-medium text-sm bg-neutral-900 text-white hover:bg-neutral-800 transition"
-        >
-          Download .jsonl
-        </a>
-      ) : (
-        <span className="inline-block text-center px-4 py-2 rounded-lg font-medium text-sm bg-neutral-100 text-neutral-400 cursor-not-allowed">
-          Not enough data yet
-        </span>
-      )}
     </article>
   );
 }
@@ -102,81 +105,97 @@ export default async function ExportPage() {
   const stats = await loadStats();
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900">
-      <div className="max-w-4xl mx-auto px-6 py-16 space-y-10">
-        <header className="space-y-3">
-          <Link href="/dataset" className="text-sm text-neutral-500 hover:text-neutral-700">
-            ← dataset
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-semibold leading-tight">
-            Download the dataset
-          </h1>
-          <p className="text-neutral-600 max-w-2xl">
-            Three formats, ready to drop into your training pipeline. Every file is fresh — generated
-            from live DB state on click.
-          </p>
+    <main className="min-h-screen">
+      <div className="max-w-[68rem] mx-auto px-8 md:px-16 pt-16 pb-24">
+        <header className="flex items-baseline justify-between pb-6 mb-16 hairline reveal-in">
+          <Link href="/dataset" className="eyebrow hover:text-ink transition">← Archive</Link>
+          <div className="eyebrow">Download</div>
         </header>
 
-        <section className="grid md:grid-cols-3 gap-4">
-          <DownloadCard
-            title="SFT (chat)"
-            format="OpenAI / HF chat format"
-            description={`Chat-format JSONL. Each line is { messages: [{role:"user",...}, {role:"assistant",...}] } using public human responses that scored ≥ ${SFT_SCORE_THRESHOLD}/100. Compatible with OpenAI, Anthropic, HuggingFace SFTTrainer, TRL.`}
+        <section className="mb-16 reveal-up">
+          <p className="eyebrow mb-3">The dataset, in five formats</p>
+          <h1
+            className="font-display text-ink-deep text-[3.5rem] md:text-[4.5rem] leading-[0.95] mb-6"
+            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 320' }}
+          >
+            Take it,<br />
+            <em className="italic text-accent-deep">train something.</em>
+          </h1>
+          <p className="text-[1.05rem] leading-[1.7] text-ink-soft max-w-[44rem]">
+            Every file below is generated live from the database when you click. Five formats,
+            covering the common conventions for supervised fine-tuning, preference-based RL, and
+            open research. Drop directly into{' '}
+            <code className="font-mono text-sm bg-paper-raised border border-rule-soft px-1.5 py-0.5">trl.DPOTrainer</code>,{' '}
+            <code className="font-mono text-sm bg-paper-raised border border-rule-soft px-1.5 py-0.5">openai.fine_tuning.jobs.create</code>,
+            Axolotl, LLaMA-Factory, or your own pipeline.
+          </p>
+        </section>
+
+        <section className="reveal-up" style={{ animationDelay: '0.2s' }}>
+          <DownloadRow
+            numeral="I"
+            title="SFT · chat format"
+            format="OpenAI · HuggingFace · TRL"
+            description={`Chat-format JSONL. Public human responses that scored ≥ ${SFT_SCORE_THRESHOLD}/100, formatted as { messages: [...] }. The format most SFT tools expect.`}
             count={stats.sftEligible}
             href="/api/export/sft"
             filename="the-soul-problem-sft.jsonl"
           />
-          <DownloadCard
-            title="SFT (ShareGPT)"
-            format="Axolotl / LLaMA-Factory"
-            description={`ShareGPT format JSONL. Each line is { conversations: [{from:"human",...}, {from:"gpt",...}] }. Standard for Axolotl and LLaMA-Factory. Same ${SFT_SCORE_THRESHOLD}-threshold filter.`}
+          <DownloadRow
+            numeral="II"
+            title="SFT · ShareGPT"
+            format="Axolotl · LLaMA-Factory"
+            description={`Same content, ShareGPT conventions. { conversations: [{ from, value }] } per line. Standard for the open-source fine-tune toolchain.`}
             count={stats.sftEligible}
             href="/api/export/sharegpt"
             filename="the-soul-problem-sharegpt.jsonl"
           />
-          <DownloadCard
-            title="SFT (Alpaca)"
-            format="instruction / input / output"
-            description={`Alpaca format. { instruction, input, output } per line. Used by Stanford Alpaca, many LoRA tutorials, ColossalAI. Same ${SFT_SCORE_THRESHOLD}-threshold filter.`}
+          <DownloadRow
+            numeral="III"
+            title="SFT · Alpaca"
+            format="Instruction format"
+            description={`Stanford Alpaca style. { instruction, input, output }. Used by most LoRA tutorials and smaller-scale projects.`}
             count={stats.sftEligible}
             href="/api/export/alpaca"
             filename="the-soul-problem-alpaca.jsonl"
           />
-          <DownloadCard
-            title="DPO"
-            format="TRL preference pairs"
-            description={`Paired preferences. Each line is { prompt, chosen, rejected } where chosen beats rejected by ≥ ${DPO_MIN_DELTA} points on this scenario. Humans-beat-LLMs pairs are the interesting signal.`}
+          <DownloadRow
+            numeral="IV"
+            title="DPO · preference pairs"
+            format="TRL · preference-based RL"
+            description={`Paired preferences: { prompt, chosen, rejected } where chosen beats rejected by ≥ ${DPO_MIN_DELTA} points on the same scenario. Humans-beat-LLMs pairs are the interesting signal.`}
             count={stats.dpoPairs}
             href="/api/export/dpo"
             filename="the-soul-problem-dpo.jsonl"
           />
-          <DownloadCard
+          <DownloadRow
+            numeral="V"
             title="Raw"
-            format="everything"
-            description="Full export: every scenario, every response (human + LLM), every per-criterion judgment with rationales. Bring your own loss function."
+            format="Bring your own loss"
+            description="The full dump: every scenario, every response, every per-criterion judgment with rationales. Compute your own aggregation, train your own objective, write your own paper."
             count={stats.rawRows}
             href="/api/export/raw"
             filename="the-soul-problem-raw.jsonl"
           />
         </section>
 
-        <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 space-y-2">
-          <p><strong className="text-neutral-900">What to do with these files.</strong></p>
-          <p>
-            The SFT file drops into <code className="text-xs bg-white border border-neutral-200 rounded px-1 py-0.5">
-              openai.fine_tuning.jobs.create(training_file=...)
-            </code>,{' '}
-            <code className="text-xs bg-white border border-neutral-200 rounded px-1 py-0.5">
-              anthropic.fine_tuning...
-            </code>, or a local QLoRA trainer. The DPO file drops into{' '}
-            <code className="text-xs bg-white border border-neutral-200 rounded px-1 py-0.5">
-              trl.DPOTrainer
-            </code>. The raw file is for researchers who want to compute their own metrics or build a different aggregation.
+        <section className="mt-20 border-y border-rule py-10">
+          <p className="eyebrow mb-3">Licensing</p>
+          <p className="text-ink-soft leading-[1.7] max-w-[44rem]">
+            The dataset is released with the understanding that these are emotionally sensitive
+            texts. Contributors consented to public release under anonymous attribution. Please do
+            not use the corpus to train deceptive or manipulative systems. Downstream uses that
+            attempt to strip the emotional context are contrary to the project&apos;s intent.
           </p>
         </section>
 
-        <footer className="pt-4 border-t border-neutral-200 text-xs text-neutral-400">
-          Dataset grows every time someone writes a response and opts in. Come back later — the export reflects live state.
+        <footer className="pt-10 mt-4 flex flex-wrap gap-3">
+          <Link href="/try" className="px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}>
+            Add to the dataset
+          </Link>
+          <Link href="/leaderboard" className="px-6 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>
+            Leaderboard
+          </Link>
         </footer>
       </div>
     </main>

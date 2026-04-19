@@ -19,28 +19,29 @@ export default async function TryScenarioPage({ params }: { params: Promise<{ id
   const md = (scenario.metadata ?? {}) as any;
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900">
-      <div className="max-w-3xl mx-auto px-6 py-16 space-y-10">
-        <header className="space-y-3">
-          <Link href="/try" className="text-sm text-neutral-500 hover:text-neutral-700">
-            ← scenarios
-          </Link>
-          <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wider text-neutral-500">
-            {md.subcategory && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.subcategory.replace(/_/g, ' ')}</span>}
-            {md.medium && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.medium.replace(/_/g, ' ')}</span>}
-            {md.time_since_loss && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.time_since_loss}</span>}
-            {md.word_count_target && <span className="rounded bg-neutral-100 px-2 py-0.5">{md.word_count_target}</span>}
-          </div>
+    <main className="min-h-screen">
+      <div className="max-w-[52rem] mx-auto px-8 md:px-16 pt-16 pb-24">
+        <header className="flex items-baseline justify-between pb-6 mb-12 hairline reveal-in">
+          <Link href="/try" className="eyebrow hover:text-ink transition">← Scenarios</Link>
+          <div className="eyebrow">Scenario · {String(scenarioId).padStart(3, '0')}</div>
         </header>
 
-        <section className="space-y-2">
-          <h1 className="text-lg font-semibold text-neutral-900">The scenario</h1>
-          <pre className="whitespace-pre-wrap bg-neutral-50 border border-neutral-200 rounded-lg p-5 text-[15px] leading-relaxed text-neutral-800 font-sans">
+        <section className="mb-12 reveal-up">
+          <div className="flex flex-wrap gap-2 mb-6">
+            {md.subcategory && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
+            {md.medium && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
+            {md.time_since_loss && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.time_since_loss).replace(/_/g, ' ')}</span>}
+            {md.word_count_target && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.word_count_target)}</span>}
+          </div>
+          <p className="eyebrow mb-3">The scenario</p>
+          <pre className="whitespace-pre-wrap font-display text-[1.15rem] leading-[1.7] text-ink-deep bg-paper-raised border-l-2 border-accent pl-6 py-2" style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}>
             {scenario.prompt}
           </pre>
         </section>
 
-        <TryForm scenarioId={scenarioId} />
+        <div className="reveal-up" style={{ animationDelay: '0.2s' }}>
+          <TryForm scenarioId={scenarioId} />
+        </div>
       </div>
     </main>
   );

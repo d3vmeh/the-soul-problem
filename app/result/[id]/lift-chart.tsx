@@ -15,43 +15,49 @@ type LiftData = {
   judge_model: string;
 };
 
-function scoreColorBar(n: number): string {
-  // Red -> amber -> green across 0-100. Mimics the reference leaderboard aesthetic.
-  if (n >= 85) return 'bg-emerald-500';
-  if (n >= 75) return 'bg-emerald-400';
-  if (n >= 65) return 'bg-amber-400';
-  if (n >= 50) return 'bg-orange-400';
-  return 'bg-rose-400';
+function Bar({ score, accent }: { score: number; accent?: boolean }) {
+  const pct = Math.max(0, Math.min(100, score));
+  return (
+    <div className="relative flex-1 h-10 bg-paper-warm rounded-none border border-rule-soft overflow-hidden">
+      <div
+        className={`absolute inset-y-0 left-0 bar-grow ${accent ? 'bg-accent' : 'bg-ink'}`}
+        style={{ width: `${pct}%` }}
+      />
+      <div className="absolute inset-y-0 left-[25%] w-px bg-paper opacity-25" />
+      <div className="absolute inset-y-0 left-[50%] w-px bg-paper opacity-40" />
+      <div className="absolute inset-y-0 left-[75%] w-px bg-paper opacity-25" />
+    </div>
+  );
 }
 
 function Row({
+  numeral,
   label,
-  sublabel,
+  sub,
   score,
-  highlight,
+  accent,
 }: {
+  numeral: string;
   label: string;
-  sublabel?: string;
+  sub: string;
   score: number;
-  highlight?: boolean;
+  accent?: boolean;
 }) {
-  const pct = Math.max(0, Math.min(100, score));
   return (
-    <div className={`grid grid-cols-[240px_1fr] gap-3 items-center py-2 ${highlight ? 'bg-neutral-50 rounded-md px-3' : 'px-3'}`}>
+    <div className={`grid grid-cols-[32px_1fr_320px_60px] gap-4 items-center py-4 border-b border-rule-soft ${accent ? 'bg-accent-wash -mx-4 px-4' : ''}`}>
+      <span className="font-mono text-sm tabular-nums text-ink-whisper">{numeral}</span>
       <div>
-        <div className={`text-sm ${highlight ? 'font-semibold text-neutral-900' : 'text-neutral-800'}`}>
+        <div
+          className="font-display text-[1.1rem] leading-tight text-ink-deep"
+          style={{ fontVariationSettings: '"SOFT" 70, "opsz" 48, "wght" 480' }}
+        >
           {label}
         </div>
-        {sublabel && <div className="text-xs text-neutral-500 mt-0.5">{sublabel}</div>}
+        <div className="eyebrow mt-1 opacity-80">{sub}</div>
       </div>
-      <div className="relative h-8 bg-neutral-100 rounded-md overflow-hidden">
-        <div
-          className={`absolute top-0 left-0 h-full ${scoreColorBar(score)} transition-all`}
-          style={{ width: `${pct}%` }}
-        />
-        <div className="absolute inset-0 flex items-center justify-end pr-3 text-sm font-medium tabular-nums text-neutral-900">
-          {score.toFixed(1)}
-        </div>
+      <Bar score={score} accent={accent} />
+      <div className="font-mono text-[1rem] tabular-nums text-ink-deep text-right" style={{ fontWeight: 500 }}>
+        {score.toFixed(1)}
       </div>
     </div>
   );
@@ -93,15 +99,22 @@ export default function LiftChart({
 
   if (busy) {
     return (
-      <section className="rounded-xl border border-neutral-200 bg-white p-6 space-y-3">
-        <h2 className="text-lg font-semibold">How your response teaches the model</h2>
-        <p className="text-sm text-neutral-600">
-          Running Claude Haiku on this scenario three times — once with nothing, once with just your response
-          as an example, once with the whole public dataset. Then grading all three. This takes ~15–30 seconds.
+      <section className="border-y border-rule py-10 my-10">
+        <p className="eyebrow mb-3">Measurement in progress</p>
+        <h2
+          className="font-display text-ink-deep text-[1.85rem] leading-[1.1] mb-4"
+          style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 380' }}
+        >
+          Running Claude Haiku three times,<br />
+          <em className="italic">then grading each.</em>
+        </h2>
+        <p className="text-ink-soft max-w-xl leading-[1.65] mb-4">
+          Once on its own, once with your response as a single example, once with the whole public
+          dataset. Same judge, same rubric. Takes about fifteen to thirty seconds.
         </p>
-        <div className="flex items-center gap-3 text-sm text-neutral-500">
-          <div className="h-4 w-4 rounded-full border-2 border-neutral-300 border-t-neutral-800 animate-spin" />
-          Computing impact…
+        <div className="inline-flex items-center gap-3 text-sm text-ink-faint font-mono">
+          <div className="h-3 w-3 rounded-full bg-accent animate-pulse" />
+          Computing…
         </div>
       </section>
     );
@@ -109,9 +122,9 @@ export default function LiftChart({
 
   if (error || !data) {
     return (
-      <section className="rounded-xl border border-rose-200 bg-rose-50 p-6 space-y-2">
-        <h2 className="text-lg font-semibold text-rose-900">Couldn't compute impact</h2>
-        <p className="text-sm text-rose-900">{error ?? 'unknown error'}</p>
+      <section className="border-y border-rule py-8 my-10">
+        <p className="eyebrow text-accent-deep mb-2">Could not compute</p>
+        <p className="text-ink-soft">{error ?? 'unknown error'}</p>
       </section>
     );
   }
@@ -120,51 +133,67 @@ export default function LiftChart({
   const datasetDelta = data.dataset_score - data.base_score;
 
   return (
-    <section className="rounded-xl border border-neutral-200 bg-white p-6 space-y-5">
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold">How your response teaches the model</h2>
-        <p className="text-sm text-neutral-600">
-          Claude Haiku's score on this scenario under three conditions. Higher is better. Judged by Claude Sonnet 4.6.
-        </p>
-      </div>
+    <section className="border-y border-rule py-10 my-10">
+      <p className="eyebrow mb-3">The lift experiment</p>
+      <h2
+        className="font-display text-ink-deep text-[2.1rem] md:text-[2.6rem] leading-[1.02] mb-5"
+        style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 340' }}
+      >
+        How your response<br />
+        <em className="italic text-accent-deep">teaches the model.</em>
+      </h2>
+      <p className="text-ink-soft max-w-[42rem] leading-[1.7] mb-8">
+        Claude Haiku answered the same scenario three times. Once cold. Once with your response as an
+        example. Once with the whole public dataset in context. The judge was the same; the rubric was
+        the same; only the prompt changed.
+      </p>
 
-      <div className="space-y-1">
-        <Row label="Haiku (no examples)" sublabel="baseline" score={data.base_score} />
+      <div className="mt-6">
+        <Row numeral="I" label="Haiku · cold" sub="no examples, baseline" score={data.base_score} />
         {data.own_score !== null && (
           <Row
-            label="Haiku + your response"
-            sublabel={`your response used as the single example`}
+            numeral="II"
+            label="Haiku · with your response"
+            sub="your response as a single example"
             score={data.own_score}
-            highlight
+            accent
           />
         )}
         <Row
-          label="Haiku + dataset"
-          sublabel={`${data.n_dataset_examples} human contribution${data.n_dataset_examples === 1 ? '' : 's'} used as examples`}
+          numeral="III"
+          label="Haiku · with dataset"
+          sub={`${data.n_dataset_examples} human contribution${data.n_dataset_examples === 1 ? '' : 's'} in context`}
           score={data.dataset_score}
-          highlight
+          accent
         />
-        <Row label="You" sublabel="your response, judged directly" score={yourScore} />
+        <Row numeral="IV" label="You" sub="judged directly against the rubric" score={yourScore} />
       </div>
 
-      <div className="border-t border-neutral-200 pt-4 text-sm text-neutral-700 space-y-1">
+      <div className="mt-8 grid md:grid-cols-2 gap-6 text-[0.95rem] leading-[1.7] text-ink-soft">
         {ownDelta !== null && (
           <p>
-            With <strong>just your response</strong> as an example, Haiku went{' '}
-            <strong>{ownDelta >= 0 ? '+' : ''}{ownDelta.toFixed(1)}</strong> vs no-example baseline.
+            With <strong className="text-ink-deep">just your response</strong> as an example, Haiku moved{' '}
+            <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
+              {ownDelta >= 0 ? '+' : ''}{ownDelta.toFixed(1)}
+            </span>{' '}
+            points vs its own baseline.
           </p>
         )}
         <p>
-          With the <strong>whole dataset</strong>, Haiku went{' '}
-          <strong>{datasetDelta >= 0 ? '+' : ''}{datasetDelta.toFixed(1)}</strong> vs no-example baseline.
+          With the <strong className="text-ink-deep">whole dataset</strong>, Haiku moved{' '}
+          <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
+            {datasetDelta >= 0 ? '+' : ''}{datasetDelta.toFixed(1)}
+          </span>{' '}
+          points.
         </p>
-        {data.n_dataset_examples < 3 && (
-          <p className="text-xs text-neutral-500 italic pt-1">
-            The dataset effect will get stronger as more people contribute. Right now it has {data.n_dataset_examples} example
-            {data.n_dataset_examples === 1 ? '' : 's'}.
-          </p>
-        )}
       </div>
+
+      {data.n_dataset_examples < 3 && (
+        <p className="text-xs text-ink-whisper italic mt-6 font-display" style={{ fontVariationSettings: '"SOFT" 100, "opsz" 14, "wght" 380' }}>
+          The dataset effect strengthens as more people contribute. Right now there {data.n_dataset_examples === 1 ? 'is' : 'are'} only {data.n_dataset_examples}{' '}
+          contribution{data.n_dataset_examples === 1 ? '' : 's'} to draw from.
+        </p>
+      )}
     </section>
   );
 }
