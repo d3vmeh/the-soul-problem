@@ -274,9 +274,20 @@ export default async function LeaderboardPage() {
                   <div className="font-medium text-[0.95rem]">{r.label}</div>
                   <div className="text-[0.78rem] text-faint">{r.kind}</div>
                 </div>
-                <Bar score={r.score} accent={r.isHuman || r.isLift} />
-                <div className="font-mono text-sm tabular-nums text-right" style={{ fontWeight: 500 }}>
-                  {r.score.toFixed(1)}
+                <Bar
+                  score={r.score}
+                  accent={r.isHuman || r.isLift}
+                  baseScore={'baseForLift' in r && typeof (r as any).baseForLift === 'number' ? (r as any).baseForLift : undefined}
+                />
+                <div className="text-right">
+                  <div className="font-mono text-sm tabular-nums" style={{ fontWeight: 500 }}>
+                    {r.score.toFixed(1)}
+                  </div>
+                  {'baseForLift' in r && typeof (r as any).baseForLift === 'number' && (
+                    <div className="font-mono text-[0.7rem] text-accent tabular-nums mt-0.5">
+                      +{(r.score - (r as any).baseForLift).toFixed(1)}
+                    </div>
+                  )}
                 </div>
                 <div className="font-mono text-xs tabular-nums text-faint text-right">{r.n}</div>
               </div>
