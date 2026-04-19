@@ -20,22 +20,23 @@ export default async function TryScenarioPage({ params }: { params: Promise<{ id
 
   return (
     <main className="min-h-screen page-fade">
-      <div className="max-w-[50rem] mx-auto px-8 md:px-16 pt-14 pb-24">
-        <header className="flex items-baseline justify-between pb-5 mb-12 border-b border-rule">
-          <Link href="/try" className="label hover:text-ink transition">← Scenarios</Link>
-          <div className="label">Scenario · {String(scenarioId).padStart(3, '0')}</div>
+      <div className="max-w-[48rem] mx-auto px-8 md:px-14 pt-12 pb-24">
+        <header className="flex items-baseline justify-between pb-5 mb-10 hairline">
+          <Link href="/try" className="font-display text-ink-deep text-[1.05rem]" style={{ fontVariationSettings: '"SOFT" 30, "wght" 600' }}>
+            ← Scenarios
+          </Link>
+          <div className="text-[0.92rem] text-ink-soft">#{String(scenarioId).padStart(3, '0')}</div>
         </header>
 
         <section className="mb-10">
-          <p className="section-number mb-2">§ Prompt</p>
           <div className="flex flex-wrap gap-2 mb-5">
-            {md.subcategory && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
-            {md.medium && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
-            {md.time_since_loss && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.time_since_loss).replace(/_/g, ' ')}</span>}
-            {md.word_count_target && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.word_count_target)}</span>}
+            {md.subcategory && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
+            {md.medium && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
+            {md.time_since_loss && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.time_since_loss).replace(/_/g, ' ')}</span>}
+            {md.word_count_target && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.word_count_target)}</span>}
           </div>
           <div className="border-l-2 border-accent pl-5 py-1">
-            <pre className="whitespace-pre-wrap font-display text-[1.05rem] leading-[1.7] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 0, "opsz" 24, "wght" 420' }}>
+            <pre className="whitespace-pre-wrap font-display text-[1.05rem] leading-[1.7] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 420' }}>
               {scenario.prompt}
             </pre>
           </div>

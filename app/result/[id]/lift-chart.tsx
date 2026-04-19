@@ -23,37 +23,31 @@ function Bar({ score, accent }: { score: number; accent?: boolean }) {
         className={`absolute inset-y-0 left-0 bar-grow ${accent ? 'bg-accent' : 'bg-ink'}`}
         style={{ width: `${pct}%` }}
       />
-      <div className="absolute inset-y-0 left-[25%] w-px bg-paper opacity-40" />
-      <div className="absolute inset-y-0 left-[50%] w-px bg-paper opacity-60" />
-      <div className="absolute inset-y-0 left-[75%] w-px bg-paper opacity-40" />
     </div>
   );
 }
 
 function Row({
-  numeral,
-  condition,
-  notes,
+  label,
+  sub,
   score,
   accent,
 }: {
-  numeral: string;
-  condition: string;
-  notes: string;
+  label: string;
+  sub: string;
   score: number;
   accent?: boolean;
 }) {
   return (
-    <div className={`grid grid-cols-[44px_1fr_320px_60px] gap-4 items-center py-3 border-b border-rule-hair ${accent ? 'bg-accent-wash -mx-4 px-4' : ''}`}>
-      <span className="font-mono text-xs tabular-nums text-ink-whisper">{numeral}</span>
+    <div className={`grid grid-cols-[1fr_300px_60px] gap-4 items-center py-3 border-b border-rule-hair ${accent ? 'bg-accent-wash -mx-3 px-3' : ''}`}>
       <div>
         <div
           className="font-display text-[1.05rem] leading-tight text-ink-deep"
-          style={{ fontVariationSettings: '"SOFT" 0, "opsz" 24, "wght" 500' }}
+          style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 530' }}
         >
-          {condition}
+          {label}
         </div>
-        <div className="label mt-1 opacity-90">{notes}</div>
+        <div className="text-[0.82rem] text-ink-faint mt-0.5">{sub}</div>
       </div>
       <Bar score={score} accent={accent} />
       <div className="font-mono text-sm tabular-nums text-ink-deep text-right" style={{ fontWeight: 500 }}>
@@ -97,19 +91,18 @@ export default function LiftChart({
 
   if (busy) {
     return (
-      <section className="border-y border-rule py-8 my-10">
-        <p className="section-number mb-2">§ 4. Experiment</p>
+      <section className="border-y border-rule py-10 my-10">
         <h2
-          className="font-display text-ink-deep text-[1.5rem] leading-[1.15] mb-3"
-          style={{ fontVariationSettings: '"SOFT" 0, "opsz" 48, "wght" 500' }}
+          className="font-display text-ink-deep text-[1.7rem] leading-[1.15] mb-3"
+          style={{ fontVariationSettings: '"SOFT" 30, "opsz" 48, "wght" 500' }}
         >
-          In-context learning with the corpus
+          How your response teaches the model
         </h2>
-        <p className="text-ink-soft text-[0.95rem] leading-[1.65] max-w-[42rem] mb-4">
-          Running Claude Haiku 4.5 three times under different conditioning regimes, then judging
-          each with the same Sonnet judge. This takes fifteen to thirty seconds.
+        <p className="text-ink-soft text-[0.95rem] leading-[1.65] max-w-[40rem] mb-5">
+          Running Claude Haiku on this scenario three times — once alone, once with your response as
+          an example, once with the whole corpus. Judged by Sonnet. About 15–30 seconds.
         </p>
-        <div className="inline-flex items-center gap-2 font-mono text-xs text-ink-faint">
+        <div className="inline-flex items-center gap-2 text-sm text-ink-faint font-mono">
           <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
           Computing…
         </div>
@@ -120,7 +113,7 @@ export default function LiftChart({
   if (error || !data) {
     return (
       <section className="border-y border-rule py-6 my-10">
-        <p className="section-number mb-2">§ 4. Experiment</p>
+        <h2 className="font-display text-ink-deep text-[1.4rem] mb-2">Couldn&apos;t compute impact</h2>
         <p className="text-ink-soft">{error ?? 'unknown error'}</p>
       </section>
     );
@@ -131,72 +124,63 @@ export default function LiftChart({
 
   return (
     <section className="border-y border-rule py-10 my-12">
-      <p className="section-number mb-2">§ 4. Experiment</p>
       <h2
-        className="font-display text-ink-deep text-[1.8rem] md:text-[2.1rem] leading-[1.05] mb-4"
-        style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 440' }}
+        className="font-display text-ink-deep text-[1.9rem] md:text-[2.2rem] leading-[1.05] mb-4"
+        style={{ fontVariationSettings: '"SOFT" 30, "opsz" 48, "wght" 450' }}
       >
-        How your response teaches a weaker model, <em className="italic">measured.</em>
+        How your response teaches a weaker model
       </h2>
-      <p className="text-ink-soft text-[0.95rem] leading-[1.7] max-w-[42rem] mb-8">
-        Claude Haiku 4.5 answered this scenario three times. Once with no examples. Once with your
-        response as a single in-context example. Once with the full public corpus as examples. The
-        judge (Sonnet 4.6) and the rubric were identical across runs.
+      <p className="text-ink-soft text-[0.98rem] leading-[1.65] max-w-[42rem] mb-8">
+        Claude Haiku 4.5 answered this scenario three times — alone, with your response as an
+        example, and with the full corpus in context. Same rubric, same judge each time.
       </p>
 
       <div>
-        <div className="grid grid-cols-[44px_1fr_320px_60px] gap-4 py-2 border-b border-rule-soft items-end">
-          <div className="label">#</div>
-          <div className="label">Condition</div>
-          <div className="label">Score</div>
-          <div className="label text-right">Mean</div>
+        <div className="grid grid-cols-[1fr_300px_60px] gap-4 py-2 border-b border-rule-soft items-end">
+          <div className="tag">Condition</div>
+          <div className="tag">Score</div>
+          <div className="tag text-right">Mean</div>
         </div>
-        <Row numeral="1" condition="Haiku · no examples" notes="baseline, no conditioning" score={data.base_score} />
+        <Row label="Haiku alone" sub="no examples, baseline" score={data.base_score} />
         {data.own_score !== null && (
           <Row
-            numeral="2"
-            condition="Haiku · your response"
-            notes="single in-context example"
+            label="Haiku + your response"
+            sub="your response as a single example"
             score={data.own_score}
             accent
           />
         )}
         <Row
-          numeral="3"
-          condition="Haiku · full corpus"
-          notes={`${data.n_dataset_examples} public human contribution${data.n_dataset_examples === 1 ? '' : 's'} in context`}
+          label="Haiku + corpus"
+          sub={`${data.n_dataset_examples} contribution${data.n_dataset_examples === 1 ? '' : 's'} as examples`}
           score={data.dataset_score}
           accent
         />
-        <Row numeral="4" condition="You" notes="your response, judged directly" score={yourScore} />
+        <Row label="You" sub="your response, judged directly" score={yourScore} />
       </div>
 
-      <p className="caption mt-3">
-        Table 2. Student model scores under varied in-context conditioning. Same judge, same rubric.
-      </p>
-
-      <div className="mt-6 grid md:grid-cols-2 gap-6 text-[0.92rem] leading-[1.7] text-ink-soft">
+      <div className="mt-6 grid md:grid-cols-2 gap-5 text-[0.93rem] leading-[1.7] text-ink-soft">
         {ownDelta !== null && (
           <p>
-            <strong className="text-ink-deep">Δ (condition 2 vs 1):</strong>{' '}
+            With your response as the single example, Haiku moved{' '}
             <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
               {ownDelta >= 0 ? '+' : ''}{ownDelta.toFixed(1)}
             </span>{' '}
-            with your response as the single in-context example.
+            points versus the baseline.
           </p>
         )}
         <p>
-          <strong className="text-ink-deep">Δ (condition 3 vs 1):</strong>{' '}
+          With the whole corpus, Haiku moved{' '}
           <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
             {datasetDelta >= 0 ? '+' : ''}{datasetDelta.toFixed(1)}
           </span>{' '}
-          with the full corpus as examples.
+          points.
         </p>
       </div>
 
       {data.n_dataset_examples < 3 && (
-        <p className="caption mt-5">
-          With n = {data.n_dataset_examples} corpus example{data.n_dataset_examples === 1 ? '' : 's'}, the effect is noisy. It stabilizes and strengthens as contributions accumulate.
+        <p className="text-[0.85rem] text-ink-faint italic mt-5 font-display" style={{ fontVariationSettings: '"SOFT" 30, "wght" 400' }}>
+          With only {data.n_dataset_examples} corpus example{data.n_dataset_examples === 1 ? '' : 's'}, the effect is noisy. It gets stronger as more people contribute.
         </p>
       )}
     </section>
