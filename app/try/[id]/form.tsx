@@ -27,51 +27,39 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-6">
-      <div className="space-y-3">
-        <h2
-          className="font-display text-ink-deep text-[1.4rem]"
-          style={{ fontVariationSettings: '"SOFT" 30, "opsz" 32, "wght" 550' }}
-        >
-          Your response
-        </h2>
-        <p className="text-ink-soft text-[0.95rem] leading-[1.65]">
-          Write what you would actually say. Short is fine.
-        </p>
+    <form onSubmit={submit} className="space-y-5">
+      <div>
+        <label className="block text-[0.85rem] font-medium mb-2">Your response</label>
         <textarea
           required
           minLength={1}
           maxLength={5000}
-          rows={14}
+          rows={12}
           value={text}
           onChange={e => setText(e.target.value)}
-          className="w-full bg-paper-raised border border-rule p-5 font-display text-[1rem] leading-[1.7] text-ink-deep focus:outline-none focus:border-accent transition placeholder:text-ink-whisper resize-vertical"
-          style={{ fontVariationSettings: '"SOFT" 30, "opsz" 16, "wght" 400' }}
-          placeholder="Begin here."
+          className="w-full bg-bg border border-line rounded-lg p-4 text-[0.95rem] leading-[1.6] text-text focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent-tint transition placeholder:text-faint resize-vertical"
+          placeholder="Write what you would actually say. Short is fine."
         />
-        <div className="flex justify-end">
-          <span className="font-mono text-xs text-ink-faint tabular-nums">
-            {text.length} / 5000
-          </span>
+        <div className="flex justify-end mt-1">
+          <span className="font-mono text-xs text-faint tabular-nums">{text.length} / 5000</span>
         </div>
       </div>
 
-      <label className="flex items-start gap-3 text-[0.92rem] text-ink-soft leading-[1.65] p-4 border border-rule-soft bg-paper-raised cursor-pointer hover:border-rule transition">
+      <label className="flex items-start gap-3 text-[0.88rem] text-muted leading-[1.55] p-3 rounded-lg border border-line-subtle bg-surface cursor-pointer hover:border-line transition">
         <input
           type="checkbox"
           checked={contribute}
           onChange={e => setContribute(e.target.checked)}
-          className="mt-1 accent-accent"
+          className="mt-0.5 accent-accent"
         />
         <span>
-          <strong className="text-ink-deep">Contribute to the public corpus.</strong>{' '}
-          Anonymous — no identifying data is collected. Your response may appear in research
-          exports. Leave unchecked and it stays private.
+          <strong className="text-text font-medium">Contribute to the public corpus.</strong>{' '}
+          Anonymous; no identifying data collected. Leave unchecked and it stays private.
         </span>
       </label>
 
       {error && (
-        <div className="border border-accent text-accent-deep bg-accent-wash px-4 py-3 text-sm">
+        <div className="rounded-lg border border-red-200 bg-red-50 text-red-800 px-4 py-2.5 text-sm">
           {error}
         </div>
       )}
@@ -79,8 +67,7 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
       <button
         type="submit"
         disabled={busy || text.trim().length === 0}
-        className="inline-block px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition disabled:opacity-40 font-display"
-        style={{ fontVariationSettings: '"SOFT" 30, "wght" 500' }}
+        className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {busy ? 'Scoring (up to 30 s)…' : 'Submit for judgment'}
       </button>

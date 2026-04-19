@@ -23,18 +23,16 @@ export default function ContributeButton({ responseId }: { responseId: number })
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <button
         type="button"
         onClick={submit}
         disabled={busy}
-        className="inline-flex items-center gap-3 px-5 py-3 bg-accent text-paper-raised hover:bg-accent-deep transition disabled:opacity-50 font-display"
-        style={{ fontVariationSettings: '"SOFT" 0, "wght" 450' }}
+        className="btn btn-primary disabled:opacity-50"
       >
-        <span className="label text-paper-raised opacity-70">→</span>
-        <span>{busy ? 'Contributing…' : 'Contribute to the corpus'}</span>
+        {busy ? 'Contributing…' : 'Contribute to the corpus'}
       </button>
-      {error && <div className="text-sm text-accent-deep">{error}</div>}
+      {error && <div className="text-sm text-red-700">{error}</div>}
     </div>
   );
 }

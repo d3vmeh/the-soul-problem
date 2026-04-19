@@ -17,26 +17,23 @@ export default async function TryScenarioPage({ params }: { params: Promise<{ id
   if (!scenario) notFound();
 
   const md = (scenario.metadata ?? {}) as any;
+  const meta = [md.subcategory, md.medium, md.time_since_loss, md.word_count_target]
+    .filter(Boolean)
+    .map(s => String(s).replace(/_/g, ' '))
+    .join(' · ');
 
   return (
-    <main className="min-h-screen page-fade">
-      <div className="max-w-[48rem] mx-auto px-8 md:px-14 pt-12 pb-24">
-        <header className="flex items-baseline justify-between pb-5 mb-10 hairline">
-          <Link href="/try" className="font-display text-ink-deep text-[1.05rem]" style={{ fontVariationSettings: '"SOFT" 30, "wght" 600' }}>
-            ← Scenarios
-          </Link>
-          <div className="text-[0.92rem] text-ink-soft">#{String(scenarioId).padStart(3, '0')}</div>
+    <main className="min-h-screen fade-in">
+      <div className="max-w-2xl mx-auto px-6 pt-10 pb-20">
+        <header className="flex items-center justify-between pb-6 mb-8 border-b border-line">
+          <Link href="/try" className="font-semibold tracking-tight text-[0.95rem]">← Scenarios</Link>
+          <div className="text-[0.85rem] text-muted">#{String(scenarioId).padStart(3, '0')}</div>
         </header>
 
-        <section className="mb-10">
-          <div className="flex flex-wrap gap-2 mb-5">
-            {md.subcategory && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
-            {md.medium && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
-            {md.time_since_loss && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.time_since_loss).replace(/_/g, ' ')}</span>}
-            {md.word_count_target && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.word_count_target)}</span>}
-          </div>
-          <div className="border-l-2 border-accent pl-5 py-1">
-            <pre className="whitespace-pre-wrap font-display text-[1.05rem] leading-[1.7] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 420' }}>
+        <section className="mb-8">
+          {meta && <p className="text-[0.78rem] text-faint mb-3">{meta}</p>}
+          <div className="rounded-lg border border-line-subtle bg-surface p-5">
+            <pre className="whitespace-pre-wrap text-[0.95rem] leading-[1.6] text-text font-sans">
               {scenario.prompt}
             </pre>
           </div>

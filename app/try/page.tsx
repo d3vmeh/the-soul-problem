@@ -10,65 +10,50 @@ export default async function TryPage() {
     .limit(30);
 
   return (
-    <main className="min-h-screen page-fade">
-      <div className="max-w-[56rem] mx-auto px-8 md:px-14 pt-12 pb-24">
-        <header className="flex items-baseline justify-between pb-5 mb-12 hairline">
-          <Link href="/" className="font-display text-ink-deep text-[1.05rem]" style={{ fontVariationSettings: '"SOFT" 30, "wght" 600' }}>
-            ← The Soul Problem
-          </Link>
-          <div className="text-[0.92rem] text-ink-soft">Scenarios</div>
+    <main className="min-h-screen fade-in">
+      <div className="max-w-3xl mx-auto px-6 pt-10 pb-20">
+        <header className="flex items-center justify-between pb-6 mb-10 border-b border-line">
+          <Link href="/" className="font-semibold tracking-tight text-[0.95rem]">← The Soul Problem</Link>
+          <div className="text-[0.85rem] text-muted">Scenarios</div>
         </header>
 
-        <section className="max-w-[44rem] mb-12">
-          <h1
-            className="font-display text-ink-deep text-[2.4rem] md:text-[2.9rem] leading-[1.05] mb-5"
-            style={{ fontVariationSettings: '"SOFT" 30, "opsz" 144, "wght" 400' }}
-          >
-            Choose a scenario.
-          </h1>
-          <p className="text-ink-soft text-[1.02rem] leading-[1.65]">
-            Each one is a specific hard message someone needs to write. Pick one, write what you
-            think the ideal response would be. We&apos;ll score it against a rubric built for that
-            exact moment.
+        <section className="mb-10">
+          <h1 className="text-[2rem] font-semibold tracking-tight leading-[1.1] mb-3">Choose a scenario.</h1>
+          <p className="text-muted leading-[1.55] max-w-2xl">
+            Pick one and write what you think the ideal response would be. We&apos;ll score it against a
+            rubric built for that exact moment.
           </p>
         </section>
 
-        <section className="border-t border-rule">
+        <section className="space-y-2">
           {(scenarios ?? []).map((s, i) => {
             const md = (s.metadata ?? {}) as any;
-            const preview = s.prompt.length > 260 ? s.prompt.slice(0, 260).trim() + '…' : s.prompt;
+            const preview = s.prompt.length > 220 ? s.prompt.slice(0, 220).trim() + '…' : s.prompt;
+            const meta = [md.subcategory, md.medium, md.time_since_loss]
+              .filter(Boolean)
+              .map(s => String(s).replace(/_/g, ' '))
+              .join(' · ');
             return (
               <Link
                 key={s.id}
                 href={`/try/${s.id}`}
-                className="group grid grid-cols-[40px_1fr_auto] gap-5 py-7 items-start border-b border-rule-soft hover:bg-paper-raised transition -mx-3 px-3"
+                className="group block rounded-lg border border-line-subtle bg-surface hover:bg-surface-2 hover:border-line transition p-5"
               >
-                <span className="font-mono text-sm tabular-nums text-ink-faint pt-1">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    {md.subcategory && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
-                    {md.medium && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
-                    {md.time_since_loss && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.time_since_loss).replace(/_/g, ' ')}</span>}
-                  </div>
-                  <p className="font-display text-[1rem] leading-[1.65] text-ink-deep max-w-[44rem]" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 18, "wght" 420' }}>
-                    {preview}
-                  </p>
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="font-mono text-xs text-faint tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                  {meta && <span className="text-[0.78rem] text-faint">{meta}</span>}
                 </div>
-                <span className="text-[0.9rem] text-ink-soft group-hover:text-accent transition self-center">
+                <p className="text-[0.95rem] leading-[1.6] text-text">{preview}</p>
+                <div className="mt-3 text-[0.85rem] text-muted group-hover:text-accent transition">
                   Write →
-                </span>
+                </div>
               </Link>
             );
           })}
         </section>
 
-        <footer className="pt-10 mt-8 border-t border-rule">
-          <p className="text-ink-faint text-[0.9rem] leading-[1.65] max-w-[42rem]">
-            Submissions are anonymous. No identifying data is collected. By default your response
-            stays private; you opt in to joining the public corpus at submission time.
-          </p>
+        <footer className="pt-10 mt-10 border-t border-line-subtle text-faint text-[0.85rem] leading-[1.6]">
+          Anonymous. No identifying data collected. Contributions to the public corpus are opt-in per submission.
         </footer>
       </div>
     </main>

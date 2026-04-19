@@ -40,24 +40,27 @@ ${scenarioPrompt}`;
 
 function buildExamplePrompt(
   scenarioPrompt: string,
-  examples: { scenario_prompt: string; text: string }[]
+  examples: { scenario_prompt: string; text: string; score?: number | null }[]
 ): string {
-  const exampleBlocks = examples
-    .map(
-      (e, i) => `--- EXAMPLE ${i + 1} ---
+  // Sort highest-scoring first so the prompt leads with the strongest exemplars.
+  const ranked = [...examples].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const exampleBlocks = ranked
+    .map((e, i) => {
+      const scoreLine = e.score != null ? ` (rubric score: ${e.score.toFixed(0)}/100)` : '';
+      return `--- HIGH-SCORING HUMAN EXAMPLE ${i + 1}${scoreLine} ---
 SCENARIO:
 ${e.scenario_prompt}
 
-HUMAN RESPONSE:
+RESPONSE:
 ${e.text}
-`
-    )
+`;
+    })
     .join('\n');
-  return `You'll see examples of how humans respond to emotionally difficult scenarios. Learn the register, restraint, and specificity from them — do not copy phrases.
+  return `Below are examples of human responses to emotionally difficult scenarios, each scored against a rubric that rewards specificity, restraint, and obedience to stated constraints, and penalizes platitudes, euphemism, and centering the writer. Study the register. Do not copy phrases; imitate the discipline.
 
 ${exampleBlocks}
 
-Now respond to this new scenario. Write only the response itself, no preamble.
+Now respond to this new scenario with the same discipline. Write only the response itself, no preamble.
 
 SCENARIO:
 ${scenarioPrompt}`;
@@ -108,17 +111,25 @@ export async function computeLift(scenarioId: number, userResponseId: number | n
     userResponseText = r?.text ?? null;
   }
 
-  // Dataset examples: every public human response on OTHER scenarios. Include the user's own scenario
-  // is fine because we exclude responses to the held-out scenario itself (would leak answers).
+  // Dataset examples: public humans from OTHER scenarios, filtered to quality contributions only
+  // (max judged score >= 70). Each exemplar is tagged with its score so the student model
+  // attends to the high-scoring ones first.
   const { data: humans } = await db
     .from('responses')
-    .select('scenario_id, text, scenarios!inner(prompt)')
+    .select('scenario_id, text, scenarios!inner(prompt), judgments(overall_score)')
     .eq('model', 'human:public')
     .neq('scenario_id', scenarioId);
-  const examples = (humans ?? []).map((h: any) => ({
-    scenario_prompt: h.scenarios.prompt,
-    text: h.text,
-  }));
+  const examples = ((humans ?? []) as any[])
+    .map(h => {
+      const js = (h.judgments ?? []) as { overall_score: number }[];
+      const score = js.length ? Math.max(...js.map(j => j.overall_score)) : null;
+      return {
+        scenario_prompt: h.scenarios.prompt,
+        text: h.text,
+        score,
+      };
+    })
+    .filter(e => e.score === null || e.score >= 70);
 
   const basePrompt = buildBasePrompt(scenario.prompt);
   const ownPrompt = userResponseText

@@ -10,7 +10,7 @@ function modelDisplay(model: string): string {
   if (model === 'claude-opus-4-7') return 'Claude Opus 4.7';
   if (model === 'claude-sonnet-4-6') return 'Claude Sonnet 4.6';
   if (model === 'claude-haiku-4-5') return 'Claude Haiku 4.5';
-  if (model === 'claude-opus-blunt') return 'Claude Opus 4.7 (blunt)';
+  if (model === 'claude-opus-blunt') return 'Claude Opus (blunt)';
   if (model === 'gpt-4o') return 'GPT-4o';
   if (model === 'gpt-4o-mini') return 'GPT-4o mini';
   return model;
@@ -26,20 +26,19 @@ function band(n: number): string {
 function Bar({ score, accent }: { score: number; accent?: boolean }) {
   const pct = Math.max(0, Math.min(100, score));
   return (
-    <div className="relative flex-1 h-6 bg-paper-sunk border border-rule-hair overflow-hidden">
+    <div className="relative flex-1 h-5 bg-surface-3 rounded overflow-hidden">
       <div
-        className={`absolute inset-y-0 left-0 bar-grow ${accent ? 'bg-accent' : 'bg-ink'}`}
+        className={`absolute inset-y-0 left-0 bar-grow rounded ${accent ? 'bg-accent' : 'bg-text'}`}
         style={{ width: `${pct}%` }}
       />
     </div>
   );
 }
-
 function SmallBar({ score }: { score: number }) {
   const pct = Math.max(0, Math.min(100, (score / 10) * 100));
   return (
-    <div className="relative w-24 h-1.5 bg-paper-sunk overflow-hidden">
-      <div className="absolute inset-y-0 left-0 bg-ink" style={{ width: `${pct}%` }} />
+    <div className="relative w-20 h-1.5 bg-surface-3 rounded-full overflow-hidden">
+      <div className="absolute inset-y-0 left-0 bg-text rounded-full" style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -72,23 +71,18 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   const md = (scenario?.metadata ?? {}) as any;
   const isHuman = response.model.startsWith('human');
   const isPublic = response.model === 'human:public';
+  const meta = [md.subcategory, md.medium].filter(Boolean).map(s => String(s).replace(/_/g, ' ')).join(' · ');
 
   if (!judgment) {
     return (
-      <main className="min-h-screen page-fade">
-        <div className="max-w-[52rem] mx-auto px-8 md:px-14 pt-12 pb-24">
-          <header className="flex items-baseline justify-between pb-5 mb-10 hairline">
-            <Link href="/" className="font-display text-ink-deep text-[1.05rem]" style={{ fontVariationSettings: '"SOFT" 30, "wght" 600' }}>
-              ← The Soul Problem
-            </Link>
+      <main className="min-h-screen fade-in">
+        <div className="max-w-2xl mx-auto px-6 pt-10 pb-20">
+          <header className="flex items-center justify-between pb-6 mb-8 border-b border-line">
+            <Link href="/" className="font-semibold tracking-tight text-[0.95rem]">← The Soul Problem</Link>
           </header>
-          <h1 className="font-display text-ink-deep text-[2.2rem] leading-[1.05] mb-4" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 144, "wght" 420' }}>
-            Your response was saved.
-          </h1>
-          <p className="text-ink-soft mb-6">The judge didn&apos;t return a score this time. You can try again.</p>
-          <Link href={`/try/${response.scenario_id}`} className="inline-block px-5 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition">
-            Try again
-          </Link>
+          <h1 className="text-[2rem] font-semibold tracking-tight mb-3">Your response was saved.</h1>
+          <p className="text-muted mb-5">The judge didn&apos;t return a score this time. You can try again.</p>
+          <Link href={`/try/${response.scenario_id}`} className="btn btn-primary">Try again</Link>
         </div>
       </main>
     );
@@ -132,117 +126,85 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   const dominantSet = new Set(dominant.map(s => s.toLowerCase()));
 
   return (
-    <main className="min-h-screen page-fade">
-      <div className="max-w-[54rem] mx-auto px-8 md:px-14 pt-12 pb-24">
-        <header className="flex items-baseline justify-between pb-5 mb-12 hairline">
-          <Link href="/try" className="font-display text-ink-deep text-[1.05rem]" style={{ fontVariationSettings: '"SOFT" 30, "wght" 600' }}>
-            ← Scenarios
-          </Link>
-          <div className="text-[0.92rem] text-ink-soft">
+    <main className="min-h-screen fade-in">
+      <div className="max-w-3xl mx-auto px-6 pt-10 pb-20">
+        <header className="flex items-center justify-between pb-6 mb-10 border-b border-line">
+          <Link href="/try" className="font-semibold tracking-tight text-[0.95rem]">← Scenarios</Link>
+          <div className="text-[0.85rem] text-muted">
             {isHuman ? (isPublic ? 'Public' : 'Private draft') : 'Model baseline'}
           </div>
         </header>
 
-        <section className="mb-14">
-          <p className="tag mb-3">Your score</p>
-          <div className="flex items-baseline gap-6 flex-wrap">
-            <div
-              className="font-display text-ink-deep text-[6rem] md:text-[8rem] leading-[0.9] tabular-nums"
-              style={{ fontVariationSettings: '"SOFT" 30, "opsz" 144, "wght" 400' }}
-            >
+        <section className="mb-10">
+          <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">Your score</div>
+          <div className="flex items-baseline gap-5 flex-wrap">
+            <span className="text-[5rem] md:text-[6rem] font-semibold tracking-tight leading-none tabular-nums">
               {myScore.toFixed(1)}
-            </div>
-            <div className="flex flex-col gap-1 pb-3">
-              <span className="text-ink-faint text-sm">/ 100</span>
-              <span
-                className="font-display text-[1.2rem] text-accent-deep italic"
-                style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 500' }}
-              >
-                {band(myScore)}
-              </span>
+            </span>
+            <div className="flex flex-col gap-1 pb-2">
+              <span className="text-sm text-faint">/ 100</span>
+              <span className="text-sm font-medium text-accent">{band(myScore)}</span>
             </div>
           </div>
-          <div className="border-l-2 border-accent pl-5 py-1 mt-8 max-w-[42rem]">
-            <p className="tag mb-2">Judge rationale</p>
-            <p className="font-display text-[1rem] leading-[1.65] text-ink-deep italic" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 420' }}>
-              {judgment.rationale}
-            </p>
-            <p className="text-[0.82rem] text-ink-faint mt-3">— {judgment.judge_model}</p>
+          <div className="mt-6 rounded-lg border border-line-subtle bg-surface p-4 max-w-xl">
+            <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-2">Judge rationale</div>
+            <p className="text-[0.95rem] leading-[1.6] text-text">{judgment.rationale}</p>
+            <p className="text-[0.78rem] text-faint mt-2">{judgment.judge_model}</p>
           </div>
         </section>
 
-        <section className="border-y border-rule py-10">
-          <h2
-            className="font-display text-ink-deep text-[1.7rem] leading-[1.15] mb-5"
-            style={{ fontVariationSettings: '"SOFT" 30, "opsz" 48, "wght" 500' }}
-          >
-            Where you stand on this scenario
-          </h2>
-
-          <div>
-            <div className="grid grid-cols-[1fr_260px_60px] gap-4 py-2 border-b border-rule-soft items-end">
-              <div className="tag">Respondent</div>
-              <div className="tag">Score</div>
-              <div className="tag text-right">Mean</div>
+        <section className="rounded-lg border border-line p-5 mb-8">
+          <h2 className="text-[1.15rem] font-semibold tracking-tight mb-4">Where you stand on this scenario</h2>
+          <div className="rounded-md border border-line-subtle overflow-hidden">
+            <div className="grid grid-cols-[1fr_220px_52px] gap-3 px-3 py-2 border-b border-line bg-surface text-[0.72rem] text-faint uppercase tracking-wide">
+              <div>Respondent</div>
+              <div>Score</div>
+              <div className="text-right">Mean</div>
             </div>
-            <div className="grid grid-cols-[1fr_260px_60px] gap-4 items-center py-3 bg-accent-wash -mx-3 px-3 border-b border-rule-hair">
-              <div className="font-display text-[1.05rem] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 24, "wght" 560' }}>
-                You
+            <div className="px-3">
+              <div className="grid grid-cols-[1fr_220px_52px] gap-3 items-center py-2.5 bg-accent-tint -mx-3 px-3 border-b border-line-subtle">
+                <div className="text-[0.9rem] font-semibold">You</div>
+                <Bar score={myScore} accent />
+                <div className="font-mono text-sm tabular-nums text-right font-medium">{myScore.toFixed(1)}</div>
               </div>
-              <Bar score={myScore} accent />
-              <div className="font-mono text-sm tabular-nums text-right text-ink-deep" style={{ fontWeight: 500 }}>
-                {myScore.toFixed(1)}
-              </div>
+              {llmPeers
+                .sort((a, b) => b.overall_score - a.overall_score)
+                .map(p => (
+                  <div key={p.response_id} className="grid grid-cols-[1fr_220px_52px] gap-3 items-center py-2.5 border-b border-line-subtle last:border-0">
+                    <div className="text-[0.9rem] text-muted">{modelDisplay(p.model)}</div>
+                    <Bar score={p.overall_score} />
+                    <div className="font-mono text-sm tabular-nums text-right text-muted">{p.overall_score.toFixed(1)}</div>
+                  </div>
+                ))}
+              {humanPublicPeers
+                .sort((a, b) => b.overall_score - a.overall_score)
+                .slice(0, 5)
+                .map((p, i) => (
+                  <div key={p.response_id} className="grid grid-cols-[1fr_220px_52px] gap-3 items-center py-2.5 border-b border-line-subtle last:border-0">
+                    <div className="text-[0.9rem] text-muted">Human #{i + 1}</div>
+                    <Bar score={p.overall_score} />
+                    <div className="font-mono text-sm tabular-nums text-right text-muted">{p.overall_score.toFixed(1)}</div>
+                  </div>
+                ))}
             </div>
-            {llmPeers
-              .sort((a, b) => b.overall_score - a.overall_score)
-              .map(p => (
-                <div key={p.response_id} className="grid grid-cols-[1fr_260px_60px] gap-4 items-center py-3 border-b border-rule-hair">
-                  <div className="text-[0.95rem] text-ink-soft font-display" style={{ fontVariationSettings: '"SOFT" 30, "wght" 430' }}>
-                    {modelDisplay(p.model)}
-                  </div>
-                  <Bar score={p.overall_score} />
-                  <div className="font-mono text-sm tabular-nums text-right text-ink-soft">
-                    {p.overall_score.toFixed(1)}
-                  </div>
-                </div>
-              ))}
-            {humanPublicPeers
-              .sort((a, b) => b.overall_score - a.overall_score)
-              .slice(0, 5)
-              .map((p, i) => (
-                <div key={p.response_id} className="grid grid-cols-[1fr_260px_60px] gap-4 items-center py-3 border-b border-rule-hair">
-                  <div className="text-[0.95rem] text-ink-soft font-display italic" style={{ fontVariationSettings: '"SOFT" 30, "wght" 430' }}>
-                    Human #{i + 1}
-                  </div>
-                  <Bar score={p.overall_score} />
-                  <div className="font-mono text-sm tabular-nums text-right text-ink-soft">
-                    {p.overall_score.toFixed(1)}
-                  </div>
-                </div>
-              ))}
           </div>
 
-          <div className="mt-5 space-y-1 text-[0.93rem] text-ink-soft leading-[1.7]">
+          <div className="mt-4 space-y-1 text-[0.88rem] text-muted leading-[1.55]">
             {bestLlm.response_id > 0 && (
               <p>
                 {deltaVsBestLlm >= 0 ? (
-                  <>You beat the strongest LLM on this scenario by{' '}
-                    <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
-                      {deltaVsBestLlm.toFixed(1)}
-                    </span>{' '}points.</>
+                  <>You beat the strongest LLM by{' '}
+                    <span className="font-mono tabular-nums font-medium text-accent">{deltaVsBestLlm.toFixed(1)}</span> points.</>
                 ) : (
                   <>The strongest LLM scored{' '}
-                    <span className="font-mono text-accent-deep tabular-nums" style={{ fontWeight: 600 }}>
-                      {Math.abs(deltaVsBestLlm).toFixed(1)}
-                    </span>{' '}higher.</>
+                    <span className="font-mono tabular-nums font-medium text-accent">{Math.abs(deltaVsBestLlm).toFixed(1)}</span> higher.</>
                 )}
               </p>
             )}
             {poolSize > 1 && (
               <p>
-                Among <strong className="text-ink-deep">{poolSize}</strong> human contributor{poolSize === 1 ? '' : 's'},
-                you rank <strong className="text-ink-deep">#{myRank}</strong> ({percentile}th percentile).
+                Among <strong className="text-text font-medium">{poolSize}</strong> human contributor{poolSize === 1 ? '' : 's'},
+                you rank <strong className="text-text font-medium">#{myRank}</strong> ({percentile}th percentile).
               </p>
             )}
           </div>
@@ -251,60 +213,44 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         {isHuman && <LiftChart responseId={responseId} yourScore={myScore} />}
 
         {isHuman && !isPublic && (
-          <section className="border-y border-accent bg-accent-wash -mx-8 md:-mx-14 px-8 md:px-14 py-8 my-10">
-            <h2
-              className="font-display text-ink-deep text-[1.55rem] leading-[1.15] mb-3"
-              style={{ fontVariationSettings: '"SOFT" 30, "opsz" 48, "wght" 500' }}
-            >
-              Contribute this response
-            </h2>
-            <p className="text-ink-soft text-[0.95rem] leading-[1.7] max-w-[40rem] mb-5">
-              Your response currently lives only on this page. If you contribute, it joins the
-              public corpus under anonymous attribution — available for research and downstream
-              training.
+          <section className="rounded-lg border border-accent bg-accent-tint p-5 mb-8">
+            <h2 className="text-[1.1rem] font-semibold tracking-tight mb-2">Contribute this response</h2>
+            <p className="text-muted text-[0.9rem] leading-[1.55] mb-4">
+              Private by default. If you opt in, it joins the public corpus under anonymous
+              attribution.
             </p>
             <ContributeButton responseId={responseId} />
           </section>
         )}
 
         {isHuman && isPublic && (
-          <section className="border-y border-rule py-6 my-10">
-            <h2 className="font-display text-ink-deep text-[1.4rem] mb-2" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 32, "wght" 500' }}>
-              You&apos;re in the corpus
-            </h2>
-            <p className="text-ink-soft leading-[1.65] text-[0.95rem]">
-              <strong className="text-ink-deep">{contributedCount}</strong> public contribution{contributedCount === 1 ? '' : 's'} on this scenario.
+          <section className="rounded-lg border border-line p-5 mb-8">
+            <h2 className="text-[1.05rem] font-semibold mb-2">You&apos;re in the corpus</h2>
+            <p className="text-muted text-[0.9rem] leading-[1.55]">
+              <strong className="text-text font-medium">{contributedCount}</strong> public contribution{contributedCount === 1 ? '' : 's'} on this scenario.
               {contributedMean !== null && (
-                <> Contributor mean: <strong className="text-ink-deep">{contributedMean.toFixed(1)}</strong>.</>
+                <> Contributor mean: <strong className="text-text font-medium">{contributedMean.toFixed(1)}</strong>.</>
               )}{' '}
-              <Link href="/dataset" className="link">Browse the corpus →</Link>
+              <Link href="/dataset" className="link">Browse →</Link>
             </p>
           </section>
         )}
 
-        <section className="border-b border-rule py-10">
-          <h2
-            className="font-display text-ink-deep text-[1.55rem] leading-[1.15] mb-2"
-            style={{ fontVariationSettings: '"SOFT" 30, "opsz" 48, "wght" 500' }}
-          >
-            Rubric breakdown
-          </h2>
-          <p className="text-ink-faint text-[0.88rem] leading-[1.65] mb-6">
-            Dominant criteria (bold) count twice in the overall.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-10">
+        <section className="rounded-lg border border-line p-5 mb-8">
+          <h2 className="text-[1.1rem] font-semibold tracking-tight mb-1">Rubric breakdown</h2>
+          <p className="text-[0.82rem] text-faint mb-5">Dominant criteria (bold) count double.</p>
+          <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <p className="tag mb-4">Positive · reward</p>
-              <div className="space-y-3">
+              <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">Positive</div>
+              <div className="space-y-2.5">
                 {Object.entries(positive).map(([label, score]) => {
                   const isDom = dominantSet.has(label.toLowerCase());
                   return (
-                    <div key={label} className="grid grid-cols-[1fr_auto_100px] gap-3 items-center">
-                      <div className={`text-[0.88rem] leading-snug ${isDom ? 'font-display text-ink-deep' : 'text-ink-soft'}`} style={isDom ? { fontVariationSettings: '"SOFT" 30, "wght" 620' } : undefined}>
+                    <div key={label} className="grid grid-cols-[1fr_auto_84px] gap-3 items-center">
+                      <div className={`text-[0.85rem] leading-snug ${isDom ? 'font-semibold text-text' : 'text-muted'}`}>
                         {label}
                       </div>
-                      <div className="font-mono text-xs tabular-nums text-ink-faint w-8 text-right">{score}</div>
+                      <div className="font-mono text-xs tabular-nums text-faint w-6 text-right">{score}</div>
                       <SmallBar score={score} />
                     </div>
                   );
@@ -312,16 +258,16 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
             <div>
-              <p className="tag mb-4">Negative · penalty</p>
-              <div className="space-y-3">
+              <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">Negative</div>
+              <div className="space-y-2.5">
                 {Object.entries(negative).map(([label, score]) => {
                   const isDom = dominantSet.has(label.toLowerCase());
                   return (
-                    <div key={label} className="grid grid-cols-[1fr_auto_100px] gap-3 items-center">
-                      <div className={`text-[0.88rem] leading-snug ${isDom ? 'font-display text-ink-deep' : 'text-ink-soft'}`} style={isDom ? { fontVariationSettings: '"SOFT" 30, "wght" 620' } : undefined}>
+                    <div key={label} className="grid grid-cols-[1fr_auto_84px] gap-3 items-center">
+                      <div className={`text-[0.85rem] leading-snug ${isDom ? 'font-semibold text-text' : 'text-muted'}`}>
                         {label}
                       </div>
-                      <div className="font-mono text-xs tabular-nums text-ink-faint w-8 text-right">{score}</div>
+                      <div className="font-mono text-xs tabular-nums text-faint w-6 text-right">{score}</div>
                       <SmallBar score={score} />
                     </div>
                   );
@@ -331,39 +277,19 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           </div>
         </section>
 
-        <section className="py-10 border-b border-rule">
-          <h2 className="font-display text-ink-deep text-[1.3rem] mb-4" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 32, "wght" 520' }}>
-            Your response
-          </h2>
-          <div className="border border-rule-soft bg-paper-raised px-6 py-5">
-            <pre className="whitespace-pre-wrap font-display text-[1rem] leading-[1.7] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 16, "wght" 400' }}>
-              {response.text}
-            </pre>
-          </div>
+        <section className="rounded-lg border border-line-subtle bg-surface p-5 mb-4">
+          <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">Your response</div>
+          <pre className="whitespace-pre-wrap text-[0.95rem] leading-[1.6] text-text font-sans">{response.text}</pre>
         </section>
 
-        <section className="py-10 border-b border-rule">
-          <h2 className="font-display text-ink-deep text-[1.3rem] mb-3" style={{ fontVariationSettings: '"SOFT" 30, "opsz" 32, "wght" 520' }}>
-            The scenario
-          </h2>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {md.subcategory && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
-            {md.medium && <span className="tag px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
-          </div>
-          <div className="border-l-2 border-rule pl-5">
-            <pre className="whitespace-pre-wrap text-[0.93rem] leading-[1.7] text-ink-soft font-display italic" style={{ fontVariationSettings: '"SOFT" 30, "wght" 420' }}>
-              {scenario?.prompt}
-            </pre>
-          </div>
+        <section className="rounded-lg border border-line-subtle bg-surface p-5 mb-8">
+          {meta && <div className="text-[0.78rem] text-faint uppercase tracking-wide mb-3">The scenario — {meta}</div>}
+          <pre className="whitespace-pre-wrap text-[0.92rem] leading-[1.6] text-muted font-sans">{scenario?.prompt}</pre>
         </section>
 
-        <footer className="flex flex-wrap gap-3 pt-8">
-          <Link href={`/try/${response.scenario_id}`} className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 30, "wght" 450' }}>
-            Retry this scenario
-          </Link>
-          <Link href="/try" className="px-5 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 30, "wght" 500' }}>
-            Try another
-          </Link>
+        <footer className="flex flex-wrap gap-2 pt-6 border-t border-line-subtle">
+          <Link href={`/try/${response.scenario_id}`} className="btn btn-secondary">Retry this scenario</Link>
+          <Link href="/try" className="btn btn-primary">Try another</Link>
         </footer>
       </div>
     </main>
