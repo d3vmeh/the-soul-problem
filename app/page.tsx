@@ -12,12 +12,22 @@ async function loadStats() {
       .select('overall_score, response_id, responses!inner(model)')
       .eq('responses.model', 'human:public'),
   ]);
-  // Count unique JUDGED public humans — this matches the leaderboard's Human row n,
-  // so stats never disagree between pages.
-  const judgedIds = new Set((judgments ?? []).map((j: any) => j.response_id));
-  const scores = (judgments ?? []).map((j: any) => j.overall_score).filter((n: number) => Number.isFinite(n));
-  const mean = scores.length ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : null;
-  return { scenarios: scenarios ?? 0, contributions: judgedIds.size, meanScore: mean };
+  // Per-response mean across both judges (same computation as the leaderboard)
+  const perResponse = new Map<number, number[]>();
+  for (const j of (judgments ?? []) as any[]) {
+    const arr = perResponse.get(j.response_id) ?? [];
+    arr.push(j.overall_score);
+    perResponse.set(j.response_id, arr);
+  }
+  const meansPerResponse = [...perResponse.values()]
+    .map(xs => xs.reduce((a, b) => a + b, 0) / xs.length)
+    .sort((a, b) => b - a);
+  const humanTop = meansPerResponse.length ? meansPerResponse[0] : null;
+  return {
+    scenarios: scenarios ?? 0,
+    contributions: perResponse.size,
+    humanTop,
+  };
 }
 
 export default async function LandingPage() {

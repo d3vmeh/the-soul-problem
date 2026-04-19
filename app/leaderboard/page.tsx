@@ -3,8 +3,34 @@ import { supabaseService } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-function Bar({ score, accent }: { score: number; accent?: boolean }) {
+function Bar({
+  score,
+  accent,
+  baseScore,
+}: {
+  score: number;
+  accent?: boolean;
+  baseScore?: number;
+}) {
   const pct = Math.max(0, Math.min(100, score));
+  // If baseScore is provided, render the base portion in ink and the "lift" portion in accent —
+  // so the viewer sees where the dataset contribution starts.
+  if (baseScore !== undefined) {
+    const basePct = Math.max(0, Math.min(100, baseScore));
+    const liftPct = Math.max(0, pct - basePct);
+    return (
+      <div className="relative flex-1 h-6 bg-surface-3 rounded overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 bar-grow bg-text"
+          style={{ width: `${basePct}%` }}
+        />
+        <div
+          className="absolute inset-y-0 bar-grow bg-accent"
+          style={{ left: `${basePct}%`, width: `${liftPct}%` }}
+        />
+      </div>
+    );
+  }
   return (
     <div className="relative flex-1 h-6 bg-surface-3 rounded overflow-hidden">
       <div
@@ -144,6 +170,7 @@ export default async function LeaderboardPage() {
           label: 'Claude Haiku 4.5 + corpus',
           kind: 'same model, same judge, dataset in context',
           score: withCorpusMean,
+          baseForLift: baseMean,
           n: withCorpusN,
           isHuman: false,
           isLift: true,
