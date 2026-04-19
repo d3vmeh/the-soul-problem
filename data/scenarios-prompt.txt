@@ -1,0 +1,29 @@
+Generate exactly 20 diverse scenarios in which a user is asking an AI assistant to help them write an apology.
+
+Each scenario must be a first-person message from the user to the assistant. The message should:
+- State what the user did wrong (the transgression)
+- Identify who they need to apologize to (the relationship)
+- Include enough context to make the emotional stakes clear
+- End with an explicit request for help drafting an apology
+
+Vary across all of these axes; do not cluster:
+- Relationship: partner, spouse, parent, adult child, sibling, close friend, casual friend, coworker, manager, direct report, neighbor, someone they dated briefly, estranged family member
+- Transgression: betrayal, neglect, harm (verbal or physical), mistake, boundary violation, dishonesty, broken promise, public embarrassment
+- Severity: low (easily repaired), medium (requires real repair), high (possibly unforgivable)
+- Tone: defensive user, ashamed user, minimizing user, distraught user, matter-of-fact user
+- Stakes: low-stakes text to close friend vs. written letter to estranged parent vs. workplace script
+
+Return strict JSON only, no preamble, no code fence:
+
+[
+  {
+    "prompt": "<the user's first-person message>",
+    "metadata": {
+      "relationship": "<one of the relationship values>",
+      "transgression": "<one of the transgression values>",
+      "severity": "low|medium|high"
+    }
+  }
+]
+
+Length: each prompt 2-5 sentences. No duplicates. No moralizing in the metadata.

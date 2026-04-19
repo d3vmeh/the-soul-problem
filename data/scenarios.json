@@ -1,0 +1,162 @@
+[
+  {
+    "prompt": "I forgot my best friend's birthday yesterday. Like, completely forgot until I saw the group photos on Instagram this morning. We've been friends for 15 years and I feel awful. Can you help me write a text to her that actually acknowledges how shitty this is without being over the top?",
+    "metadata": {
+      "relationship": "close friend",
+      "transgression": "neglect",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "I cheated on my wife six months ago and she just found out through a mutual friend. She's asked me to write her a letter because she can't stand to hear my voice right now. We have two kids and she hasn't decided if she's leaving. I don't know where to start — please help me draft something.",
+    "metadata": {
+      "relationship": "spouse",
+      "transgression": "betrayal",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I snapped at my direct report in front of the whole team during standup yesterday because she missed a deadline. It wasn't even that serious and I embarrassed her. I need to apologize to her one-on-one today. Can you help me script what to say so I don't make it worse?",
+    "metadata": {
+      "relationship": "direct report",
+      "transgression": "public embarrassment",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "So I told my sister I'd fly out for her baby shower and then I just... didn't go. I made up an excuse about work but she knows I was lying because I posted at a concert that weekend. She hasn't spoken to me in three weeks. Help me write something to send her.",
+    "metadata": {
+      "relationship": "sibling",
+      "transgression": "dishonesty",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "I hit my son. He's 22 and we got in an argument about his girlfriend and I slapped him across the face. He left and he's not answering my calls. I don't know what came over me. I need to write him something because I don't think he'll pick up the phone.",
+    "metadata": {
+      "relationship": "adult child",
+      "transgression": "harm (verbal or physical)",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I accidentally CC'd my coworker on an email where I was complaining about him to another colleague. It wasn't even that mean but it called him 'painfully slow.' He saw it this morning. I need to apologize in person and also probably follow up in writing. Can you help me figure out what to say?",
+    "metadata": {
+      "relationship": "coworker",
+      "transgression": "public embarrassment",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "I borrowed my neighbor's lawnmower and returned it with a broken pull cord and didn't mention it. He figured it out and confronted me over the fence yesterday. I feel like a jerk — I was just embarrassed. Help me write a quick apology note I can leave with a replacement part.",
+    "metadata": {
+      "relationship": "neighbor",
+      "transgression": "dishonesty",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "I went on three dates with this woman last month and then ghosted her. She sent me a really mature message yesterday asking for closure and honestly she deserves better than silence. I want to send her something that actually acknowledges what I did. Can you help?",
+    "metadata": {
+      "relationship": "someone they dated briefly",
+      "transgression": "neglect",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "Look, my mom is being dramatic but fine, I'll apologize. I told her at Thanksgiving that she was the reason Dad drank and the whole table heard. I still kind of think it's true but whatever, I need to smooth things over before Christmas. Write me something.",
+    "metadata": {
+      "relationship": "parent",
+      "transgression": "harm (verbal or physical)",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I promised my partner I'd quit vaping by our anniversary and he just found a cartridge in my jacket pocket. This is the third time I've lied about quitting. He's really hurt and said he doesn't know if he can trust me on bigger things. Help me write something honest.",
+    "metadata": {
+      "relationship": "partner",
+      "transgression": "broken promise",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "I read my teenage daughter's journal. She's 16 and she caught me doing it and now she won't even look at me. I thought I was being a good parent but I clearly crossed a line. I want to slide a note under her door tonight. Can you help me write it?",
+    "metadata": {
+      "relationship": "adult child",
+      "transgression": "boundary violation",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "I haven't spoken to my father in 11 years. He reached out last month after his cancer diagnosis. I said some genuinely cruel things to him as a teenager that I've carried with me, and I want to write him a real letter before it's too late. I'm terrified. Please help me start it.",
+    "metadata": {
+      "relationship": "estranged family member",
+      "transgression": "harm (verbal or physical)",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I was supposed to pick up my friend from the airport and I fell asleep. She waited for two hours and had to take a $90 Uber. It's not the end of the world but she's annoyed. Help me write a funny but sincere text.",
+    "metadata": {
+      "relationship": "casual friend",
+      "transgression": "broken promise",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "I told my manager I had finished the client deck when I hadn't even started it, thinking I could pull it off overnight. I couldn't, and she had to scramble in front of the VP this morning. She's pulled me into a 1:1 this afternoon. I need to apologize in a way that doesn't get me fired.",
+    "metadata": {
+      "relationship": "manager",
+      "transgression": "dishonesty",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "My brother asked me to be his best man and I got so drunk at the rehearsal dinner that I gave a rambling speech about his ex-girlfriend. His fiancée was in tears. The wedding was three days ago and he hasn't responded to my texts. I need to write him a real letter.",
+    "metadata": {
+      "relationship": "sibling",
+      "transgression": "public embarrassment",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I vented about my friend's divorce to another friend at brunch and it got back to her. I didn't say anything cruel, just details she'd told me in confidence. She said she feels like she can't trust me anymore. Help me write something that doesn't sound defensive.",
+    "metadata": {
+      "relationship": "close friend",
+      "transgression": "betrayal",
+      "severity": "medium"
+    }
+  },
+  {
+    "prompt": "I double-booked and missed my coworker's farewell lunch after she explicitly asked me to come. We weren't super close but she made a point of inviting me and I just didn't show. She starts her new job Monday. Help me write a quick apology message before she leaves.",
+    "metadata": {
+      "relationship": "coworker",
+      "transgression": "mistake",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "I let myself into my neighbors' apartment while they were on vacation to 'check on things' even though they hadn't asked me to. They have a Ring camera and saw everything. They're furious and talking about calling the building. I need to write them something tonight.",
+    "metadata": {
+      "relationship": "neighbor",
+      "transgression": "boundary violation",
+      "severity": "high"
+    }
+  },
+  {
+    "prompt": "I forgot to send the Zoom link to my manager for the meeting she asked me to set up, and she missed the first ten minutes with the client. It was just a stupid oversight but it looked bad on her. I want to send her a brief, professional apology over Slack. Can you help me word it?",
+    "metadata": {
+      "relationship": "manager",
+      "transgression": "mistake",
+      "severity": "low"
+    }
+  },
+  {
+    "prompt": "My partner of four years had a miscarriage last month and I have been completely absent — working late, going to the gym, avoiding her grief because I didn't know how to handle my own. She told me last night she feels more alone than when she lost the baby. I need to write her a letter. I don't even know how to begin.",
+    "metadata": {
+      "relationship": "partner",
+      "transgression": "neglect",
+      "severity": "high"
+    }
+  }
+]
