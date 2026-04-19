@@ -1,0 +1,4 @@
+anthropic
+sentence-transformers
+numpy
+pytest
