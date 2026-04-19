@@ -193,6 +193,7 @@ export default async function LeaderboardPage() {
           label: 'Claude Sonnet 4.6 + corpus',
           kind: 'same model, same judge, dataset in context',
           score: sonnetWithCorpusMean,
+          baseForLift: sonnetBaseMean,
           n: sonnetWithCorpusN,
           isHuman: false,
           isLift: true,
