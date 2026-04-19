@@ -17,7 +17,7 @@ function Bar({ score, accent }: { score: number; accent?: boolean }) {
   return (
     <div className="relative flex-1 h-5 bg-surface-3 rounded overflow-hidden">
       <div
-        className={`absolute inset-y-0 left-0 bar-grow rounded ${accent ? 'bg-accent' : 'bg-text'}`}
+        className={`absolute inset-y-0 left-0 bar-grow rounded ${accent ? 'bg-accent' : 'bg-bar'}`}
         style={{ width: `${pct}%` }}
       />
     </div>

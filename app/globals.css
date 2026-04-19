@@ -18,6 +18,8 @@
   --accent: #1d4ed8;       /* blue-700 — interactive only */
   --accent-hover: #1e40af;
   --accent-tint: #eff6ff;
+
+  --bar: #4b5056;          /* dark grey — score bar fill (not pure black) */
 }
 
 @theme inline {
@@ -46,6 +48,7 @@ body {
   .font-mono { font-family: var(--font-mono); font-feature-settings: "tnum", "zero"; }
 
   .bg-text      { background-color: var(--text); }
+  .bg-bar       { background-color: var(--bar); }
   .bg-surface   { background-color: var(--surface); }
   .bg-surface-2 { background-color: var(--surface-2); }
   .bg-surface-3 { background-color: var(--surface-3); }

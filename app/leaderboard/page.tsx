@@ -21,7 +21,7 @@ function Bar({
     return (
       <div className="relative flex-1 h-6 bg-surface-3 rounded overflow-hidden">
         <div
-          className="absolute inset-y-0 left-0 bar-grow bg-text"
+          className="absolute inset-y-0 left-0 bar-grow bg-bar"
           style={{ width: `${basePct}%` }}
         />
         <div
@@ -34,7 +34,7 @@ function Bar({
   return (
     <div className="relative flex-1 h-6 bg-surface-3 rounded overflow-hidden">
       <div
-        className={`absolute inset-y-0 left-0 bar-grow rounded ${accent ? 'bg-accent' : 'bg-text'}`}
+        className={`absolute inset-y-0 left-0 bar-grow rounded ${accent ? 'bg-accent' : 'bg-bar'}`}
         style={{ width: `${pct}%` }}
       />
     </div>
