@@ -36,14 +36,22 @@ async function loadLeaderboard() {
   const db = supabaseService();
   const { data: rows } = await db
     .from('judgments')
-    .select(`overall_score, responses!inner(model)`);
+    .select(`overall_score, response_id, responses!inner(model)`);
   const buckets = new Map<string, number[]>();
+  // For humans we want the mean of their top responses, not their overall mean,
+  // because the dataset is a curated signal — bad submissions stay private.
+  // Collect per-response mean judgment scores for public humans.
+  const humanPerResponse = new Map<number, number[]>();
   for (const r of ((rows ?? []) as any[])) {
     const model = r.responses.model;
     if (model.startsWith('human:private')) continue;
-    // Drop Haiku's seeded-response numbers — we replace them with the lift baseline below
-    // so the baseline and the +corpus number come from the same controlled experiment.
     if (model === 'claude-haiku-4-5') continue;
+    if (model === 'human:public') {
+      const arr = humanPerResponse.get(r.response_id) ?? [];
+      arr.push(r.overall_score);
+      humanPerResponse.set(r.response_id, arr);
+      continue;
+    }
     const arr = buckets.get(model) ?? [];
     arr.push(r.overall_score);
     buckets.set(model, arr);
@@ -54,6 +62,12 @@ async function loadLeaderboard() {
     n: scores.length,
   }));
 
+  const humanResponseMeans = [...humanPerResponse.values()]
+    .map(xs => xs.reduce((a, b) => a + b, 0) / xs.length)
+    .sort((a, b) => b - a);
+  const humanTopMean = humanResponseMeans.length ? humanResponseMeans[0] : null;
+  const humanTotalN = humanResponseMeans.length;
+
   // Both the Haiku baseline and Haiku + corpus come from the same set of lift snapshots
   // — identical student model, identical judge (Sonnet), identical scenarios. This makes
   // the two numbers directly comparable.
@@ -62,21 +76,41 @@ async function loadLeaderboard() {
   const withCorpus = (liftSnaps ?? []).map(s => s.dataset_score).filter((n): n is number => Number.isFinite(n));
   const baseMean = base.length ? base.reduce((a, b) => a + b, 0) / base.length : null;
   const withCorpusMean = withCorpus.length ? withCorpus.reduce((a, b) => a + b, 0) / withCorpus.length : null;
-  return { byModel, baseMean, baseN: base.length, withCorpusMean, withCorpusN: withCorpus.length };
+  return {
+    byModel,
+    baseMean, baseN: base.length,
+    withCorpusMean, withCorpusN: withCorpus.length,
+    humanTopMean, humanTotalN,
+  };
 }
 
 export default async function LeaderboardPage() {
-  const { byModel, baseMean, baseN, withCorpusMean, withCorpusN } = await loadLeaderboard();
+  const { byModel, baseMean, baseN, withCorpusMean, withCorpusN, humanTopMean, humanTotalN } =
+    await loadLeaderboard();
 
   const ranked = [
-    ...byModel.map(b => ({
-      key: b.model,
-      ...modelDisplay(b.model),
-      score: b.mean,
-      n: b.n,
-      isHuman: b.model === 'human:public',
-      isLift: false,
-    })),
+    // LLM rows from the standard judgment aggregation (excluding human:public which we handle below)
+    ...byModel
+      .filter(b => b.model !== 'human:public')
+      .map(b => ({
+        key: b.model,
+        ...modelDisplay(b.model),
+        score: b.mean,
+        n: b.n,
+        isHuman: false,
+        isLift: false,
+      })),
+    ...(humanTopMean !== null
+      ? [{
+          key: 'human',
+          label: 'Human',
+          kind: `${humanTotalN} public contribution${humanTotalN === 1 ? '' : 's'}`,
+          score: humanTopMean,
+          n: humanTotalN,
+          isHuman: true,
+          isLift: false,
+        }]
+      : []),
     ...(baseMean !== null
       ? [{
           key: 'haiku-base',
@@ -99,7 +133,11 @@ export default async function LeaderboardPage() {
           isLift: true,
         }]
       : []),
-  ].sort((a, b) => b.score - a.score);
+  ].sort((a, b) => {
+    if (a.isHuman && !b.isHuman) return -1;
+    if (!a.isHuman && b.isHuman) return 1;
+    return b.score - a.score;
+  });
 
   const liftDelta =
     baseMean !== null && withCorpusMean !== null ? withCorpusMean - baseMean : null;
