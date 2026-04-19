@@ -15,165 +15,175 @@ async function loadStats() {
   ]);
   const scores = (judgments ?? []).map((j: any) => j.overall_score).filter((n: number) => Number.isFinite(n));
   const mean = scores.length ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : null;
-  return {
-    scenarios: scenarios ?? 0,
-    contributions: contributions ?? 0,
-    meanScore: mean,
-  };
+  return { scenarios: scenarios ?? 0, contributions: contributions ?? 0, meanScore: mean };
 }
 
 export default async function LandingPage() {
   const stats = await loadStats();
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-[68rem] mx-auto px-8 md:px-16 pt-16 md:pt-24 pb-24">
+    <main className="min-h-screen page-fade">
+      <div className="max-w-[62rem] mx-auto px-8 md:px-16 pt-14 pb-24">
         {/* Masthead */}
-        <header className="flex items-baseline justify-between pb-6 mb-20 hairline reveal-in">
-          <div className="eyebrow">The Soul Problem · vol. I</div>
-          <nav className="eyebrow flex gap-6">
+        <header className="flex items-baseline justify-between pb-5 mb-16 border-b border-rule">
+          <div className="label">The Soul Problem · working paper</div>
+          <nav className="label flex gap-6">
             <Link href="/try" className="hover:text-ink transition">Contribute</Link>
-            <Link href="/leaderboard" className="hover:text-ink transition">Leaderboard</Link>
-            <Link href="/dataset" className="hover:text-ink transition">Archive</Link>
+            <Link href="/leaderboard" className="hover:text-ink transition">Results</Link>
+            <Link href="/dataset" className="hover:text-ink transition">Corpus</Link>
             <Link href="/dataset/export" className="hover:text-ink transition">Download</Link>
           </nav>
         </header>
 
-        {/* Hero */}
-        <section className="grid md:grid-cols-12 gap-12 items-start mb-24">
-          <div className="md:col-span-8 space-y-8 reveal-up" style={{ animationDelay: '0.05s' }}>
-            <p className="eyebrow">A dataset of hard things to write</p>
-            <h1
-              className="font-display text-ink-deep leading-[0.92] text-[3.5rem] md:text-[5.5rem] font-light"
-              style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 320' }}
-            >
-              A voicemail,<br />
-              <em className="italic text-accent-deep" style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 380' }}>
-                three weeks
-              </em>
-              <br />
-              after a suicide.
-            </h1>
-            <p className="text-[1.125rem] leading-[1.65] text-ink-soft max-w-[36rem]">
-              This is a corpus of messages large language models get wrong — not through lack of
-              fluency but through lack of restraint. Every scenario carries its own rubric,
-              authored before any model saw it. Write what you think the ideal response would be.
-              We'll score it. The best become training data.
+        {/* Title block — single column, centered, like a paper */}
+        <section className="max-w-[44rem] mb-16">
+          <p className="label mb-6">An evaluation benchmark for emotionally intelligent writing</p>
+          <h1
+            className="font-display text-ink-deep text-[2.75rem] md:text-[3.4rem] leading-[1.02] mb-8"
+            style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 420' }}
+          >
+            The Soul Problem: a rubric-graded corpus of{' '}
+            <em className="italic">messages LLMs get wrong.</em>
+          </h1>
+          <p className="text-ink-faint text-[0.92rem] mb-6 font-mono">
+            sumeet mehra, the soul-problem collective &nbsp;·&nbsp; v0.1 &nbsp;·&nbsp; april 2026
+          </p>
+          <div className="border border-rule-soft bg-paper-raised px-6 py-6">
+            <p className="label mb-2">Abstract</p>
+            <p className="text-ink-soft text-[0.98rem] leading-[1.65]">
+              We introduce a small but growing benchmark of emotionally high-stakes writing tasks —
+              voicemails after a suicide, layoff scripts, miscarriage cards — each accompanied by a
+              hand-authored rubric of positive and negative criteria.{' '}
+              Responses from four frontier language models and {stats.contributions} human
+              contributor{stats.contributions === 1 ? '' : 's'} are judged against the same rubric by
+              Claude Sonnet 4.6 using structured tool-use, yielding a 0–100 Overall Item Score.
+              We report a measurable in-context-learning effect of the contributed corpus on a weaker
+              student model (Claude Haiku 4.5) and release the dataset in five formats for downstream
+              supervised and preference-based training.
             </p>
-            <div className="flex flex-wrap gap-3 pt-4">
-              <Link
-                href="/try"
-                className="group inline-flex items-center gap-3 px-7 py-4 bg-ink text-paper-raised hover:bg-accent-deep transition"
-              >
-                <span className="eyebrow text-paper-raised opacity-80">01 →</span>
-                <span className="font-display text-lg" style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}>Write a response</span>
-              </Link>
-              <Link
-                href="/leaderboard"
-                className="inline-flex items-center px-7 py-4 border border-rule hover:border-ink text-ink transition"
-              >
-                <span className="font-display text-lg" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>See the standings</span>
-              </Link>
-            </div>
           </div>
-
-          {/* Aside — epigraph */}
-          <aside className="md:col-span-4 md:pt-24 reveal-up" style={{ animationDelay: '0.35s' }}>
-            <div className="border-l-2 border-accent pl-6 space-y-3">
-              <p
-                className="font-display italic text-ink-deep text-[1.35rem] leading-[1.4]"
-                style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 350' }}
-              >
-                &ldquo;The hardest thing a person ever writes
-                is not helpful, cheerful, or polite.&rdquo;
-              </p>
-              <p className="eyebrow">— the premise</p>
-            </div>
-          </aside>
-        </section>
-
-        {/* Stats strip */}
-        <section className="grid grid-cols-3 gap-0 mb-24 border-y border-rule reveal-up" style={{ animationDelay: '0.55s' }}>
-          <Stat
-            label="Scenarios"
-            value={stats.scenarios}
-            caption="Each one a different hard moment."
-          />
-          <Stat
-            label="Human contributions"
-            value={stats.contributions}
-            caption={stats.contributions === 0 ? 'Be the first to write.' : 'Growing with every submission.'}
-            middle
-          />
-          <Stat
-            label="Human mean score"
-            value={stats.meanScore !== null ? stats.meanScore.toFixed(1) : '—'}
-            caption="0–100, Sonnet-judged."
-          />
-        </section>
-
-        {/* How it works */}
-        <section className="grid md:grid-cols-12 gap-10 mb-24 reveal-up" style={{ animationDelay: '0.75s' }}>
-          <div className="md:col-span-4">
-            <p className="eyebrow mb-3">The method</p>
-            <h2
-              className="font-display text-ink-deep text-[2rem] leading-[1.08]"
-              style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 380' }}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/try"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display"
+              style={{ fontVariationSettings: '"SOFT" 0, "wght" 450' }}
             >
-              Five motions<br />from writer<br />to dataset.
-            </h2>
+              <span className="label text-paper-raised opacity-70">§1</span>
+              <span>Contribute a response</span>
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="inline-flex items-center gap-3 px-6 py-3 border border-rule hover:border-ink transition font-display text-ink"
+              style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}
+            >
+              <span className="label">§3</span>
+              <span>See results</span>
+            </Link>
+            <Link
+              href="/dataset/export"
+              className="inline-flex items-center gap-3 px-6 py-3 border border-rule hover:border-ink transition font-display text-ink"
+              style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}
+            >
+              <span className="label">§A</span>
+              <span>Download data</span>
+            </Link>
           </div>
-          <ol className="md:col-span-8 divide-y divide-rule-soft">
+        </section>
+
+        {/* Figure 1 — live counts */}
+        <section className="mb-16">
+          <div className="border-y border-rule py-6 grid grid-cols-3 gap-0">
+            <StatCell label="Scenarios" value={stats.scenarios} />
+            <StatCell label="Human contributions" value={stats.contributions} middle />
+            <StatCell
+              label="Human mean score"
+              value={stats.meanScore !== null ? stats.meanScore.toFixed(1) : '—'}
+              suffix="/ 100"
+            />
+          </div>
+          <p className="caption mt-3 text-right">
+            Figure 1. Corpus state, live from database, cached 30 s.
+          </p>
+        </section>
+
+        {/* Method — numbered sections */}
+        <section className="grid md:grid-cols-[1fr_2fr] gap-12 mb-20">
+          <div>
+            <p className="section-number mb-2">§ 2.</p>
+            <h2
+              className="font-display text-ink-deep text-[1.6rem] leading-[1.15]"
+              style={{ fontVariationSettings: '"SOFT" 0, "opsz" 48, "wght" 500' }}
+            >
+              Method
+            </h2>
+            <p className="sidenote mt-3 max-w-[18rem]">
+              The platform is the data-collection apparatus. Every contribution increments the
+              corpus in the measurement.
+            </p>
+          </div>
+          <ol className="space-y-6">
             {[
-              ['I', 'Pick a scenario.', 'A specific hard message someone needs to write — a voicemail, a script, a letter.'],
-              ['II', 'Write your version.', 'Short is fine. Your voice, not a model\'s.'],
-              ['III', 'Get scored.', 'Claude applies the scenario\'s own rubric — a dozen criteria specific to that exact moment — and returns a 0–100.'],
-              ['IV', 'See your rank.', 'Against four frontier LLMs and every human contributor before you.'],
-              ['V', 'Optionally contribute.', 'Your response joins the public dataset. Training data that didn\'t exist yesterday.'],
-            ].map(([numeral, title, body], i) => (
-              <li key={i} className="py-5 flex gap-6">
-                <span className="eyebrow text-accent-deep pt-1 shrink-0 w-12">{numeral}</span>
-                <div className="space-y-1">
+              ['2.1', 'Scenario selection', 'The participant selects one of the grief/loss scenarios from the corpus. Each is a first-person user prompt to an LLM, with a pre-authored rubric of 12+ positive and negative criteria and a weights hint naming 2–3 dominant criteria.'],
+              ['2.2', 'Response elicitation', 'The participant writes their own ideal response in a plain textarea. We do not provide templates, word banks, or draft assistance from any model.'],
+              ['2.3', 'Structured scoring', 'Claude Sonnet 4.6 is invoked with tool-use enforced against a typed schema: each criterion receives an integer in [1,10]. The overall score is computed client-side from per-criterion scores using the dominant-weighted formula from the rubric specification.'],
+              ['2.4', 'Contribution', 'If the participant opts in, the response joins the public corpus with anonymous attribution. Otherwise it remains local to the result page.'],
+              ['2.5', 'In-context evaluation', 'For each submission, we compute Claude Haiku 4.5\'s score on the same scenario under three conditions: baseline, with the participant\'s response as a single in-context example, and with the full public corpus as examples. The delta is reported as the dataset\'s measurable effect.'],
+            ].map(([n, title, body]) => (
+              <li key={n} className="grid grid-cols-[48px_1fr] gap-4">
+                <span className="section-number pt-1">§{n}</span>
+                <div>
                   <h3
-                    className="font-display text-ink-deep text-[1.2rem]"
-                    style={{ fontVariationSettings: '"SOFT" 70, "opsz" 48, "wght" 520' }}
+                    className="font-display text-[1.1rem] text-ink-deep mb-1"
+                    style={{ fontVariationSettings: '"SOFT" 0, "opsz" 24, "wght" 520' }}
                   >
                     {title}
                   </h3>
-                  <p className="text-ink-soft leading-[1.55]">{body}</p>
+                  <p className="text-ink-soft text-[0.95rem] leading-[1.65]">{body}</p>
                 </div>
               </li>
             ))}
           </ol>
         </section>
 
-        {/* Manifesto / why */}
-        <section className="mb-20 reveal-up" style={{ animationDelay: '0.95s' }}>
-          <div className="rule-ornament mb-10">
-            <span className="eyebrow">On method</span>
+        {/* Motivation */}
+        <section className="grid md:grid-cols-[1fr_2fr] gap-12 mb-20">
+          <div>
+            <p className="section-number mb-2">§ 1.</p>
+            <h2
+              className="font-display text-ink-deep text-[1.6rem] leading-[1.15]"
+              style={{ fontVariationSettings: '"SOFT" 0, "opsz" 48, "wght" 500' }}
+            >
+              Motivation
+            </h2>
           </div>
-          <blockquote
-            className="font-display italic text-ink text-[1.5rem] md:text-[1.85rem] leading-[1.45] max-w-[48rem] mx-auto text-center"
-            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 340' }}
-          >
-            Almost every instruction-tuning corpus over-weights helpful, cheerful, polite responses.
-            The hardest messages a person ever writes are not helpful, cheerful, or polite —
-            they are restrained, specific, and often painful.{' '}
-            <span className="text-accent-deep not-italic">A corpus of graded human responses on those exact moments is what&apos;s missing.</span>{' '}
-            This is that corpus.
-          </blockquote>
+          <div className="space-y-4 text-ink-soft leading-[1.7]">
+            <p>
+              Contemporary instruction-tuning corpora over-weight helpful, cheerful, polite
+              responses.<sup>[1]</sup> The hardest messages a person ever writes — voicemails after a
+              suicide, scripts for a layoff, letters to the terminally ill — are not helpful, cheerful,
+              or polite. They are restrained, specific, and frequently painful.
+            </p>
+            <p>
+              When asked to produce such messages, frontier models exhibit a characteristic failure
+              pattern: platitudes, euphemism, silver-linings, demand for reciprocity, and subtle
+              centering of the writer rather than the subject. These failures are not captured by
+              generic helpfulness or harmlessness metrics. A graded corpus of human responses on these
+              specific moments is what is missing.
+            </p>
+            <p className="italic">
+              This project is that corpus, together with the measurement apparatus that produces it.
+            </p>
+          </div>
         </section>
 
-        {/* Colophon */}
-        <footer className="pt-10 mt-12 border-t border-rule">
-          <div className="flex flex-wrap gap-8 justify-between items-baseline text-sm">
-            <div className="eyebrow">Colophon</div>
-            <p className="text-ink-faint max-w-md leading-[1.6]">
-              A hackathon essay in evaluation and feedback infrastructure for
-              emotionally intelligent writing. Scenarios authored by hand; LLMs judged by rubric;
-              humans graded on the same scale.
-            </p>
-            <p className="eyebrow">Vol. I · Apr 2026</p>
+        <footer className="pt-8 border-t border-rule text-[0.85rem] text-ink-faint leading-[1.6]">
+          <p className="mb-3">
+            <sup>[1]</sup> Findings cited informally; not peer-reviewed. See the EQ-Bench family of
+            benchmarks (Paech et al.) for adjacent prior art on restrained-register evaluation.
+          </p>
+          <div className="flex justify-between items-baseline mt-6">
+            <span className="label">Working paper · hackathon draft</span>
+            <span className="label">The Soul Problem · Apr 2026</span>
           </div>
         </footer>
       </div>
@@ -181,27 +191,29 @@ export default async function LandingPage() {
   );
 }
 
-function Stat({
+function StatCell({
   label,
   value,
-  caption,
+  suffix,
   middle,
 }: {
   label: string;
   value: number | string;
-  caption: string;
+  suffix?: string;
   middle?: boolean;
 }) {
   return (
-    <div className={`px-6 py-8 ${middle ? 'border-x border-rule' : ''}`}>
-      <div className="eyebrow mb-4">{label}</div>
-      <div
-        className="font-display text-ink-deep text-[3.5rem] leading-none tabular-nums"
-        style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 280' }}
-      >
-        {value}
+    <div className={`px-4 ${middle ? 'border-x border-rule-soft' : ''}`}>
+      <div className="label mb-3">{label}</div>
+      <div className="flex items-baseline gap-2">
+        <span
+          className="font-display text-ink-deep text-[2.8rem] leading-none tabular-nums"
+          style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 380' }}
+        >
+          {value}
+        </span>
+        {suffix && <span className="label">{suffix}</span>}
       </div>
-      <p className="text-ink-faint text-sm mt-4 leading-[1.55]">{caption}</p>
     </div>
   );
 }

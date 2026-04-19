@@ -3,32 +3,36 @@
 :root {
   color-scheme: light;
 
-  /* Paper + ink palette — inspired by letterpress obituary pages */
-  --paper: #f4efe3;
-  --paper-warm: #ece3ce;
-  --paper-raised: #fdf9ed;
-  --ink: #1c1916;
-  --ink-deep: #0e0b08;
-  --ink-soft: #3b3731;
-  --ink-faint: #6a6259;
-  --ink-whisper: #8e867c;
-  --rule: #cfc6ae;
-  --rule-soft: #e4dcc5;
+  /* Paper — cleaner, closer to journal off-white */
+  --paper: #fbfaf7;
+  --paper-raised: #ffffff;
+  --paper-sunk: #f1f0ec;
+  --paper-warm: #eeece5;
 
-  /* Oxblood accent for gravity */
-  --accent: #8b2635;
-  --accent-deep: #6b1e2a;
-  --accent-wash: rgba(139, 38, 53, 0.08);
-  --accent-ink: #5a1a22;
+  /* Ink — neutral gray-blacks, not warm */
+  --ink: #14161a;
+  --ink-deep: #0b0d11;
+  --ink-soft: #33363d;
+  --ink-faint: #6b6e76;
+  --ink-whisper: #9ea1a8;
 
-  /* Score bands — muted, earthen */
-  --score-strong: #3a5a40;
-  --score-solid: #6b8e5a;
-  --score-mixed: #c18440;
-  --score-weak:  #8b2635;
+  /* Rules — light neutral */
+  --rule: #d8d6cf;
+  --rule-soft: #e8e6dd;
+  --rule-hair: #edebe3;
 
-  /* Shadows kept to a whisper — paper doesn't float */
-  --shadow-1: 0 1px 0 rgba(28, 25, 22, 0.04);
+  /* Accent — scholarly navy. Not hyperlink blue, not brand blue. */
+  --accent: #1e3a5f;
+  --accent-deep: #112338;
+  --accent-wash: rgba(30, 58, 95, 0.06);
+  --accent-ink: #0e2440;
+
+  /* Functional score-band hues — muted, for figures only */
+  --fig-a: #14161a;
+  --fig-b: #4c5059;
+  --fig-c: #1e3a5f;
+
+  --shadow-hair: 0 1px 0 rgba(20, 22, 26, 0.04);
 }
 
 @theme inline {
@@ -43,113 +47,143 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
-  font-feature-settings: "ss01", "ss02", "liga", "kern";
+  font-feature-settings: "ss01", "liga", "kern", "onum";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.005em;
-  background-image:
-    radial-gradient(
-      ellipse 140% 80% at 50% -10%,
-      var(--paper-raised) 0%,
-      var(--paper) 50%
-    );
-  background-attachment: fixed;
+  letter-spacing: -0.003em;
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 ::selection {
   background: var(--accent);
-  color: var(--paper);
+  color: var(--paper-raised);
 }
 
-/* Custom utility tokens Tailwind v4 can consume */
+/* Typography tokens as utilities so Tailwind v4 plays nicely */
 @layer utilities {
+  /* Display — sharp, rational, research-paper titling */
   .font-display {
     font-family: var(--font-display);
-    font-variation-settings: "SOFT" 100, "opsz" 144, "WONK" 0;
+    font-variation-settings: "SOFT" 0, "opsz" 144, "WONK" 0;
     letter-spacing: -0.02em;
   }
-  .font-display-sharp {
+  /* Sharper at small sizes, distinctive letterforms */
+  .font-display-text {
     font-family: var(--font-display);
-    font-variation-settings: "SOFT" 0, "opsz" 144, "WONK" 0;
-    letter-spacing: -0.018em;
+    font-variation-settings: "SOFT" 0, "opsz" 16, "WONK" 0;
   }
   .font-mono {
     font-family: var(--font-mono);
     font-feature-settings: "tnum", "zero";
   }
+
+  /* Semantic colors via utilities */
   .bg-paper { background-color: var(--paper); }
-  .bg-paper-warm { background-color: var(--paper-warm); }
   .bg-paper-raised { background-color: var(--paper-raised); }
+  .bg-paper-sunk { background-color: var(--paper-sunk); }
+  .bg-paper-warm { background-color: var(--paper-warm); }
   .text-ink { color: var(--ink); }
   .text-ink-deep { color: var(--ink-deep); }
   .text-ink-soft { color: var(--ink-soft); }
   .text-ink-faint { color: var(--ink-faint); }
   .text-ink-whisper { color: var(--ink-whisper); }
-  .border-rule { border-color: var(--rule); }
-  .border-rule-soft { border-color: var(--rule-soft); }
   .text-accent { color: var(--accent); }
   .text-accent-deep { color: var(--accent-deep); }
   .bg-accent { background-color: var(--accent); }
   .bg-accent-wash { background-color: var(--accent-wash); }
+  .border-rule { border-color: var(--rule); }
+  .border-rule-soft { border-color: var(--rule-soft); }
+  .border-rule-hair { border-color: var(--rule-hair); }
   .border-accent { border-color: var(--accent); }
 
-  .eyebrow {
+  /* Research-paper label — small-caps-esque, mono, tight */
+  .label {
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--ink-faint);
+    font-weight: 500;
     font-feature-settings: "tnum";
+  }
+
+  /* Section number (e.g. "§ 2.1") */
+  .section-number {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  /* Figure caption */
+  .caption {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
   }
 
   .hairline {
     border-bottom: 1px solid var(--rule);
   }
+  .hairline-hair {
+    border-bottom: 1px solid var(--rule-hair);
+  }
 
-  .rule-ornament {
+  /* Thin horizontal ornament */
+  .section-rule {
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: var(--ink-whisper);
   }
-  .rule-ornament::before,
-  .rule-ornament::after {
+  .section-rule::before,
+  .section-rule::after {
     content: "";
     flex: 1;
     height: 1px;
     background: var(--rule);
   }
-}
 
-/* Page-load staggered reveals */
-@keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 12px, 0);
+  /* Sidenote — Tufte-style margin note */
+  .sidenote {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--ink-faint);
+    font-style: italic;
   }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+
+  /* Academic link */
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+    transition: text-decoration-color 0.15s;
+  }
+  .link:hover {
+    text-decoration-color: var(--accent);
   }
 }
-@keyframes reveal-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+/* Minimal, dignified fades. No stagger cascade. */
+@keyframes page-fade {
+  from { opacity: 0; transform: translate3d(0, 4px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.page-fade {
+  animation: page-fade 0.6s ease-out both;
 }
 
-.reveal-up {
-  animation: reveal-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.reveal-in {
-  animation: reveal-in 1.4s ease-out both;
-}
-
-/* Score bar fill animation */
 @keyframes bar-grow {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
 .bar-grow {
   transform-origin: left;
-  animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: bar-grow 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
 }

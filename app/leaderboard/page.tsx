@@ -3,36 +3,28 @@ import { supabaseService } from '@/lib/supabase';
 
 export const revalidate = 30;
 
-function Bar({ score, n, you }: { score: number; n: number; you?: boolean }) {
+function Bar({ score, accent }: { score: number; accent?: boolean }) {
   const pct = Math.max(0, Math.min(100, score));
   return (
-    <div className="flex items-center gap-4">
-      <div className="relative flex-1 h-10 bg-paper-warm rounded-none border border-rule-soft overflow-hidden">
-        <div
-          className={`absolute inset-y-0 left-0 bar-grow ${you ? 'bg-accent' : 'bg-ink'}`}
-          style={{ width: `${pct}%` }}
-        />
-        {/* Subtle tick marks at 25/50/75 */}
-        <div className="absolute inset-y-0 left-[25%] w-px bg-paper opacity-25" />
-        <div className="absolute inset-y-0 left-[50%] w-px bg-paper opacity-40" />
-        <div className="absolute inset-y-0 left-[75%] w-px bg-paper opacity-25" />
-      </div>
-      <div className="font-mono text-[0.95rem] tabular-nums text-ink-deep w-14 text-right" style={{ fontWeight: 500 }}>
-        {score.toFixed(1)}
-      </div>
-      <div className="font-mono text-[0.7rem] tabular-nums text-ink-whisper w-10 text-right">
-        n={n}
-      </div>
+    <div className="relative flex-1 h-7 bg-paper-sunk border border-rule-hair overflow-hidden">
+      <div
+        className={`absolute inset-y-0 left-0 bar-grow ${accent ? 'bg-accent' : 'bg-ink'}`}
+        style={{ width: `${pct}%` }}
+      />
+      {/* Tick marks — dashed, subtle, like figure gridlines */}
+      <div className="absolute inset-y-0 left-[25%] w-px bg-paper opacity-40" />
+      <div className="absolute inset-y-0 left-[50%] w-px bg-paper opacity-60" />
+      <div className="absolute inset-y-0 left-[75%] w-px bg-paper opacity-40" />
     </div>
   );
 }
 
 function modelDisplay(model: string): { label: string; kind: string } {
-  if (model === 'human:public') return { label: 'Human contributors', kind: 'the humans' };
+  if (model === 'human:public') return { label: 'Human (contributors)', kind: 'crowd-sourced, mean' };
   if (model === 'claude-opus-4-7') return { label: 'Claude Opus 4.7', kind: 'Anthropic · frontier' };
-  if (model === 'claude-sonnet-4-6') return { label: 'Claude Sonnet 4.6', kind: 'Anthropic · mid' };
+  if (model === 'claude-sonnet-4-6') return { label: 'Claude Sonnet 4.6', kind: 'Anthropic · mid-tier' };
   if (model === 'claude-haiku-4-5') return { label: 'Claude Haiku 4.5', kind: 'Anthropic · small' };
-  if (model === 'claude-opus-blunt') return { label: 'Claude Opus 4.7', kind: 'system-prompted · blunt' };
+  if (model === 'claude-opus-blunt') return { label: 'Claude Opus 4.7', kind: 'system-prompted, blunt register' };
   if (model === 'gpt-4o') return { label: 'GPT-4o', kind: 'OpenAI · frontier' };
   if (model === 'gpt-4o-mini') return { label: 'GPT-4o mini', kind: 'OpenAI · small' };
   return { label: model, kind: '' };
@@ -40,7 +32,6 @@ function modelDisplay(model: string): { label: string; kind: string } {
 
 async function loadLeaderboard() {
   const db = supabaseService();
-
   const { data: rows } = await db
     .from('judgments')
     .select(`overall_score, responses!inner(model)`);
@@ -56,6 +47,7 @@ async function loadLeaderboard() {
   const byModel = [...buckets.entries()].map(([model, scores]) => ({
     model,
     mean: scores.reduce((a, b) => a + b, 0) / scores.length,
+    std: stddev(scores),
     n: scores.length,
   }));
 
@@ -66,30 +58,42 @@ async function loadLeaderboard() {
   const datasetMean = datasetScores.length
     ? datasetScores.reduce((a, b) => a + b, 0) / datasetScores.length
     : null;
+  const datasetStd = datasetScores.length ? stddev(datasetScores) : 0;
 
-  return { byModel, datasetMean, datasetN: datasetScores.length };
+  return { byModel, datasetMean, datasetStd, datasetN: datasetScores.length };
+}
+
+function stddev(xs: number[]): number {
+  if (xs.length < 2) return 0;
+  const mean = xs.reduce((a, b) => a + b, 0) / xs.length;
+  const v = xs.reduce((a, b) => a + (b - mean) ** 2, 0) / (xs.length - 1);
+  return Math.sqrt(v);
 }
 
 export default async function LeaderboardPage() {
-  const { byModel, datasetMean, datasetN } = await loadLeaderboard();
+  const { byModel, datasetMean, datasetStd, datasetN } = await loadLeaderboard();
 
   const ranked = [
     ...byModel.map(b => ({
       key: b.model,
       ...modelDisplay(b.model),
       score: b.mean,
+      std: b.std,
       n: b.n,
       isHuman: b.model === 'human:public',
+      isLift: false,
     })),
     ...(datasetMean !== null
       ? [
           {
             key: 'haiku-dataset',
-            label: 'Claude Haiku 4.5 + dataset',
-            kind: 'small model · in-context learning',
+            label: 'Claude Haiku 4.5 + corpus',
+            kind: 'small model · in-context learning with corpus',
             score: datasetMean,
+            std: datasetStd,
             n: datasetN,
             isHuman: false,
+            isLift: true,
           },
         ]
       : []),
@@ -99,118 +103,131 @@ export default async function LeaderboardPage() {
   const worst = ranked[ranked.length - 1];
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-[68rem] mx-auto px-8 md:px-16 pt-16 pb-24">
-        <header className="flex items-baseline justify-between pb-6 mb-16 hairline reveal-in">
-          <Link href="/" className="eyebrow hover:text-ink transition">← The Soul Problem</Link>
-          <div className="eyebrow">Standings · vol. I</div>
+    <main className="min-h-screen page-fade">
+      <div className="max-w-[64rem] mx-auto px-8 md:px-16 pt-14 pb-24">
+        <header className="flex items-baseline justify-between pb-5 mb-16 border-b border-rule">
+          <Link href="/" className="label hover:text-ink transition">← The Soul Problem</Link>
+          <div className="label">§ 3. Results</div>
         </header>
 
-        <section className="mb-16 reveal-up">
-          <p className="eyebrow mb-4">Standings</p>
+        <section className="max-w-[44rem] mb-14">
+          <p className="section-number mb-2">§ 3.1</p>
           <h1
-            className="font-display text-ink-deep text-[3.5rem] md:text-[5rem] leading-[0.95] font-light"
-            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 320' }}
+            className="font-display text-ink-deep text-[2.6rem] md:text-[3.2rem] leading-[1.02] mb-6"
+            style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 420' }}
           >
-            Who writes grief well,<br />
-            <em className="italic text-accent-deep" style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 360' }}>
-              and who only thinks they do.
-            </em>
+            Mean Overall Item Score across the corpus,{' '}
+            <em className="italic">by model.</em>
           </h1>
-          <p className="text-[1.05rem] leading-[1.7] text-ink-soft mt-6 max-w-[44rem]">
-            Every model in the corpus, judged on the same rubric, on the same scenarios. Humans and
-            LLMs on the same scale. The score is 0–100, averaged across all scenarios and both
-            judges (Claude Sonnet 4.6 and Claude Haiku 4.5).
+          <p className="text-ink-soft text-[0.98rem] leading-[1.7]">
+            Every response in the corpus is judged 0–100 by Claude Sonnet 4.6 and Claude Haiku 4.5
+            against the scenario&apos;s own rubric. Values below are means across all (response, judge)
+            pairs for each model. Standard deviation reported for n≥2. Humans and LLMs are on the
+            same scale.
           </p>
         </section>
 
         {ranked.length === 0 ? (
-          <section className="py-16 text-center">
-            <p className="text-ink-faint italic font-display">No judgments yet.</p>
-          </section>
+          <p className="text-ink-faint italic font-display">No judgments yet.</p>
         ) : (
-          <section className="space-y-0 mb-20 reveal-up" style={{ animationDelay: '0.2s' }}>
-            <div className="grid grid-cols-[32px_1fr_420px] gap-6 pb-4 border-b border-rule items-end">
-              <div className="eyebrow">Rk</div>
-              <div className="eyebrow">Model</div>
-              <div className="eyebrow">Score · n</div>
-            </div>
-            {ranked.map((r, idx) => (
-              <div
-                key={r.key}
-                className={`grid grid-cols-[32px_1fr_420px] gap-6 items-center py-5 border-b border-rule-soft reveal-up ${
-                  r.isHuman ? 'bg-accent-wash -mx-4 px-4' : ''
-                }`}
-                style={{ animationDelay: `${0.3 + idx * 0.06}s` }}
-              >
-                <div className="font-mono text-sm tabular-nums text-ink-whisper">
-                  {String(idx + 1).padStart(2, '0')}
-                </div>
-                <div>
-                  <div
-                    className="font-display text-[1.35rem] leading-tight text-ink-deep"
-                    style={{ fontVariationSettings: '"SOFT" 70, "opsz" 48, "wght" 480' }}
-                  >
-                    {r.label}
-                  </div>
-                  <div className="eyebrow mt-1 opacity-80">{r.kind}</div>
-                </div>
-                <Bar score={r.score} n={r.n} you={r.isHuman} />
+          <section className="mb-12">
+            <div className="border-y border-rule">
+              <div className="grid grid-cols-[44px_1fr_380px_68px_68px] gap-4 py-3 border-b border-rule-soft items-end">
+                <div className="label">#</div>
+                <div className="label">Model</div>
+                <div className="label">Score distribution</div>
+                <div className="label text-right">Mean</div>
+                <div className="label text-right">n</div>
               </div>
-            ))}
+              {ranked.map((r, idx) => (
+                <div
+                  key={r.key}
+                  className={`grid grid-cols-[44px_1fr_380px_68px_68px] gap-4 py-4 items-center border-b border-rule-hair ${r.isHuman ? 'bg-accent-wash -mx-4 px-4' : ''}`}
+                >
+                  <div className="font-mono text-xs tabular-nums text-ink-whisper">
+                    {String(idx + 1).padStart(2, '0')}
+                  </div>
+                  <div>
+                    <div
+                      className="font-display text-[1.1rem] leading-tight text-ink-deep"
+                      style={{ fontVariationSettings: '"SOFT" 0, "opsz" 24, "wght" 520' }}
+                    >
+                      {r.label}
+                      {r.isLift && <sup className="ml-1 text-accent text-[0.6em] font-mono">*</sup>}
+                    </div>
+                    <div className="label mt-1 opacity-90">{r.kind}</div>
+                  </div>
+                  <Bar score={r.score} accent={r.isHuman || r.isLift} />
+                  <div className="font-mono text-sm tabular-nums text-ink-deep text-right" style={{ fontWeight: 500 }}>
+                    {r.score.toFixed(1)}
+                    {r.std > 0 && (
+                      <span className="text-ink-whisper text-xs block">± {r.std.toFixed(1)}</span>
+                    )}
+                  </div>
+                  <div className="font-mono text-sm tabular-nums text-ink-faint text-right">
+                    {r.n}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="caption mt-3">
+              Table 1. Mean Overall Item Score (0–100) by model. n is the number of (response × judge) pairs averaged. <sup className="text-accent">*</sup> In-context learning result, see §4.
+            </p>
           </section>
         )}
 
         {best && worst && ranked.length > 1 && (
-          <section className="grid md:grid-cols-3 gap-0 border-y border-rule mb-20 reveal-up" style={{ animationDelay: '0.8s' }}>
-            <FactBox
-              label="Leader"
-              value={best.score.toFixed(1)}
-              caption={best.label}
-            />
-            <FactBox
+          <section className="mb-16 grid grid-cols-3 border-y border-rule">
+            <Summary label="Maximum" value={best.score.toFixed(1)} sub={best.label} />
+            <Summary
               label="Range"
               value={(best.score - worst.score).toFixed(1)}
-              caption={`from ${worst.score.toFixed(1)} to ${best.score.toFixed(1)}`}
+              sub={`${worst.score.toFixed(1)} — ${best.score.toFixed(1)}`}
               middle
             />
-            <FactBox
-              label="Cellar"
-              value={worst.score.toFixed(1)}
-              caption={worst.label}
-            />
+            <Summary label="Minimum" value={worst.score.toFixed(1)} sub={worst.label} />
           </section>
         )}
 
-        <section className="grid md:grid-cols-12 gap-10 mb-16">
-          <div className="md:col-span-4">
-            <p className="eyebrow mb-3">How to read this</p>
+        <section className="grid md:grid-cols-[1fr_2fr] gap-12 mb-16">
+          <div>
+            <p className="section-number mb-2">§ 3.2</p>
+            <h2
+              className="font-display text-ink-deep text-[1.5rem] leading-[1.15]"
+              style={{ fontVariationSettings: '"SOFT" 0, "opsz" 48, "wght" 500' }}
+            >
+              Interpretation
+            </h2>
           </div>
-          <div className="md:col-span-8 space-y-3 text-ink-soft leading-[1.7]">
+          <div className="space-y-3 text-ink-soft leading-[1.7] text-[0.95rem]">
             <p>
-              Each bar shows a model&apos;s mean Overall Item Score across every judgment
-              it received. <strong className="text-ink-deep">Human contributors</strong>{' '}
-              (highlighted in oxblood) is every public submission averaged together.
-              <strong className="text-ink-deep"> Claude Haiku 4.5 + dataset</strong> is the
-              in-context-learning experiment — Haiku given contributed human responses as
-              examples before answering.
+              Frontier Claude models (Opus 4.7, Sonnet 4.6) cluster near the top of the scale despite
+              the rubric&apos;s strict penalties for platitudes. GPT-4o and GPT-4o mini sit lower,
+              reflecting their softer default register. The{' '}
+              <strong className="text-ink-deep">Human (contributors)</strong> row highlighted in navy
+              is the mean of every public submission and is directly comparable to any LLM row.
             </p>
-            <p className="text-ink-faint text-sm">
-              <code className="font-mono text-xs">n</code> is the number of
-              (response × judge) or (snapshot) rows averaged. Small n means noisy numbers.
+            <p>
+              The bottom row — <strong className="text-ink-deep">Claude Haiku 4.5 + corpus</strong> —
+              is the in-context-learning experiment: Haiku given the full public corpus of human
+              responses as exemplars before answering. The delta between it and the plain{' '}
+              <em>Claude Haiku 4.5</em> row is the corpus&apos;s measurable teaching effect.
+            </p>
+            <p className="text-ink-faint text-[0.88rem]">
+              Small n. Numbers will tighten as the corpus grows.
             </p>
           </div>
         </section>
 
-        <footer className="pt-8 flex flex-wrap gap-3 border-t border-rule">
-          <Link href="/try" className="px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display text-base" style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}>
-            Write a response
+        <footer className="pt-8 border-t border-rule flex flex-wrap gap-3">
+          <Link href="/try" className="px-5 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 450' }}>
+            § 1. Contribute
           </Link>
-          <Link href="/dataset" className="px-6 py-3 border border-rule hover:border-ink text-ink transition font-display text-base" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>
-            Browse the archive
+          <Link href="/dataset" className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
+            Appendix A. Corpus
           </Link>
-          <Link href="/dataset/export" className="px-6 py-3 border border-rule hover:border-ink text-ink transition font-display text-base" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>
-            Download the dataset
+          <Link href="/dataset/export" className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
+            Download data
           </Link>
         </footer>
       </div>
@@ -218,17 +235,17 @@ export default async function LeaderboardPage() {
   );
 }
 
-function FactBox({ label, value, caption, middle }: { label: string; value: string; caption: string; middle?: boolean }) {
+function Summary({ label, value, sub, middle }: { label: string; value: string; sub: string; middle?: boolean }) {
   return (
-    <div className={`px-6 py-8 ${middle ? 'border-x border-rule' : ''}`}>
-      <div className="eyebrow mb-4">{label}</div>
+    <div className={`px-5 py-7 ${middle ? 'border-x border-rule-soft' : ''}`}>
+      <div className="label mb-3">{label}</div>
       <div
-        className="font-display text-ink-deep text-[3rem] leading-none tabular-nums"
-        style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 300' }}
+        className="font-display text-ink-deep text-[2.6rem] leading-none tabular-nums"
+        style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 360' }}
       >
         {value}
       </div>
-      <p className="text-ink-faint text-sm mt-4">{caption}</p>
+      <p className="caption mt-3 not-italic" style={{ fontStyle: 'normal' }}>{sub}</p>
     </div>
   );
 }

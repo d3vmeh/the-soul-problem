@@ -20,7 +20,6 @@ type SbResponse = {
   text: string;
   judgments: { overall_score: number; judge_model: string }[];
 };
-
 type SbScenario = {
   id: number;
   prompt: string;
@@ -32,25 +31,15 @@ export default async function DatasetPage() {
   const db = supabaseService();
   const { data: scenarios, error } = await db
     .from('scenarios')
-    .select(`
-      id,
-      prompt,
-      metadata,
-      responses(
-        id,
-        model,
-        text,
-        judgments(overall_score, judge_model)
-      )
-    `)
+    .select(`id, prompt, metadata, responses(id, model, text, judgments(overall_score, judge_model))`)
     .order('id');
 
   if (error) {
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen page-fade">
         <div className="max-w-[56rem] mx-auto px-8 md:px-16 pt-16">
-          <p className="eyebrow text-accent-deep">Archive unavailable</p>
-          <p className="text-ink-soft mt-2">{error.message}</p>
+          <p className="label text-accent-deep">Corpus unavailable</p>
+          <p className="text-ink-soft mt-2 text-[0.95rem]">{error.message}</p>
         </div>
       </main>
     );
@@ -76,29 +65,29 @@ export default async function DatasetPage() {
   );
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-[64rem] mx-auto px-8 md:px-16 pt-16 pb-24">
-        <header className="flex items-baseline justify-between pb-6 mb-16 hairline reveal-in">
-          <Link href="/" className="eyebrow hover:text-ink transition">← The Soul Problem</Link>
-          <div className="eyebrow">The archive</div>
+    <main className="min-h-screen page-fade">
+      <div className="max-w-[62rem] mx-auto px-8 md:px-16 pt-14 pb-24">
+        <header className="flex items-baseline justify-between pb-5 mb-14 border-b border-rule">
+          <Link href="/" className="label hover:text-ink transition">← The Soul Problem</Link>
+          <div className="label">Appendix A · Corpus</div>
         </header>
 
-        <section className="mb-16 reveal-up">
-          <p className="eyebrow mb-3">The archive</p>
+        <section className="max-w-[44rem] mb-14">
+          <p className="section-number mb-2">Appendix A.</p>
           <h1
-            className="font-display text-ink-deep text-[3.5rem] md:text-[4.5rem] leading-[0.95] mb-6"
-            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 320' }}
+            className="font-display text-ink-deep text-[2.6rem] md:text-[3rem] leading-[1.05] mb-5"
+            style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 420' }}
           >
-            Every response,<br />
-            <em className="italic text-accent-deep">scored the same way.</em>
+            The corpus in full.
           </h1>
-          <p className="text-[1.05rem] leading-[1.7] text-ink-soft max-w-[42rem]">
-            Contributed human responses alongside every LLM baseline. Grouped by scenario. Sorted by
-            score within each. Anonymous.
+          <p className="text-ink-soft text-[0.98rem] leading-[1.7]">
+            Every public contribution and every LLM baseline response, grouped by scenario, sorted
+            by score within each. Human responses are highlighted in navy. All anonymous; no
+            attribution beyond model identity.
           </p>
         </section>
 
-        <section className="grid grid-cols-3 border-y border-rule mb-16 reveal-up" style={{ animationDelay: '0.15s' }}>
+        <section className="grid grid-cols-3 border-y border-rule mb-14">
           <Stat label="Scenarios" value={visible.length} />
           <Stat label="Human contributions" value={totals.humans} middle />
           <Stat label="LLM baselines" value={totals.llms} />
@@ -114,25 +103,26 @@ export default async function DatasetPage() {
           return (
             <article
               key={scenario.id}
-              className="mb-20 pb-2 border-t border-rule pt-10 reveal-up"
-              style={{ animationDelay: `${0.25 + si * 0.05}s` }}
+              className="mb-16 border-t border-rule pt-8"
             >
-              <p className="eyebrow mb-3">Scenario · {String(scenario.id).padStart(3, '0')}</p>
+              <p className="section-number mb-2">§ A.{si + 1} · Scenario {String(scenario.id).padStart(3, '0')}</p>
               <div className="flex flex-wrap gap-2 mb-5">
-                {md.subcategory && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
-                {md.medium && <span className="eyebrow px-2 py-0.5 bg-paper-warm border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
+                {md.subcategory && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.subcategory).replace(/_/g, ' ')}</span>}
+                {md.medium && <span className="label px-2 py-0.5 border border-rule-soft">{String(md.medium).replace(/_/g, ' ')}</span>}
               </div>
-              <details className="mb-8 group">
-                <summary className="cursor-pointer text-sm text-ink-faint italic font-display hover:text-ink transition list-none" style={{ fontVariationSettings: '"SOFT" 100, "wght" 380' }}>
-                  <span className="group-open:hidden">▸ Show prompt</span>
-                  <span className="hidden group-open:inline">▾ Hide prompt</span>
+              <details className="mb-6 group">
+                <summary className="cursor-pointer text-[0.88rem] text-ink-faint italic font-display hover:text-ink transition list-none" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
+                  <span className="group-open:hidden">▸ Show prompt text</span>
+                  <span className="hidden group-open:inline">▾ Hide prompt text</span>
                 </summary>
-                <pre className="mt-4 whitespace-pre-wrap font-display text-[1rem] leading-[1.7] text-ink-soft bg-paper-raised border-l-2 border-accent pl-5 py-3" style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}>
-                  {scenario.prompt}
-                </pre>
+                <div className="mt-3 border-l-2 border-rule pl-4 py-1">
+                  <pre className="whitespace-pre-wrap font-display text-[0.95rem] leading-[1.7] text-ink-soft italic" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
+                    {scenario.prompt}
+                  </pre>
+                </div>
               </details>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {sorted.length === 0 && (
                   <p className="text-sm text-ink-whisper italic font-display">No responses yet.</p>
                 )}
@@ -140,20 +130,20 @@ export default async function DatasetPage() {
                   const score = r.judgments[0]?.overall_score ?? null;
                   const isHuman = r.model === 'human:public';
                   return (
-                    <div key={r.id} className={`border p-5 ${isHuman ? 'border-accent bg-accent-wash' : 'border-rule-soft bg-paper-raised'}`}>
-                      <header className="flex items-center gap-3 mb-3">
-                        <span className={`eyebrow ${isHuman ? 'text-accent-deep' : 'text-ink-faint'}`}>
+                    <div key={r.id} className={`border px-5 py-4 ${isHuman ? 'border-accent bg-accent-wash' : 'border-rule-soft bg-paper-raised'}`}>
+                      <header className="flex items-center gap-3 mb-3 pb-3 border-b border-rule-hair">
+                        <span className={`label ${isHuman ? 'text-accent' : 'text-ink-faint'}`}>
                           {modelLabel(r.model)}
                         </span>
                         {score !== null ? (
-                          <span className="font-mono text-sm tabular-nums text-ink-deep" style={{ fontWeight: 500 }}>
+                          <span className="font-mono text-xs tabular-nums text-ink-deep" style={{ fontWeight: 500 }}>
                             {score.toFixed(1)} / 100
                           </span>
                         ) : (
-                          <span className="eyebrow text-ink-whisper">no judgment</span>
+                          <span className="label text-ink-whisper">no judgment</span>
                         )}
                       </header>
-                      <pre className="whitespace-pre-wrap font-display text-[0.97rem] leading-[1.65] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}>
+                      <pre className="whitespace-pre-wrap font-display text-[0.94rem] leading-[1.65] text-ink-deep" style={{ fontVariationSettings: '"SOFT" 0, "opsz" 16, "wght" 400' }}>
                         {r.text}
                       </pre>
                     </div>
@@ -164,14 +154,14 @@ export default async function DatasetPage() {
           );
         })}
 
-        <footer className="pt-10 mt-12 border-t border-rule flex flex-wrap gap-3">
-          <Link href="/try" className="px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}>
-            Write a response
+        <footer className="pt-10 mt-6 border-t border-rule flex flex-wrap gap-3">
+          <Link href="/try" className="px-5 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 450' }}>
+            Contribute
           </Link>
-          <Link href="/leaderboard" className="px-6 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>
-            Leaderboard
+          <Link href="/leaderboard" className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
+            Results
           </Link>
-          <Link href="/dataset/export" className="px-6 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 80, "wght" 400' }}>
+          <Link href="/dataset/export" className="px-5 py-3 border border-rule hover:border-ink text-ink transition font-display" style={{ fontVariationSettings: '"SOFT" 0, "wght" 400' }}>
             Download
           </Link>
         </footer>
@@ -182,11 +172,11 @@ export default async function DatasetPage() {
 
 function Stat({ label, value, middle }: { label: string; value: number | string; middle?: boolean }) {
   return (
-    <div className={`px-6 py-8 ${middle ? 'border-x border-rule' : ''}`}>
-      <div className="eyebrow mb-4">{label}</div>
+    <div className={`px-5 py-7 ${middle ? 'border-x border-rule-soft' : ''}`}>
+      <div className="label mb-3">{label}</div>
       <div
-        className="font-display text-ink-deep text-[3rem] leading-none tabular-nums"
-        style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144, "wght" 280' }}
+        className="font-display text-ink-deep text-[2.6rem] leading-none tabular-nums"
+        style={{ fontVariationSettings: '"SOFT" 0, "opsz" 144, "wght" 360' }}
       >
         {value}
       </div>

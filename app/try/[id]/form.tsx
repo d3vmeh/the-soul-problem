@@ -29,9 +29,9 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
   return (
     <form onSubmit={submit} className="space-y-6">
       <div className="space-y-3">
-        <p className="eyebrow">Your response</p>
-        <p className="text-ink-soft text-[0.95rem] leading-[1.65]">
-          Write what you would actually say. Short is fine. Judged on the scenario&apos;s own rubric.
+        <p className="section-number">§ Your response</p>
+        <p className="text-ink-soft text-[0.92rem] leading-[1.65]">
+          Write what you would actually say. Short is fine. Judged on this scenario&apos;s own rubric.
         </p>
         <textarea
           required
@@ -40,9 +40,9 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
           rows={14}
           value={text}
           onChange={e => setText(e.target.value)}
-          className="w-full bg-paper-raised border border-rule p-5 font-display text-[1.05rem] leading-[1.65] text-ink-deep focus:outline-none focus:border-accent transition placeholder:text-ink-whisper resize-vertical"
-          style={{ fontVariationSettings: '"SOFT" 100, "wght" 400' }}
-          placeholder="Begin here…"
+          className="w-full bg-paper-raised border border-rule p-5 font-display text-[1rem] leading-[1.7] text-ink-deep focus:outline-none focus:border-accent transition placeholder:text-ink-whisper resize-vertical"
+          style={{ fontVariationSettings: '"SOFT" 0, "opsz" 16, "wght" 400' }}
+          placeholder="Begin here."
         />
         <div className="flex justify-end">
           <span className="font-mono text-xs text-ink-whisper tabular-nums">
@@ -51,7 +51,7 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
         </div>
       </div>
 
-      <label className="flex items-start gap-3 text-[0.95rem] text-ink-soft leading-[1.65] p-4 border border-rule-soft bg-paper-raised cursor-pointer hover:border-rule transition">
+      <label className="flex items-start gap-3 text-[0.9rem] text-ink-soft leading-[1.65] p-4 border border-rule-soft bg-paper-raised cursor-pointer hover:border-rule transition">
         <input
           type="checkbox"
           checked={contribute}
@@ -59,9 +59,9 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
           className="mt-1 accent-accent"
         />
         <span>
-          <strong className="text-ink-deep">Contribute to the public archive.</strong>{' '}
+          <strong className="text-ink-deep">Contribute to the public corpus.</strong>{' '}
           Anonymous — no identifying data is collected. Your response may appear in research
-          exports. Leave unchecked and it stays private.
+          exports. Leave unchecked and it remains private.
         </span>
       </label>
 
@@ -74,11 +74,11 @@ export default function TryForm({ scenarioId }: { scenarioId: number }) {
       <button
         type="submit"
         disabled={busy || text.trim().length === 0}
-        className="inline-flex items-center gap-3 px-7 py-4 bg-ink text-paper-raised hover:bg-accent-deep transition disabled:opacity-40 font-display"
-        style={{ fontVariationSettings: '"SOFT" 60, "wght" 450' }}
+        className="inline-flex items-center gap-3 px-6 py-3 bg-ink text-paper-raised hover:bg-accent-deep transition disabled:opacity-40 font-display"
+        style={{ fontVariationSettings: '"SOFT" 0, "wght" 450' }}
       >
-        <span className="eyebrow text-paper-raised opacity-80">→</span>
-        <span className="text-lg">{busy ? 'Scoring (up to 30 s)…' : 'Submit for judgment'}</span>
+        <span className="label text-paper-raised opacity-70">→</span>
+        <span>{busy ? 'Scoring (up to 30 s)…' : 'Submit for judgment'}</span>
       </button>
     </form>
   );
