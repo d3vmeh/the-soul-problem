@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent writing. You will score an LLM or human response to a grief and loss scenario against a scenario-specific rubric. Be STRICT. Prioritize specificity over polish. Prioritize restraint over fluency.
+const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent writing. You will score a response to a grief and loss scenario against a scenario-specific rubric. Be STRICT. Prioritize specificity over polish. Prioritize restraint over fluency.
 
 ## The scenario
 {{SCENARIO_PROMPT}}
@@ -21,68 +21,60 @@ const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent 
 
 **The distribution of scores should be roughly normal around 5-7.**
 
-- A **10** on any positive is RARE. It requires exceptional, unambiguous, specific fulfillment — not just meeting the criterion, but meeting it with craft and resonance. If you're giving 10s casually, stop and re-read.
+- A **10** on any positive is RARE. It requires exceptional, unambiguous, specific fulfillment — not just meeting the criterion, but meeting it with craft and resonance.
 - A **1** on any negative is also RARE. It requires total, unambiguous absence with no faint trace of the failure mode.
 - Competent, conventional fulfillment of a criterion is a **6 or 7**, not a 9.
 - The LLM-template look — safe, symmetrical, competent — typically scores **5-7 on positives** because it checks boxes without landing.
-- A **perfect response** (all positives at 10, all negatives at 1, yielding ~100/100) is essentially impossible for real writing. If you computed that, you failed to find subtle weaknesses. Find them.
-- **When in doubt, score lower, not higher.** Err on the side of strictness.
+- **When in doubt, score lower, not higher.**
 
 ## Scoring anchors
 
-**Positive criteria:**
-- 10: Exceptional — specific, original, resonant. One detail that could only belong to this response. Almost never awarded.
-- 8-9: Strong — clear, concrete fulfillment with specific evidence in the text.
-- 6-7: Adequate — meets the criterion in a conventional, template-friendly way.
-- 4-5: Partial — gestures at the criterion but doesn't fully land.
-- 1-3: Largely absent; generic or missing.
+**Positive criteria:** 10=exceptional (rare); 8-9=strong with specific evidence; 6-7=adequate/template; 4-5=partial; 1-3=largely absent.
 
-**Negative criteria:**
-- 10: Severe — fully exhibits the failure mode, central to the response.
-- 7-9: Significant — clear presence, multiple instances or central tone.
-- 4-6: Partial — some traces; softer form of the failure.
-- 2-3: Minor — a faint echo, a single line that glances at the failure.
-- 1: Truly absent. No trace at all, not even a hedged phrase.
+**Negative criteria:** 10=severe/central; 7-9=significant; 4-6=partial traces; 2-3=faint echo; 1=truly absent.
 
 ## Scoring rules
-1. Identify 2-3 dominant criteria from the weights hint. Score these FIRST.
-2. For EVERY criterion, cite ONE specific phrase or absence from the response that drove the score. If you cannot, score more conservatively (closer to the middle).
-3. Assign a 1-10 integer to every positive and every negative criterion.
-4. Dominant criteria count with 2x weight in the aggregation.
-5. Do NOT score length compliance.
-6. Do NOT invent criteria. Do NOT skip criteria. Use the bullets as given.
-7. Base every score on the response itself. No guessing intent. No credit for what the writer "might have meant".
 
-## Output format (exact — no preamble, no trailing commentary)
+1. Identify 2-3 dominant criteria from the weights hint — use short labels (first clause of the criterion).
+2. Score EVERY positive and EVERY negative criterion as an integer 1-10. Do not skip any. Use the short label (first clause) as the key.
+3. For every score, base your judgment on specific evidence in the response.
+4. Do NOT score length compliance.
+5. No credit for what the writer "might have meant".
 
-## Dominant criteria (2x weight)
-- <short label derived from first clause of criterion>
-- <short label>
-(- optional third)
-
-## Positive scores
-<short label>: <1-10>
-<short label>: <1-10>
-...
-
-## Negative scores
-<short label>: <1-10>
-<short label>: <1-10>
-...
-
-## Aggregation
-Positive raw: <int>
-Positive max: <int>
-Negative raw: <int>
-Negative max: <int>
-Positive normalized: <float, 2 decimals>
-Negative normalized: <float, 2 decimals>
-
-Overall Item Score: <float, 2 decimals> / 100
-
-## Rationale
-<one sentence — the single strongest reason this response landed where it did. Name the criterion and quote or paraphrase one specific phrase from the response.>
+Submit your evaluation via the submit_rubric_evaluation tool. The overall score is computed deterministically from your per-criterion scores — do not compute it yourself.
 `;
+
+const JUDGE_TOOL = {
+  name: 'submit_rubric_evaluation',
+  description: 'Submit the per-criterion rubric evaluation for the response under review.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      dominant_criteria: {
+        type: 'array',
+        items: { type: 'string' },
+        minItems: 2,
+        maxItems: 3,
+        description: 'Short labels (first clause) of the 2-3 criteria identified from the weights hint as dominant. These count 2x in aggregation.',
+      },
+      positive_scores: {
+        type: 'object',
+        additionalProperties: { type: 'integer', minimum: 1, maximum: 10 },
+        description: 'Map of positive criterion short label → 1-10 score. Every positive criterion must appear.',
+      },
+      negative_scores: {
+        type: 'object',
+        additionalProperties: { type: 'integer', minimum: 1, maximum: 10 },
+        description: 'Map of negative criterion short label → 1-10 score. Every negative criterion must appear.',
+      },
+      rationale: {
+        type: 'string',
+        description: 'One sentence: the single strongest reason this response landed where it did, naming one criterion and quoting or paraphrasing one specific phrase from the response.',
+      },
+    },
+    required: ['dominant_criteria', 'positive_scores', 'negative_scores', 'rationale'],
+  },
+};
 
 export type ScenarioForJudge = {
   prompt: string;
@@ -213,6 +205,13 @@ export function parseJudgment(raw: string): JudgeResult {
   return { dominant_criteria, positive_scores, negative_scores, aggregation, overall_score, rationale, raw_output: raw };
 }
 
+type JudgeToolInput = {
+  dominant_criteria: string[];
+  positive_scores: Record<string, number>;
+  negative_scores: Record<string, number>;
+  rationale: string;
+};
+
 export async function judgeResponse(
   scenario: ScenarioForJudge,
   responseText: string,
@@ -222,10 +221,34 @@ export async function judgeResponse(
   const prompt = buildPrompt(scenario, responseText);
   const res = await anthropic.messages.create({
     model: judgeModel,
-    max_tokens: 2000,
+    max_tokens: 4096,
+    tools: [JUDGE_TOOL],
+    tool_choice: { type: 'tool', name: 'submit_rubric_evaluation' },
     messages: [{ role: 'user', content: prompt }],
   });
-  const block = res.content[0];
-  const raw = block.type === 'text' ? block.text : '';
-  return parseJudgment(raw);
+
+  const toolUse = res.content.find(b => b.type === 'tool_use');
+  if (!toolUse || toolUse.type !== 'tool_use' || toolUse.name !== 'submit_rubric_evaluation') {
+    throw new Error('judge did not call the expected tool');
+  }
+  const input = toolUse.input as JudgeToolInput;
+
+  const agg = computeAggregation(input.positive_scores, input.negative_scores, input.dominant_criteria);
+
+  return {
+    dominant_criteria: input.dominant_criteria,
+    positive_scores: input.positive_scores,
+    negative_scores: input.negative_scores,
+    aggregation: {
+      positive_raw: agg.positive_raw,
+      positive_max: agg.positive_max,
+      negative_raw: agg.negative_raw,
+      negative_max: agg.negative_max,
+      positive_normalized: agg.positive_normalized,
+      negative_normalized: agg.negative_normalized,
+    },
+    overall_score: agg.overall,
+    rationale: input.rationale,
+    raw_output: JSON.stringify(input, null, 2),
+  };
 }

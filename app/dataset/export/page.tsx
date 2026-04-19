@@ -119,16 +119,32 @@ export default async function ExportPage() {
 
         <section className="grid md:grid-cols-3 gap-4">
           <DownloadCard
-            title="SFT"
-            format="supervised fine-tuning"
+            title="SFT (chat)"
+            format="OpenAI / HF chat format"
             description={`Chat-format JSONL. Each line is { messages: [{role:"user",...}, {role:"assistant",...}] } using public human responses that scored ≥ ${SFT_SCORE_THRESHOLD}/100. Compatible with OpenAI, Anthropic, HuggingFace SFTTrainer, TRL.`}
             count={stats.sftEligible}
             href="/api/export/sft"
             filename="the-soul-problem-sft.jsonl"
           />
           <DownloadCard
+            title="SFT (ShareGPT)"
+            format="Axolotl / LLaMA-Factory"
+            description={`ShareGPT format JSONL. Each line is { conversations: [{from:"human",...}, {from:"gpt",...}] }. Standard for Axolotl and LLaMA-Factory. Same ${SFT_SCORE_THRESHOLD}-threshold filter.`}
+            count={stats.sftEligible}
+            href="/api/export/sharegpt"
+            filename="the-soul-problem-sharegpt.jsonl"
+          />
+          <DownloadCard
+            title="SFT (Alpaca)"
+            format="instruction / input / output"
+            description={`Alpaca format. { instruction, input, output } per line. Used by Stanford Alpaca, many LoRA tutorials, ColossalAI. Same ${SFT_SCORE_THRESHOLD}-threshold filter.`}
+            count={stats.sftEligible}
+            href="/api/export/alpaca"
+            filename="the-soul-problem-alpaca.jsonl"
+          />
+          <DownloadCard
             title="DPO"
-            format="direct preference optimization"
+            format="TRL preference pairs"
             description={`Paired preferences. Each line is { prompt, chosen, rejected } where chosen beats rejected by ≥ ${DPO_MIN_DELTA} points on this scenario. Humans-beat-LLMs pairs are the interesting signal.`}
             count={stats.dpoPairs}
             href="/api/export/dpo"
