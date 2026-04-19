@@ -115,25 +115,35 @@ export async function computeLift(
     userResponseText = r?.text ?? null;
   }
 
-  // Dataset examples: public humans from OTHER scenarios, filtered to quality contributions only
-  // (max judged score >= 70). Each exemplar is tagged with its score so the student model
-  // attends to the high-scoring ones first.
+  // Dataset examples: public humans from OTHER scenarios, filtered by quality (score >= 70).
+  // Prefer same-subcategory exemplars when possible (voicemail → voicemail, etc.) — this is
+  // a lightweight retrieval step that improves the in-context signal.
+  const targetSub = ((scenario.metadata as any)?.subcategory ?? null) as string | null;
   const { data: humans } = await db
     .from('responses')
-    .select('scenario_id, text, scenarios!inner(prompt), judgments(overall_score)')
+    .select('scenario_id, text, scenarios!inner(prompt, metadata), judgments(overall_score)')
     .eq('model', 'human:public')
     .neq('scenario_id', scenarioId);
-  const examples = ((humans ?? []) as any[])
+  const raw = ((humans ?? []) as any[])
     .map(h => {
       const js = (h.judgments ?? []) as { overall_score: number }[];
       const score = js.length ? Math.max(...js.map(j => j.overall_score)) : null;
+      const sub = (h.scenarios?.metadata?.subcategory ?? null) as string | null;
       return {
         scenario_prompt: h.scenarios.prompt,
         text: h.text,
         score,
+        matchesSub: targetSub !== null && sub === targetSub,
       };
     })
     .filter(e => e.score === null || e.score >= 70);
+  // Sort: same-subcategory first, then by score descending. Take up to top-8 to keep prompt tight.
+  const examples = raw
+    .sort((a, b) => {
+      if (a.matchesSub !== b.matchesSub) return a.matchesSub ? -1 : 1;
+      return (b.score ?? 0) - (a.score ?? 0);
+    })
+    .slice(0, 8);
 
   const basePrompt = buildBasePrompt(scenario.prompt);
   const ownPrompt = userResponseText
