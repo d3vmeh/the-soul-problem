@@ -19,9 +19,8 @@ export type LiftResult = {
   judge_model: string;
 };
 
-const anthropic = new Anthropic();
-
 async function student(prompt: string): Promise<string> {
+  const anthropic = new Anthropic();
   const res = await anthropic.messages.create({
     model: STUDENT_MODEL,
     max_tokens: 700,
