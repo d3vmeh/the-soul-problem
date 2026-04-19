@@ -18,7 +18,7 @@ DATASET_PATH = Path("/Users/SPARSH/Downloads/grief_loss_dataset.md")
 INDEX_PATH = Path("/Users/SPARSH/grief-rag/optimal_index.npz")
 OPTIMAL_PATH = Path("/Users/SPARSH/grief-rag/optimal_responses.json")
 RANKINGS_PATH = Path("/Users/SPARSH/grief-rag/rankings.json")
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-opus-4-7"
 
 
 def get_or_build_index():
