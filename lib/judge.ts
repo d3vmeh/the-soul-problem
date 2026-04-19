@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent writing. You will score an LLM's response to a grief and loss scenario against a scenario-specific rubric. Be strict and literal. Specificity matters more than polish.
+const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent writing. You will score an LLM or human response to a grief and loss scenario against a scenario-specific rubric. Be STRICT. Prioritize specificity over polish. Prioritize restraint over fluency.
 
 ## The scenario
 {{SCENARIO_PROMPT}}
@@ -17,13 +17,41 @@ const PROMPT_TEMPLATE = `You are an expert evaluator of emotionally intelligent 
 ## Weights hint for this scenario
 {{WEIGHTS_HINT}}
 
+## Calibration — read this before scoring
+
+**The distribution of scores should be roughly normal around 5-7.**
+
+- A **10** on any positive is RARE. It requires exceptional, unambiguous, specific fulfillment — not just meeting the criterion, but meeting it with craft and resonance. If you're giving 10s casually, stop and re-read.
+- A **1** on any negative is also RARE. It requires total, unambiguous absence with no faint trace of the failure mode.
+- Competent, conventional fulfillment of a criterion is a **6 or 7**, not a 9.
+- The LLM-template look — safe, symmetrical, competent — typically scores **5-7 on positives** because it checks boxes without landing.
+- A **perfect response** (all positives at 10, all negatives at 1, yielding ~100/100) is essentially impossible for real writing. If you computed that, you failed to find subtle weaknesses. Find them.
+- **When in doubt, score lower, not higher.** Err on the side of strictness.
+
+## Scoring anchors
+
+**Positive criteria:**
+- 10: Exceptional — specific, original, resonant. One detail that could only belong to this response. Almost never awarded.
+- 8-9: Strong — clear, concrete fulfillment with specific evidence in the text.
+- 6-7: Adequate — meets the criterion in a conventional, template-friendly way.
+- 4-5: Partial — gestures at the criterion but doesn't fully land.
+- 1-3: Largely absent; generic or missing.
+
+**Negative criteria:**
+- 10: Severe — fully exhibits the failure mode, central to the response.
+- 7-9: Significant — clear presence, multiple instances or central tone.
+- 4-6: Partial — some traces; softer form of the failure.
+- 2-3: Minor — a faint echo, a single line that glances at the failure.
+- 1: Truly absent. No trace at all, not even a hedged phrase.
+
 ## Scoring rules
-1. Identify 2-3 dominant criteria from the weights hint. Score these FIRST, before the rest.
-2. Assign a 1-10 integer to every positive and every negative criterion.
-3. Dominant criteria count with 2x weight in the aggregation.
-4. Do NOT score length compliance.
-5. Do NOT invent criteria. Do NOT skip criteria. Use the bullets as given.
-6. Base every score on the response itself. No guessing intent.
+1. Identify 2-3 dominant criteria from the weights hint. Score these FIRST.
+2. For EVERY criterion, cite ONE specific phrase or absence from the response that drove the score. If you cannot, score more conservatively (closer to the middle).
+3. Assign a 1-10 integer to every positive and every negative criterion.
+4. Dominant criteria count with 2x weight in the aggregation.
+5. Do NOT score length compliance.
+6. Do NOT invent criteria. Do NOT skip criteria. Use the bullets as given.
+7. Base every score on the response itself. No guessing intent. No credit for what the writer "might have meant".
 
 ## Output format (exact — no preamble, no trailing commentary)
 
@@ -53,7 +81,7 @@ Negative normalized: <float, 2 decimals>
 Overall Item Score: <float, 2 decimals> / 100
 
 ## Rationale
-<one sentence — the strongest reason this response landed where it did, referencing one specific criterion by label>
+<one sentence — the single strongest reason this response landed where it did. Name the criterion and quote or paraphrase one specific phrase from the response.>
 `;
 
 export type ScenarioForJudge = {
