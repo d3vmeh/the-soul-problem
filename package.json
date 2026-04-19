@@ -1,0 +1,38 @@
+{
+  "name": "the-soul-problem",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed": "tsx scripts/run-all-seeds.ts",
+    "seed:scenarios": "tsx scripts/seed-scenarios.ts",
+    "seed:screener": "tsx scripts/seed-screener.ts",
+    "seed:responses": "tsx scripts/seed-responses.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "@supabase/supabase-js": "^2.103.3",
+    "dotenv": "^17.4.2",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.39",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.1.4"
+  }
+}
