@@ -65,3 +65,14 @@ create index labels_response_idx on labels(response_id);
 create index responses_scenario_idx on responses(scenario_id);
 create index assignments_expert_idx on assignments(expert_id);
 create index assignments_scenario_idx on assignments(scenario_id);
+
+-- Defense in depth: lock anon/authenticated keys out of every table.
+-- Our app uses service_role exclusively (server-side), which bypasses RLS.
+-- No policies are intentional — with RLS on and no policies, only service_role can read/write.
+alter table experts             enable row level security;
+alter table scenarios           enable row level security;
+alter table responses           enable row level security;
+alter table labels              enable row level security;
+alter table screener_questions  enable row level security;
+alter table screener_answers    enable row level security;
+alter table assignments         enable row level security;
