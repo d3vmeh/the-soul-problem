@@ -73,6 +73,10 @@ async function loadLeaderboard() {
   for (const r of ((rows ?? []) as any[])) {
     const model = r.responses.model;
     if (model.startsWith('human:private')) continue;
+    // Hidden from the leaderboard (still in the corpus, just not displayed).
+    if (model === 'claude-opus-blunt') continue;
+    if (model === 'gpt-4o-mini') continue;
+    if (model === 'gpt-5.4-mini') continue;
     // Haiku, Sonnet, and Opus seeded numbers are replaced below by their lift baselines
     // so the before/after corpus numbers are directly comparable.
     if (model === 'claude-haiku-4-5') continue;
