@@ -11,6 +11,8 @@ function modelLabel(model: string): string {
   if (model === 'claude-opus-blunt') return 'Claude Opus (blunt)';
   if (model === 'gpt-4o') return 'GPT-4o';
   if (model === 'gpt-4o-mini') return 'GPT-4o mini';
+  if (model === 'gpt-5.4') return 'GPT-5.4';
+  if (model === 'gpt-5.4-mini') return 'GPT-5.4 mini';
   return model;
 }
 

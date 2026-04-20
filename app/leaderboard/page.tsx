@@ -49,6 +49,8 @@ function modelDisplay(model: string): { label: string; kind: string } {
   if (model === 'claude-opus-blunt') return { label: 'Claude Opus (blunt)', kind: 'system-prompted' };
   if (model === 'gpt-4o') return { label: 'GPT-4o', kind: 'OpenAI' };
   if (model === 'gpt-4o-mini') return { label: 'GPT-4o mini', kind: 'OpenAI' };
+  if (model === 'gpt-5.4') return { label: 'GPT-5.4', kind: 'OpenAI' };
+  if (model === 'gpt-5.4-mini') return { label: 'GPT-5.4 mini', kind: 'OpenAI' };
   return { label: model, kind: '' };
 }
 
